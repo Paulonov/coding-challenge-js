@@ -1,0 +1,52 @@
+<!--
+martianrobots.html
+
+The home page for the application.
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+
+	<meta charset="UTF-8">
+	<title>Martian Robots</title>
+
+	<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+
+	<link href="styles/martianrobots.css" rel="stylesheet" type="text/css">
+	<link href="http://fonts.googleapis.com/css?family=Oxygen" rel="stylesheet" type="text/css">
+
+	<script src="scripts/planet.js"></script>
+	<script src="scripts/robot.js"></script>
+	<script src="scripts/instructionreader.js"></script>
+	<script src="scripts/graphics.js"></script>
+	<script src="scripts/main.js"></script>
+
+</head>
+
+<body id="container" onload="setUpFileListeners()">
+
+	<div id="header">
+		<p>Martian Robots</p>
+	</div>
+
+	<div id="graphicsContainer">
+		<canvas id="grid" width="1280px" height="650px"></canvas>
+		<canvas id="robots" width="1280px" height="650px"></canvas>
+	</div>
+
+	<div id="sidebar">
+
+		<textarea id="editor" placeholder="Enter your code here!" rows="30" cols="75"></textarea>
+
+		<div id="buttonBox">
+			<input class="buttons" type="file" id="fileInput" name="file"/>
+			<button class="buttons" id="goButton" type="button" onclick="Main()">Go!</button>
+		</div>
+
+	</div>
+
+	<div id="outputBox"></div>
+
+</body>
+</html>

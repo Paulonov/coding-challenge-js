@@ -1,0 +1,113 @@
+body, html {
+	height: 100%;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+#header {
+	width: 100%;
+	background-color: #27CD59;
+	height: 80px;
+	margin-bottom: 20px;
+}
+
+#header p {
+	position: relative;
+	color: white;
+	font-family: 'Oxygen', sans-serif;
+	font-weight: bold;
+	font-size: 150%;
+	margin-left: 50px;
+	margin-top: 0px;
+	top: 25px;
+}
+
+#graphicsContainer {
+	position: relative;
+	background-image: url(../images/mars_surface_scaled.jpg);
+	background-size: 100%;
+	background-repeat: no-repeat 650px;
+	max-width: 1280px;
+	width: 1280px;
+	height: 650px;
+	display: inline-block;
+	margin-top: 20px;
+	margin-left: 50px;
+	margin-bottom: 20px;
+}
+
+canvas {
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+
+#graphicsContainer #grid {
+	z-index: 1;
+	opacity: 0.5;
+}
+
+#graphicsContainer #robots {
+	z-index: 2;
+}
+
+#sidebar {
+	float: right;
+	width: 25%;
+	height: 65%;
+	margin-top: 20px;
+	margin-right: 50px;
+	margin-left: 40px;
+}
+
+#sidebar #editor {
+	position: relative;
+	font-size: 130%;
+	resize: none;
+	overflow: scroll;
+	width: 100%;
+	height: 550px;
+}
+
+#sidebar #buttonBox {
+	width: 100%;
+	height: 35%;
+}
+
+.buttons {
+	position: relative;
+}
+
+#sidebar #fileInput {
+	float: left;
+	width: 100%;
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+#sidebar #goButton {
+	float: left;
+	clear: left;
+	width: 150px;
+	height: 30px;
+}
+
+#outputBox {
+	background-color: white;
+	margin-left: 50px;
+	margin-right: 50px;
+	margin-bottom: 20px;
+	height: 175px;
+	width: 95%;
+	overflow: scroll;
+	font-family: 'Oxygen', sans-serif;
+}
+
+#outputBox p {
+	margin-left: 10px;
+}
+
+#outputBox b {
+	color: black;
+}
