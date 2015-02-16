@@ -3,6 +3,11 @@
  *
  * Create a planet, create a robot and get going!
  */
+var mars;
+var robot;
+var instruction;
+var gridInformation;
+
 function Main() {
 
 	// Clear the output box
@@ -31,7 +36,6 @@ function Main() {
 	}
 
 	var planetBoundaries = reader.getPlanetBoundaries();
-	var mars;
 
 	try {
 		mars = new Planet(parseInt(planetBoundaries[0]), parseInt(planetBoundaries[1]));
@@ -46,8 +50,7 @@ function Main() {
 	Robot.setPlanet(mars);
 
 	// Draw a grid on the canvas using the size of the planet
-	var gridInformation = drawGrid(mars.getXBoundary(), mars.getYBoundary());
-	drawRobot(2, 2, 1, gridInformation);
+	gridInformation = drawGrid(mars.getXBoundary(), mars.getYBoundary());
 
 	while (!reader.empty()) {
 
@@ -55,10 +58,10 @@ function Main() {
 		if (reader.initialiseRobot()) {
 
 		    var robotPosition = reader.getCurrentRobotStartingInformation();
-		    var robot;
 
 		    try {
-		    	robot = new Robot(parseInt(robotPosition[0], 10), parseInt(robotPosition[1], 10), robotPosition[2]);
+		    	robot = new Robot(parseInt(robotPosition[0], 10), parseInt(robotPosition[1], 10), robotPosition[2], gridInformation);
+		    	robot.draw(gridInformation);
 	    	} catch (error) {
 	    		addToOutputBox(error);
 	    		continue;
@@ -69,14 +72,16 @@ function Main() {
 		    * array, parse the character into the robot's representation and then execute the
 		    * instruction. If the robot is lost, a scent is left at its last known grid location.
 		    */
-		    var currentRobotInstructions = reader.getCurrentRobotInstructions();
+		   var currentRobotInstructions = reader.getCurrentRobotInstructions();
 
 		    for (var i = 0; i < currentRobotInstructions.length; i++) {
-		        robot.executeInstruction(currentRobotInstructions[i]);
-		        mars.updateScents(robot);
+		    	instruction = currentRobotInstructions[i];
+		    	robot.executeInstruction(instruction, gridInformation);
+		    	mars.updateScents(robot);
+		    	robot.draw(gridInformation);
 		    }
 
-		    // Add the result of the simulation to the output box
+		    // Add the result of the robot simulation step to the output box
 		    addToOutputBox(robot.getFancyPositionInformation());
 
 		}
@@ -87,6 +92,16 @@ function Main() {
 	outputBox.scrollTop = outputBox.scrollHeight;
 
 }
+
+function update() {
+
+    robot.executeInstruction(instruction, gridInformation);
+    mars.updateScents(robot);
+
+    window.requestAnimationFrame(update);
+
+}
+
 
 /**
  * [setUpFileListeners description]
@@ -114,7 +129,7 @@ function setUpFileListeners() {
 
         reader.onload = function (e) {
 
-        	console.log(file.type);
+        	console.log("Selected file has type: " + file.type);
 
         	// Check the MIME type of the file to see if it's a text file
         	if (file.type.match("text/*")) {

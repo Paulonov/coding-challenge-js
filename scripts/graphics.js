@@ -28,11 +28,11 @@ function drawGrid(planetX, planetY) {
 	var xBoundary = canvas.width - marginValue;
 	var yBoundary = canvas.height - marginValue;
 
-	console.log(xUp);
-	console.log(yUp);
+	console.log("The difference between x grid positions is: " + xUp);
+	console.log("The difference between y grid positions is: " + yUp);
 
-	console.log(xBoundary);
-	console.log(yBoundary);
+	console.log("The x boundary of the grid is " + xBoundary);
+	console.log("The y boundary of the grid is " + yBoundary);
 
 	// We have to start a path to define the shape (a grid) we want to draw using stroke()
 	context.beginPath();
@@ -72,47 +72,6 @@ function drawGrid(planetX, planetY) {
 
 }
 
-function drawRobot(x, y, robotCount, gridInformation) {
-
-	var robot = {
-
-		width: 50,
-		length: 50,
-
-		draw: function(robotX, robotY, robotCount, gridInformation) {
-
-			// We need to convert from the robot's co-ordinates to our canvas' co-ordinates.
-			var x = (gridInformation.xDifference * robotX) + gridInformation.margin;
-			var y = (gridInformation.yDifference * robotY) + gridInformation.margin;
-
-			var canvas = document.getElementById("robots");
-			var context = canvas.getContext("2d");
-
-			context.beginPath();
-
-			// Draw the rectangle centred on the grid point
-			context.rect(x - (this.width/2), y - (this.width/2), this.width, this.length);
-
-			context.closePath();
-
-			context.fillStyle = '#EFEFEF';
-			context.fill();
-
-			context.strokeStyle = '#BFBFBF';
-			context.lineWidth = 5;
-			context.stroke();
-
-			// Draw the robot's number on it
-			context.lineWidth = 1;
-			context.strokeStyle = "#BFBFBF";
-			context.textAlign = 'center';
-		  	context.font = "12px Arial";
-	  		context.strokeText(robotCount, x, y);
-
-		}
-
-	};
-
-	robot.draw(x, y, robotCount, gridInformation);
-
+function toCartesian(coordinate, gridInformation) {
+	return (-coordinate) + (gridInformation.height + gridInformation.margin);
 }

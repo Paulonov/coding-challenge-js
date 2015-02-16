@@ -116,8 +116,6 @@ function parse(instructions) {
 		return !/^$|^\s+$/.test(line);
 	});
 
-	console.log(splitInstructions.toString());
-
 	/*
 	 * Pre-parse setup: Check the first line of the user's input to see if it contains the planet's boundaries. If it
 	 * does, the planet boundaries are saved ready to be pushed on to the stack last. This is how file structure can
@@ -181,7 +179,7 @@ function parse(instructions) {
 
 	instructionStack.push(planetBoundaries);
 
-	console.log(instructionStack.toString());
+	console.log("Instruction stack is: " + instructionStack.toString());
 
 	return instructionStack;
 

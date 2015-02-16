@@ -54,7 +54,7 @@ var Planet = function(planetX, planetY) {
 		 * lost at.
 		 */
 		if (robot.isLost()) {
-			scentMap[robot.getCurrentXPosition()][robot.getCurrentYPosition()] = true;
+			scentMap[robot.getXPosition()][robot.getYPosition()] = true;
 		}
 
 	};

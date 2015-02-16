@@ -14,18 +14,27 @@ var SOUTH = 2;
 var WEST = 3;
 var NUMBER_OF_DIRECTIONS = 4;
 
+// Variables for graphics
+var currentRobot;
+var gridInfo;
+var req;
+
 /**
  * Constructor for making a Robot object.
  * @param {int} initialXPosition [description]
  * @param {int} initialYPosition [description]
  * @param {char} initialHeading   [description]
  */
-var Robot = function(initialXPosition, initialYPosition, initialHeading) {
+var Robot = function(initialXPosition, initialYPosition, initialHeading, gridInformation) {
 
-	var currentXPosition;
-	var currentYPosition;
-	var currentHeading;
+	var id;
+	var xPosition;
+	var yPosition;
+	var heading;
 	var isLost;
+
+	var canvasXPosition;
+	var canvasYPosition;
 
 	if (initialXPosition < 0 || initialYPosition < 0 || initialXPosition > Robot.currentPlanet.getXBoundary() ||
 		initialYPosition > Robot.currentPlanet.getYBoundary()) {
@@ -34,56 +43,116 @@ var Robot = function(initialXPosition, initialYPosition, initialHeading) {
 
 	} else {
 
-		currentXPosition = initialXPosition;
-		currentYPosition = initialYPosition;
+		xPosition = initialXPosition;
+		yPosition = initialYPosition;
+
+		canvasXPosition = (gridInformation.xDifference * xPosition) + gridInformation.margin;
+		canvasYPosition = toCartesian((gridInformation.yDifference * yPosition) + gridInformation.margin, gridInformation);
 
 		if (initialHeading === "N") {
-			currentHeading = NORTH;
+			heading = NORTH;
 		} else if (initialHeading === "E") {
-			currentHeading = EAST;
+			heading = EAST;
 		} else if (initialHeading === "S") {
-			currentHeading = SOUTH;
+			heading = SOUTH;
 		} else if (initialHeading === "W") {
-			currentHeading = WEST;
+			heading = WEST;
 		} else {
 			throw "Robot Creation Error: Invalid current heading";
 		}
 
+		// Robot has been successfully created so increase the count
+		Robot.robotCount++;
+		id = Robot.robotCount;
+
 	}
 
 	isLost = false;
-	Robot.robotCount++;
 
-	this.getCurrentXPosition = function() {
-		return currentXPosition;
+	// Draw a robot on to the canvas
+	this.draw = function(gridInformation) {
+
+		// Robot size definition
+		var width = 50;
+		var length = 50;
+
+		var canvas = document.getElementById("robots");
+		var context = canvas.getContext("2d");
+
+		// CANVAS POSITIONS CURRENTLY UPDATED OUTSIDE OF THIS FUNCTION
+		// We need to convert from the robot's co-ordinates to our canvas' co-ordinates.
+		// canvasXPosition = (gridInformation.xDifference * xPosition) + gridInformation.margin;
+		// canvasYPosition = (gridInformation.yDifference * yPosition) + gridInformation.margin;
+
+		context.beginPath();
+
+		// Draw the rectangle centred on the grid point
+		context.rect(canvasXPosition - (width/2), canvasYPosition - (width/2), width, length);
+
+		context.closePath();
+
+		context.fillStyle = '#EFEFEF';
+		context.fill();
+
+		context.strokeStyle = '#BFBFBF';
+		context.lineWidth = 5;
+		context.stroke();
+
+		// Draw the robot's number on it
+		context.lineWidth = 1;
+		context.strokeStyle = "#BFBFBF";
+		context.textAlign = 'center';
+	  	context.font = "12px Arial";
+  		context.strokeText(id, canvasXPosition, canvasYPosition);
+
 	};
 
-	this.getCurrentYPosition = function() {
-		return currentYPosition;
+	this.getXPosition = function() {
+		return xPosition;
 	};
 
-	this.getCurrentHeading = function() {
-		return currentHeading;
+	this.getYPosition = function() {
+		return yPosition;
+	};
+
+	this.getHeading = function() {
+		return heading;
 	};
 
 	this.isLost = function() {
 		return isLost;
 	};
 
-	this.setCurrentXPosition = function(newXPosition) {
-		currentXPosition = newXPosition;
+	this.getCanvasXPosition = function() {
+		return canvasXPosition;
 	};
 
-	this.setCurrentYPosition = function(newYPosition) {
-		currentYPosition = newYPosition;
+	this.getCanvasYPosition = function() {
+		return canvasYPosition;
 	};
 
-	this.setCurrentHeading = function(newHeading) {
-		currentHeading = newHeading;
+	this.setXPosition = function(newXPosition) {
+		xPosition = newXPosition;
+	};
+
+	this.setYPosition = function(newYPosition) {
+		yPosition = newYPosition;
+	};
+
+	this.setHeading = function(newHeading) {
+		heading = newHeading;
 	};
 
 	this.setIsLost = function(newIsLost) {
 		isLost = newIsLost;
+	};
+
+	this.setCanvasXPosition = function(newCanvasXPosition) {
+		canvasXPosition = newCanvasXPosition;
+	};
+
+	this.setCanvasYPosition = function(newCanvasYPosition) {
+		canvasYPosition = newCanvasYPosition;
 	};
 
 };
@@ -92,12 +161,18 @@ var Robot = function(initialXPosition, initialYPosition, initialHeading) {
 Robot.robotCount = 0;
 Robot.currentPlanet = null;
 
-Robot.prototype.executeInstruction = function(instruction) {
+/**
+ * Execute the instruction given to the robot. Logic is updated along with graphics.
+ * @param  {[type]} instruction [description]
+ * @return {[type]}             [description]
+ */
+Robot.prototype.executeInstruction = function(instruction, gridInformation) {
 
 	// Save values that get accessed a lot early on so that we don't have to keep accessing the getter method
-	var currentHeading = this.getCurrentHeading();
-	var currentXPosition = this.getCurrentXPosition();
-	var currentYPosition = this.getCurrentYPosition();
+	var heading = this.getHeading();
+	var xPosition = this.getXPosition();
+	var yPosition = this.getYPosition();
+
 	var currentPlanetXBoundary = Robot.currentPlanet.getXBoundary();
 	var currentPlanetYBoundary = Robot.currentPlanet.getYBoundary();
 
@@ -107,69 +182,73 @@ Robot.prototype.executeInstruction = function(instruction) {
 
 			// Using mod 4 allows us to add 3 to the heading to get the heading 90 degrees to the left of it
 			case 'L':
-				this.setCurrentHeading((currentHeading + 3) % NUMBER_OF_DIRECTIONS);
+				this.setHeading((heading + 3) % NUMBER_OF_DIRECTIONS);
 				break;
 
 			case 'R':
-				this.setCurrentHeading((currentHeading + 1) % NUMBER_OF_DIRECTIONS);
+				this.setHeading((heading + 1) % NUMBER_OF_DIRECTIONS);
 				break;
 
 			case 'F':
 
-				switch (currentHeading) {
+				switch (heading) {
 
 					case NORTH:
 
-						if ((currentYPosition + 1) > currentPlanetYBoundary &&
-							!Robot.currentPlanet.getSmellFromCoordinates(currentXPosition, currentYPosition)) {
-							this.setIsLost(true);
-						} else if ((currentYPosition + 1) > currentPlanetYBoundary &&
-							Robot.currentPlanet.getSmellFromCoordinates(currentXPosition, currentYPosition)) {
+						if ((yPosition + 1) > currentPlanetYBoundary &&
+							!Robot.currentPlanet.getSmellFromCoordinates(xPosition, yPosition)) {
+								this.setIsLost(true);
+						} else if ((yPosition + 1) > currentPlanetYBoundary &&
+							Robot.currentPlanet.getSmellFromCoordinates(xPosition, yPosition)) {
 							// Do nothing if we're about to leave the grid but we can smell lost robots
 						} else {
-							this.setCurrentYPosition(currentYPosition + 1);
+							this.setYPosition(yPosition + 1);
+							this.setCanvasYPosition(toCartesian((gridInformation.yDifference * (yPosition + 1)) + gridInformation.margin, gridInformation));
 						}
 
 						break;
 
 					case EAST:
 
-						if ((currentXPosition + 1) > currentPlanetXBoundary &&
-							!Robot.currentPlanet.getSmellFromCoordinates(currentXPosition, currentYPosition)) {
-							this.setIsLost(true);
-						} else if ((currentXPosition + 1) > currentPlanetXBoundary &&
-							currentPlanet.getSmellFromCoordinates(currentXPosition, currentYPosition)) {
-							// Do nothing if we're about to leave the grid but we can smell lost robots
+						if ((xPosition + 1) > currentPlanetXBoundary &&
+							!Robot.currentPlanet.getSmellFromCoordinates(xPosition, yPosition)) {
+								this.setIsLost(true);
+						} else if ((xPosition + 1) > currentPlanetXBoundary &&
+							currentPlanet.getSmellFromCoordinates(xPosition, yPosition)) {
+								// Do nothing if we're about to leave the grid but we can smell lost robots
 						} else {
-							this.setCurrentXPosition(currentXPosition + 1);
+							this.setXPosition(xPosition + 1);
+							this.setCanvasXPosition((gridInformation.xDifference * (xPosition + 1)) + gridInformation.margin);
 						}
 
 						break;
 
 					case SOUTH:
 
-						if ((currentYPosition - 1) < 0 &&
-							!Robot.currentPlanet.getSmellFromCoordinates(currentXPosition, currentYPosition)) {
-							this.setIsLost(true);
-						} else if ((currentYPosition - 1) < 0 &&
-							Robot.currentPlanet.getSmellFromCoordinates(currentXPosition, currentYPosition)) {
+						if ((yPosition - 1) < 0 &&
+							!Robot.currentPlanet.getSmellFromCoordinates(xPosition, yPosition)) {
+								this.setIsLost(true);
+						} else if ((yPosition - 1) < 0 &&
+							Robot.currentPlanet.getSmellFromCoordinates(xPosition, yPosition)) {
 							// Do nothing if we're about to leave the grid but we can smell lost robots
 						} else {
-							this.setCurrentYPosition(currentYPosition - 1);
+							this.setYPosition(yPosition - 1);
+							this.setCanvasYPosition(toCartesian((gridInformation.yDifference * (yPosition - 1)) + gridInformation.margin, gridInformation));
 						}
 
 						break;
 
 					case WEST:
 
-						if ((currentXPosition - 1) < 0 &&
-							!this.currentPlanet.getSmellFromCoordinates(currentXPosition, currentYPosition)) {
-							this.setIsLost(true);
-						} else if ((currentXPosition - 1) < 0 &&
-							Robot.currentPlanet.getSmellFromCoordinates(currentXPosition, currentYPosition)) {
+						if ((xPosition - 1) < 0 &&
+							!Robot.currentPlanet.getSmellFromCoordinates(xPosition, yPosition)) {
+								this.setIsLost(true);
+						} else if ((xPosition - 1) < 0 &&
+							Robot.currentPlanet.getSmellFromCoordinates(xPosition, yPosition)) {
 							// Do nothing if we're about to leave the grid but we can smell lost robots
 						} else {
-							this.setCurrentXPosition(currentXPosition - 1);
+							this.setXPosition(xPosition - 1);
+							this.setCanvasXPosition((gridInformation.xDifference * (xPosition - 1)) + gridInformation.margin);
 						}
 
 						break;
@@ -191,33 +270,33 @@ Robot.prototype.executeInstruction = function(instruction) {
 
 Robot.prototype.getFancyPositionInformation = function() {
 
-	var currentHeadingString;
+	var headingString;
 
-	switch (this.getCurrentHeading()) {
+	switch (this.getHeading()) {
 		case NORTH:
-			currentHeadingString = "N";
+			headingString = "N";
 			break;
 		case EAST:
-			currentHeadingString = "E";
+			headingString = "E";
 			break;
 		case SOUTH:
-			currentHeadingString = "S";
+			headingString = "S";
 			break;
 		case WEST:
-			currentHeadingString = "W";
+			headingString = "W";
 			break;
 		default:
-			currentHeadingString = "?";
+			headingString = "?";
 			break;
 
 	}
 
 	if (this.isLost()) {
-		return "<b>Robot " + Robot.robotCount + "</b>" + ": " + this.getCurrentXPosition() + " " + this.getCurrentYPosition() +
-		" " + currentHeadingString + " " + "<b>LOST</b>";
+		return "<b>Robot " + Robot.robotCount + "</b>" + ": " + this.getXPosition() + " " + this.getYPosition() +
+		" " + headingString + " " + "<b>LOST</b>";
 	} else {
-		return "<b>Robot " + Robot.robotCount + "</b>" + ": " + this.getCurrentXPosition() + " " + this.getCurrentYPosition() +
-			" " + currentHeadingString;
+		return "<b>Robot " + Robot.robotCount + "</b>" + ": " + this.getXPosition() + " " + this.getYPosition() +
+			" " + headingString;
 	}
 
 };
