@@ -37,9 +37,6 @@ function main() {
 	var outputBox = document.getElementById("outputBox");
 	outputBox.innerHTML = "";
 
-	initialiseGridCanvas();
-	initialiseRobotsCanvas();
-
 	// Grab the text from the textarea and give it to the InstructionReader to process
 	try {
 		reader = new InstructionReader(editor.value);
@@ -63,7 +60,9 @@ function main() {
 	Robot.setPlanet(mars);
 
 	// Draw a grid on the canvas using the size of the planet
-	gridInformation = drawGrid(mars.getXBoundary(), mars.getYBoundary());
+	gridInformation = initialiseGridCanvas(mars.getXBoundary(), mars.getYBoundary());
+	initialiseRobotsCanvas();
+	initialiseFinishedRobotsCanvas();
 
 	simulationLoop();
 
@@ -113,7 +112,7 @@ function simulationLoop() {
 			robot.setCanvasYPosition(translateOrigin((gridInformation.yDifference * robot.getYPosition()) +
 				gridInformation.margin, gridInformation));
 
-			robot.draw(gridInformation, "robots");
+			robot.draw(gridInformation, robotsContext);
 
 			i++;
 

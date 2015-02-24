@@ -3,40 +3,22 @@
  *
  * Used for doing canvas-y things. Includes setup code for both canvases and all of the movement code for the robots.
  */
+var gridCanvas;
+var gridContext;
 
-function initialiseGridCanvas() {
+var robotsCanvas;
+var robotsContext;
+
+var finishedRobotsCanvas;
+var finishedRobotsContext;
+
+function initialiseGridCanvas(planetX, planetY) {
 
 	// Clear the grid and any robots from the canvas
-	var gridCanvas = document.getElementById("grid");
-	var gridContext = gridCanvas.getContext("2d");
+	gridCanvas = document.getElementById("grid");
+	gridContext = gridCanvas.getContext("2d");
 
 	gridContext.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
-
-}
-
-
-function initialiseRobotsCanvas() {
-
-	var canvas = document.getElementById("robots");
-	var context = canvas.getContext("2d");
-
-	context.clearRect(0, 0, canvas.width, canvas.height);
-
-	// Chrome's JavaScript CPU profiler revealed setting this took lots of time so set it once here
-  	context.font = "12px Arial";
-
-}
-
-/**
- * Draw a nicely divided grid onto the grid canvas. Represents the planet surface.
- * @param  {int} 	planetX The X boundary of the current planet.
- * @param  {int} 	planetY The Y boundary of the current planet.
- * @return {Object} 		An object whose properties are various useful information about the created grid.
- */
-function drawGrid(planetX, planetY) {
-
-	var canvas = document.getElementById("grid");
-	var context = canvas.getContext("2d");
 
 	// How far in from 0, 0 we want to draw the grid, we need a margin or the robots can't be centred on the grid
 	var marginValue = 50;
@@ -45,11 +27,11 @@ function drawGrid(planetX, planetY) {
 	 * We want to divide our grid based on the size of the planet so we need to consider the margin that surrounds
 	 * the grid in our calculations.
 	 */
-	var xUp = (canvas.width - (marginValue*2))/planetX;
-	var yUp = (canvas.height - (marginValue*2))/planetY;
+	var xUp = (gridCanvas.width - (marginValue*2))/planetX;
+	var yUp = (gridCanvas.height - (marginValue*2))/planetY;
 
-	var xBoundary = canvas.width - marginValue;
-	var yBoundary = canvas.height - marginValue;
+	var xBoundary = gridCanvas.width - marginValue;
+	var yBoundary = gridCanvas.height - marginValue;
 
 	console.log("The difference between x grid positions is: " + xUp);
 	console.log("The difference between y grid positions is: " + yUp);
@@ -58,30 +40,30 @@ function drawGrid(planetX, planetY) {
 	console.log("The y boundary of the grid is " + yBoundary);
 
 	// We have to start a path to define the shape (a grid) we want to draw using stroke()
-	context.beginPath();
+	gridContext.beginPath();
 
 	for (var x = marginValue; x <= xBoundary; x += xUp) {
-		context.moveTo(x, marginValue);
-		context.lineTo(x, yBoundary);
+		gridContext.moveTo(x, marginValue);
+		gridContext.lineTo(x, yBoundary);
 	}
 
 	for (var y = marginValue; y <= yBoundary; y += yUp) {
-		context.moveTo(marginValue, y);
-		context.lineTo(xBoundary, y);
+		gridContext.moveTo(marginValue, y);
+		gridContext.lineTo(xBoundary, y);
 	}
 
-	context.closePath();
+	gridContext.closePath();
 
-	context.strokeStyle = "#B5F779";
+	gridContext.strokeStyle = "#B5F779";
 
 	// TODO: Make lineWidth scale with planet size
 	if ((planetX + planetY) < 15) {
-		context.lineWidth = 7;
+		gridContext.lineWidth = 7;
 	} else {
-		context.lineWidth = 4;
+		gridContext.lineWidth = 4;
 	}
 
-	context.stroke();
+	gridContext.stroke();
 
 	return {
 		xDifference: xUp,
@@ -90,6 +72,26 @@ function drawGrid(planetX, planetY) {
 		height: yBoundary,
 		margin: marginValue
 	};
+
+
+}
+
+function initialiseRobotsCanvas() {
+
+	robotsCanvas = document.getElementById("robots");
+	robotsContext = robotsCanvas.getContext("2d");
+
+	robotsContext.clearRect(0, 0, robotsCanvas.width, robotsCanvas.height);
+
+	// Chrome's JavaScript CPU profiler revealed setting this took lots of time so set it once here
+  	robotsContext.font = "12px Arial";
+
+}
+
+function initialiseFinishedRobotsCanvas() {
+
+	finishedRobotsCanvas = document.getElementById("finishedRobots");
+	finishedRobotsContext = finishedRobotsCanvas.getContext("2d");
 
 }
 
@@ -122,7 +124,7 @@ function moveNorth() {
 
 	clearPreviousRobotDrawing();
 	robot.setCanvasYPosition(newY);
-	robot.draw(gridInformation, "robots");
+	robot.draw(gridInformation, robotsContext);
 
 	return false;
 
@@ -142,7 +144,7 @@ function moveEast() {
 
 	clearPreviousRobotDrawing();
 	robot.setCanvasXPosition(newX);
-	robot.draw(gridInformation, "robots");
+	robot.draw(gridInformation, robotsContext);
 
 	return false;
 
@@ -162,7 +164,7 @@ function moveSouth() {
 
 	clearPreviousRobotDrawing();
 	robot.setCanvasYPosition(newY);
-	robot.draw(gridInformation, "robots");
+	robot.draw(gridInformation, robotsContext);
 
 	return false;
 
@@ -182,7 +184,7 @@ function moveWest() {
 
 	clearPreviousRobotDrawing();
 	robot.setCanvasXPosition(newX);
-	robot.draw(gridInformation, "robots");
+	robot.draw(gridInformation, robotsContext);
 
 	return false;
 
@@ -190,14 +192,11 @@ function moveWest() {
 
 function clearPreviousRobotDrawing() {
 
-	var canvas = document.getElementById("robots");
-	var context = canvas.getContext("2d");
-
 	var robotWidth = robot.getWidth();
 	var robotLength = robot.getLength();
 
 	//context.clearRect(robot.getCanvasXPosition() - (robotWidth/2), robot.getCanvasYPosition() - (robotLength/2), robotWidth, robotLength);
-	context.clearRect(0, 0, canvas.width, canvas.height);
+	robotsContext.clearRect(0, 0, robotsCanvas.width, robotsCanvas.height);
 
 }
 
@@ -212,7 +211,7 @@ function drawFinishedRobots() {
 	for (var i = 0; i < finishedRobots.length; i++) {
 
 		if (!finishedRobots[i].isLost()) {
-			finishedRobots[i].draw(gridInformation, "finishedRobots");
+			finishedRobots[i].draw(gridInformation, finishedRobotsContext);
 		}
 
 	}
