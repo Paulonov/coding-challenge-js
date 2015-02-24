@@ -76,10 +76,15 @@ var Robot = function(initialXPosition, initialYPosition, initialHeading, gridInf
 
 	isLost = false;
 
-	// Draw a robot on to the canvas
-	this.draw = function(gridInformation) {
+	/**
+	 * Draw a robot onto a selected canvas.
+	 * @param  {Object} gridInformation An object whose properties are various useful information about the created
+	 *                                  grid.
+	 * @param  {String} canvasId        A String containing the ID of the canvas to draw to.
+	 */
+	this.draw = function(gridInformation, canvasId) {
 
-		var canvas = document.getElementById("robots");
+		var canvas = document.getElementById(canvasId);
 		var context = canvas.getContext("2d");
 
 		context.beginPath();

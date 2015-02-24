@@ -1,7 +1,7 @@
 /**
  * graphics.js
  *
- * Used for doing canvas-y things.
+ * Used for doing canvas-y things. Includes setup code for both canvases and all of the movement code for the robots.
  */
 
 function initialiseGridCanvas() {
@@ -93,6 +93,16 @@ function drawGrid(planetX, planetY) {
 
 }
 
+/**
+ * Each of the following move functions are very similar; they calculate the destination canvas co-ordinate value in the
+ * corresponding direction and either return true if the destination has been reached or update the current canvas
+ * value by a small increment and redraw.
+ *
+ * TODO: All of these use the size difference between grid squares divided by 60 to achieve smooth movement but they
+ * really need to use time.
+ *
+ * @return {boolean} True if the destination has been reached, false otherwise.
+ */
 function moveNorth() {
 
 	/*
@@ -112,7 +122,7 @@ function moveNorth() {
 
 	clearPreviousRobotDrawing();
 	robot.setCanvasYPosition(newY);
-	robot.draw(gridInformation);
+	robot.draw(gridInformation, "robots");
 
 	return false;
 
@@ -120,8 +130,6 @@ function moveNorth() {
 
 function moveEast() {
 
-	// This value needs to be translated as otherwise it would calculate the canvas position of the grid co-ordinate with
-	// respect to the origin in the upper left hand corner of the grid
 	var nextX = gridInformation.xDifference * robot.getXPosition() + gridInformation.margin;
 
 	// Update the canvas y position by a small increment
@@ -134,7 +142,7 @@ function moveEast() {
 
 	clearPreviousRobotDrawing();
 	robot.setCanvasXPosition(newX);
-	robot.draw(gridInformation);
+	robot.draw(gridInformation, "robots");
 
 	return false;
 
@@ -142,8 +150,6 @@ function moveEast() {
 
 function moveSouth() {
 
-	// This value needs to be translated as otherwise it would calculate the canvas position of the grid co-ordinate with
-	// respect to the origin in the upper left hand corner of the grid
 	var nextY = translateOrigin(gridInformation.yDifference * robot.getYPosition() + gridInformation.margin, gridInformation);
 
 	// Update the canvas y position by a small increment
@@ -156,7 +162,7 @@ function moveSouth() {
 
 	clearPreviousRobotDrawing();
 	robot.setCanvasYPosition(newY);
-	robot.draw(gridInformation);
+	robot.draw(gridInformation, "robots");
 
 	return false;
 
@@ -164,8 +170,6 @@ function moveSouth() {
 
 function moveWest() {
 
-	// This value needs to be translated as otherwise it would calculate the canvas position of the grid co-ordinate with
-	// respect to the origin in the upper left hand corner of the grid
 	var nextX = gridInformation.xDifference * robot.getXPosition() + gridInformation.margin;
 
 	// Update the canvas y position by a small increment
@@ -178,7 +182,7 @@ function moveWest() {
 
 	clearPreviousRobotDrawing();
 	robot.setCanvasXPosition(newX);
-	robot.draw(gridInformation);
+	robot.draw(gridInformation, "robots");
 
 	return false;
 
@@ -197,12 +201,18 @@ function clearPreviousRobotDrawing() {
 
 }
 
+/**
+ * Use the maintained list of robots that have reached an on-grid destination to draw to a separate "finishedRobots"
+ * canvas. Reduces the number of draw calls and allows us to optimise usage of the clearRect function.
+ *
+ * TODO: Treat it as a stack for even more efficiency
+ */
 function drawFinishedRobots() {
 
 	for (var i = 0; i < finishedRobots.length; i++) {
 
 		if (!finishedRobots[i].isLost()) {
-			finishedRobots[i].draw();
+			finishedRobots[i].draw(gridInformation, "finishedRobots");
 		}
 
 	}

@@ -48,8 +48,12 @@ canvas {
 	opacity: 0.5;
 }
 
-#graphicsContainer #robots {
+#graphicsContainer #finishedRobots {
 	z-index: 2;
+}
+
+#graphicsContainer #robots {
+	z-index: 3;
 }
 
 #sidebar {

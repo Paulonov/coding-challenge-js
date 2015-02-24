@@ -104,11 +104,6 @@ function simulationLoop() {
 
 		finishedAnimating = animate();
 
-		// Ensure that other robots appear on the canvas if they existed
-		if (typeof finishedRobots[0] !== "undefined") {
-			drawFinishedRobots();
-		}
-
 		// Things to do when we're all done animating
 		if (finishedAnimating) {
 
@@ -118,12 +113,7 @@ function simulationLoop() {
 			robot.setCanvasYPosition(translateOrigin((gridInformation.yDifference * robot.getYPosition()) +
 				gridInformation.margin, gridInformation));
 
-			robot.draw();
-
-			// Ensure that other robots appear on the canvas if they existed
-			if (typeof finishedRobots[0] !== "undefined") {
-				drawFinishedRobots();
-			}
+			robot.draw(gridInformation, "robots");
 
 			i++;
 
@@ -133,6 +123,11 @@ function simulationLoop() {
 				newRobot = true;
 
 				finishedRobots.push(robot);
+
+				// Ensure that other robots appear on the canvas if they existed
+				if (typeof finishedRobots[0] !== "undefined") {
+					drawFinishedRobots();
+				}
 				addToOutputBox(robot.getFancyPositionInformation());
 
 			} else {
