@@ -4,11 +4,34 @@
  * Used for doing canvas-y things.
  */
 
+function initialiseGridCanvas() {
+
+	// Clear the grid and any robots from the canvas
+	var gridCanvas = document.getElementById("grid");
+	var gridContext = gridCanvas.getContext("2d");
+
+	gridContext.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+
+}
+
+
+function initialiseRobotsCanvas() {
+
+	var canvas = document.getElementById("robots");
+	var context = canvas.getContext("2d");
+
+	context.clearRect(0, 0, canvas.width, canvas.height);
+
+	// Chrome's JavaScript CPU profiler revealed setting this took lots of time so set it once here
+  	context.font = "12px Arial";
+
+}
+
 /**
- * [drawGrid description]
- * @param  {[type]} planetX [description]
- * @param  {[type]} planetY [description]
- * @return {[type]}         [description]
+ * Draw a nicely divided grid onto the grid canvas. Represents the planet surface.
+ * @param  {int} 	planetX The X boundary of the current planet.
+ * @param  {int} 	planetY The Y boundary of the current planet.
+ * @return {Object} 		An object whose properties are various useful information about the created grid.
  */
 function drawGrid(planetX, planetY) {
 
@@ -60,7 +83,7 @@ function drawGrid(planetX, planetY) {
 
 	context.stroke();
 
-	var gridInformation = {
+	return {
 		xDifference: xUp,
 		yDifference: yUp,
 		width: xBoundary,
@@ -68,10 +91,130 @@ function drawGrid(planetX, planetY) {
 		margin: marginValue
 	};
 
-	return gridInformation;
+}
+
+function moveNorth() {
+
+	/*
+	 * This value needs to be translated as otherwise it would calculate the canvas position of the grid co-ordinate
+	 * with respect to the origin in the upper left hand corner of the grid
+	 */
+	var nextY = translateOrigin(gridInformation.yDifference * robot.getYPosition() + gridInformation.margin,
+		gridInformation);
+
+	// Update the canvas y position by a small increment
+	var newY = robot.getCanvasYPosition() - (gridInformation.yDifference / 60);
+
+	// If the robot has made it to the new grid square, we can stop animating
+	if (newY <= nextY) {
+		return true;
+	}
+
+	clearPreviousRobotDrawing();
+	robot.setCanvasYPosition(newY);
+	robot.draw(gridInformation);
+
+	return false;
 
 }
 
-function toCartesian(coordinate, gridInformation) {
+function moveEast() {
+
+	// This value needs to be translated as otherwise it would calculate the canvas position of the grid co-ordinate with
+	// respect to the origin in the upper left hand corner of the grid
+	var nextX = gridInformation.xDifference * robot.getXPosition() + gridInformation.margin;
+
+	// Update the canvas y position by a small increment
+	var newX = robot.getCanvasXPosition() + (gridInformation.xDifference / 60);
+
+	// If the robot has made it to the new grid square, we can stop animating
+	if (newX >= nextX) {
+		return true;
+	}
+
+	clearPreviousRobotDrawing();
+	robot.setCanvasXPosition(newX);
+	robot.draw(gridInformation);
+
+	return false;
+
+}
+
+function moveSouth() {
+
+	// This value needs to be translated as otherwise it would calculate the canvas position of the grid co-ordinate with
+	// respect to the origin in the upper left hand corner of the grid
+	var nextY = translateOrigin(gridInformation.yDifference * robot.getYPosition() + gridInformation.margin, gridInformation);
+
+	// Update the canvas y position by a small increment
+	var newY = robot.getCanvasYPosition() + (gridInformation.yDifference / 60);
+
+	// If the robot has made it to the new grid square, we can stop animating
+	if (newY >= nextY) {
+		return true;
+	}
+
+	clearPreviousRobotDrawing();
+	robot.setCanvasYPosition(newY);
+	robot.draw(gridInformation);
+
+	return false;
+
+}
+
+function moveWest() {
+
+	// This value needs to be translated as otherwise it would calculate the canvas position of the grid co-ordinate with
+	// respect to the origin in the upper left hand corner of the grid
+	var nextX = gridInformation.xDifference * robot.getXPosition() + gridInformation.margin;
+
+	// Update the canvas y position by a small increment
+	var newX = robot.getCanvasXPosition() - (gridInformation.xDifference / 60);
+
+	// If the robot has made it to the new grid square, we can stop animating
+	if (newX <= nextX) {
+		return true;
+	}
+
+	clearPreviousRobotDrawing();
+	robot.setCanvasXPosition(newX);
+	robot.draw(gridInformation);
+
+	return false;
+
+}
+
+function clearPreviousRobotDrawing() {
+
+	var canvas = document.getElementById("robots");
+	var context = canvas.getContext("2d");
+
+	var robotWidth = robot.getWidth();
+	var robotLength = robot.getLength();
+
+	//context.clearRect(robot.getCanvasXPosition() - (robotWidth/2), robot.getCanvasYPosition() - (robotLength/2), robotWidth, robotLength);
+	context.clearRect(0, 0, canvas.width, canvas.height);
+
+}
+
+function drawFinishedRobots() {
+
+	for (var i = 0; i < finishedRobots.length; i++) {
+
+		if (!finishedRobots[i].isLost()) {
+			finishedRobots[i].draw();
+		}
+
+	}
+
+}
+
+/**
+ * Translate the origin to be in the bottom left hand corner of the co-ordinate system.
+ * @param  {int}    coordinate      The co-ordinate value to convert.
+ * @param  {Object} gridInformation An object with properties that define the properties of the current grid in use.
+ * @return {int}                    The translated co-ordinate.
+ */
+function translateOrigin(coordinate, gridInformation) {
 	return (-coordinate) + (gridInformation.height + gridInformation.margin);
 }

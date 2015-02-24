@@ -62,8 +62,8 @@ var InstructionReader = function(instructions) {
 };
 
 /**
- * [initialiseRobot description]
- * @return {boolean} [description]
+ * Prepare a robot for use if there is one available.
+ * @return {boolean} True if a robot has been initialised, false otherwise.
  */
 InstructionReader.prototype.initialiseRobot = function() {
 
@@ -79,12 +79,9 @@ InstructionReader.prototype.initialiseRobot = function() {
 		this.setCurrentRobotInstructions(instructionStack.pop().trim().split(""));
 
 		// If we've found a blank line, remove it
-		// TODO: If there's no blank line separator between each robot's input in the data file, everything dies
 		if (typeof instructionStack[instructionStack.length - 1] !== "undefined" &&
 			instructionStack[instructionStack.length - 1].trim().length === 0) {
-
-			instructionStack.pop();
-
+				instructionStack.pop();
 		}
 
 		this.setInstructionStack(instructionStack);
@@ -178,9 +175,7 @@ function parse(instructions) {
 	}
 
 	instructionStack.push(planetBoundaries);
-
 	console.log("Instruction stack is: " + instructionStack.toString());
-
 	return instructionStack;
 
 }

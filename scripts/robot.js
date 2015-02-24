@@ -14,16 +14,11 @@ var SOUTH = 2;
 var WEST = 3;
 var NUMBER_OF_DIRECTIONS = 4;
 
-// Variables for graphics
-var currentRobot;
-var gridInfo;
-var req;
-
 /**
  * Constructor for making a Robot object.
- * @param {int} initialXPosition [description]
- * @param {int} initialYPosition [description]
- * @param {char} initialHeading   [description]
+ * @param {int} initialXPosition The robot's starting X position.
+ * @param {int} initialYPosition The robot's starting Y position.
+ * @param {char} initialHeading  The direction the robot is facing.
  */
 var Robot = function(initialXPosition, initialYPosition, initialHeading, gridInformation) {
 
@@ -33,6 +28,9 @@ var Robot = function(initialXPosition, initialYPosition, initialHeading, gridInf
 	var heading;
 	var isLost;
 
+	// Graphics variables used when drawing the robot on the screen
+	var length;
+	var width;
 	var canvasXPosition;
 	var canvasYPosition;
 
@@ -47,7 +45,16 @@ var Robot = function(initialXPosition, initialYPosition, initialHeading, gridInf
 		yPosition = initialYPosition;
 
 		canvasXPosition = (gridInformation.xDifference * xPosition) + gridInformation.margin;
-		canvasYPosition = toCartesian((gridInformation.yDifference * yPosition) + gridInformation.margin, gridInformation);
+		canvasYPosition = translateOrigin((gridInformation.yDifference * yPosition) + gridInformation.margin, gridInformation);
+
+		// Set up the size of the robot in canvas co-ordinates, scales with the size of the grid
+		if ((Robot.currentPlanet.getXBoundary() + Robot.currentPlanet.getYBoundary()) < 25) {
+			length = 50;
+			width = 50;
+		} else {
+			length = 30;
+			width = 30;
+		}
 
 		if (initialHeading === "N") {
 			heading = NORTH;
@@ -72,22 +79,13 @@ var Robot = function(initialXPosition, initialYPosition, initialHeading, gridInf
 	// Draw a robot on to the canvas
 	this.draw = function(gridInformation) {
 
-		// Robot size definition
-		var width = 50;
-		var length = 50;
-
 		var canvas = document.getElementById("robots");
 		var context = canvas.getContext("2d");
-
-		// CANVAS POSITIONS CURRENTLY UPDATED OUTSIDE OF THIS FUNCTION
-		// We need to convert from the robot's co-ordinates to our canvas' co-ordinates.
-		// canvasXPosition = (gridInformation.xDifference * xPosition) + gridInformation.margin;
-		// canvasYPosition = (gridInformation.yDifference * yPosition) + gridInformation.margin;
 
 		context.beginPath();
 
 		// Draw the rectangle centred on the grid point
-		context.rect(canvasXPosition - (width/2), canvasYPosition - (width/2), width, length);
+		context.rect(canvasXPosition - (width/2), canvasYPosition - (length/2), width, length);
 
 		context.closePath();
 
@@ -102,8 +100,7 @@ var Robot = function(initialXPosition, initialYPosition, initialHeading, gridInf
 		context.lineWidth = 1;
 		context.strokeStyle = "#BFBFBF";
 		context.textAlign = 'center';
-	  	context.font = "12px Arial";
-  		context.strokeText(id, canvasXPosition, canvasYPosition);
+  		context.strokeText(id + " " + headingToString(heading), canvasXPosition, canvasYPosition);
 
 	};
 
@@ -121,6 +118,14 @@ var Robot = function(initialXPosition, initialYPosition, initialHeading, gridInf
 
 	this.isLost = function() {
 		return isLost;
+	};
+
+	this.getWidth = function() {
+		return width;
+	};
+
+	this.getLength = function() {
+		return length;
 	};
 
 	this.getCanvasXPosition = function() {
@@ -163,8 +168,7 @@ Robot.currentPlanet = null;
 
 /**
  * Execute the instruction given to the robot. Logic is updated along with graphics.
- * @param  {[type]} instruction [description]
- * @return {[type]}             [description]
+ * @param  {char} instruction A character representing the instruction to execute.
  */
 Robot.prototype.executeInstruction = function(instruction, gridInformation) {
 
@@ -202,8 +206,7 @@ Robot.prototype.executeInstruction = function(instruction, gridInformation) {
 							Robot.currentPlanet.getSmellFromCoordinates(xPosition, yPosition)) {
 							// Do nothing if we're about to leave the grid but we can smell lost robots
 						} else {
-							this.setYPosition(yPosition + 1);
-							this.setCanvasYPosition(toCartesian((gridInformation.yDifference * (yPosition + 1)) + gridInformation.margin, gridInformation));
+							robot.setYPosition(yPosition + 1);
 						}
 
 						break;
@@ -217,8 +220,7 @@ Robot.prototype.executeInstruction = function(instruction, gridInformation) {
 							currentPlanet.getSmellFromCoordinates(xPosition, yPosition)) {
 								// Do nothing if we're about to leave the grid but we can smell lost robots
 						} else {
-							this.setXPosition(xPosition + 1);
-							this.setCanvasXPosition((gridInformation.xDifference * (xPosition + 1)) + gridInformation.margin);
+							robot.setXPosition(xPosition + 1);
 						}
 
 						break;
@@ -233,7 +235,6 @@ Robot.prototype.executeInstruction = function(instruction, gridInformation) {
 							// Do nothing if we're about to leave the grid but we can smell lost robots
 						} else {
 							this.setYPosition(yPosition - 1);
-							this.setCanvasYPosition(toCartesian((gridInformation.yDifference * (yPosition - 1)) + gridInformation.margin, gridInformation));
 						}
 
 						break;
@@ -248,7 +249,6 @@ Robot.prototype.executeInstruction = function(instruction, gridInformation) {
 							// Do nothing if we're about to leave the grid but we can smell lost robots
 						} else {
 							this.setXPosition(xPosition - 1);
-							this.setCanvasXPosition((gridInformation.xDifference * (xPosition - 1)) + gridInformation.margin);
 						}
 
 						break;
@@ -268,35 +268,18 @@ Robot.prototype.executeInstruction = function(instruction, gridInformation) {
 
 };
 
+/**
+ * Get some information about the robot with added HTML tags.
+ * @return {String} A string containing useful information about the robot.
+ */
 Robot.prototype.getFancyPositionInformation = function() {
-
-	var headingString;
-
-	switch (this.getHeading()) {
-		case NORTH:
-			headingString = "N";
-			break;
-		case EAST:
-			headingString = "E";
-			break;
-		case SOUTH:
-			headingString = "S";
-			break;
-		case WEST:
-			headingString = "W";
-			break;
-		default:
-			headingString = "?";
-			break;
-
-	}
 
 	if (this.isLost()) {
 		return "<b>Robot " + Robot.robotCount + "</b>" + ": " + this.getXPosition() + " " + this.getYPosition() +
-		" " + headingString + " " + "<b>LOST</b>";
+		" " + headingToString(this.getHeading()) + " " + "<b>LOST</b>";
 	} else {
 		return "<b>Robot " + Robot.robotCount + "</b>" + ": " + this.getXPosition() + " " + this.getYPosition() +
-			" " + headingString;
+			" " + headingToString(this.getHeading());
 	}
 
 };
@@ -312,3 +295,22 @@ Robot.setPlanet = function(planet) {
 Robot.setRobotCount = function(count) {
 	Robot.robotCount = count;
 };
+
+// Utility function for converting heading values into characters
+function headingToString(heading) {
+
+	switch (heading) {
+		case NORTH:
+			return "N";
+		case EAST:
+			return "E";
+		case SOUTH:
+			return "S";
+		case WEST:
+			return "W";
+		default:
+			return"?";
+
+	}
+
+}
