@@ -172,7 +172,7 @@ function initialSetup() {
 		    		gridInformation);
 
 			    currentRobotInstructions = reader.getCurrentRobotInstructions();
-			    instruction = currentRobotInstructions[i];
+			    instruction = currentRobotInstructions[i].toUpperCase();
 
 			    return true;
 

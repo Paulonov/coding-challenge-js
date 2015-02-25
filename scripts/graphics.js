@@ -97,6 +97,10 @@ function initialiseFinishedRobotsCanvas() {
 
 }
 
+/**
+ * The animate function handles graphical position updates for the current robot.
+ * @return {boolean} True if the robot has reached its destination, false otherwise.
+ */
 function animate() {
 
 	var heading = robot.getHeading();
