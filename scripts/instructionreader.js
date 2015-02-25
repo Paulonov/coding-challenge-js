@@ -88,6 +88,7 @@ InstructionReader.prototype.initialiseRobot = function() {
 		return true;
 
 	} else {
+		console.log("Instruction stack empty...");
 		return false;
 	}
 

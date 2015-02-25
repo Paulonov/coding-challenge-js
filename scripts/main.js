@@ -3,14 +3,14 @@
  *
  * Create a planet, create a robot and get going!
  */
-var mars;
-var reader;
+var mars = null;
+var reader = null;
 
-var robot;
-var currentRobotInstructions;
-var instruction;
-var gridInformation;
-var i;
+var robot = null;
+var currentRobotInstructions = null;
+var instruction = null;
+var gridInformation = null;
+var i = 0;
 
 var simulationFinished = false;
 var finishedAnimating = true;
@@ -32,6 +32,10 @@ window.requestAnimFrame = (function() {
  * TODO: If the button is clicked again after the program is finished, it will not work again!
  */
 function main() {
+
+	// Static variables, these are set before we call the constructor and so we can begin counting
+	Robot.robotCount = 0;
+	Robot.currentPlanet = null;
 
 	// Clear the output box
 	var outputBox = document.getElementById("outputBox");
@@ -107,10 +111,17 @@ function simulationLoop() {
 		if (finishedAnimating) {
 
 			// Re-draw the robot centred on its end position
-			clearPreviousRobotDrawing();
-			robot.setCanvasXPosition((gridInformation.xDifference * robot.getXPosition()) + gridInformation.margin);
-			robot.setCanvasYPosition(translateOrigin((gridInformation.yDifference * robot.getYPosition()) +
-				gridInformation.margin, gridInformation));
+			if (!robot.isLost()) {
+
+				robotsContext.beginPath();
+				robotsContext.clearRect(0, 0, robotsCanvas.width, robotsCanvas.height);
+
+				robot.setCanvasXPosition((gridInformation.xDifference * robot.getXPosition()) + gridInformation.margin);
+
+				robot.setCanvasYPosition(translateOrigin((gridInformation.yDifference * robot.getYPosition()) +
+					gridInformation.margin, gridInformation));
+
+			}
 
 			robot.draw(gridInformation, robotsContext);
 
@@ -176,36 +187,6 @@ function initialSetup() {
 
 	} else {
 		return false;
-	}
-
-}
-
-/**
- * A simple wrapper function that uses the current instruction to decide how to animate the robot.
- * @return {boolean} True if the animation is finished, false if we need to keep animating.
- */
-function animate() {
-
-	switch (instruction) {
-
-		case 'F':
-
-			switch(robot.getHeading()) {
-				case NORTH:
-					return moveNorth();
-				case EAST:
-					return moveEast();
-				case SOUTH:
-					return moveSouth();
-				case WEST:
-					return moveWest();
-			}
-
-		break;
-
-		default:
-			return true;
-
 	}
 
 }

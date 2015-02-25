@@ -3,14 +3,14 @@
  *
  * Used for doing canvas-y things. Includes setup code for both canvases and all of the movement code for the robots.
  */
-var gridCanvas;
-var gridContext;
+var gridCanvas = null;
+var gridContext = null;
 
-var robotsCanvas;
-var robotsContext;
+var robotsCanvas = null;
+var robotsContext = null;
 
-var finishedRobotsCanvas;
-var finishedRobotsContext;
+var finishedRobotsCanvas = null;
+var finishedRobotsContext = null;
 
 function initialiseGridCanvas(planetX, planetY) {
 
@@ -93,110 +93,87 @@ function initialiseFinishedRobotsCanvas() {
 	finishedRobotsCanvas = document.getElementById("finishedRobots");
 	finishedRobotsContext = finishedRobotsCanvas.getContext("2d");
 
+	finishedRobotsContext.clearRect(0, 0, finishedRobotsCanvas.width, finishedRobotsCanvas.height);
+
 }
 
-/**
- * Each of the following move functions are very similar; they calculate the destination canvas co-ordinate value in the
- * corresponding direction and either return true if the destination has been reached or update the current canvas
- * value by a small increment and redraw.
- *
- * TODO: All of these use the size difference between grid squares divided by 60 to achieve smooth movement but they
- * really need to use time.
- *
- * @return {boolean} True if the destination has been reached, false otherwise.
- */
-function moveNorth() {
+function animate() {
 
-	/*
-	 * This value needs to be translated as otherwise it would calculate the canvas position of the grid co-ordinate
-	 * with respect to the origin in the upper left hand corner of the grid
-	 */
-	var nextY = translateOrigin(gridInformation.yDifference * robot.getYPosition() + gridInformation.margin,
-		gridInformation);
+	var heading = robot.getHeading();
 
-	// Update the canvas y position by a small increment
-	var newY = robot.getCanvasYPosition() - (gridInformation.yDifference / 60);
+	var nextPos = -1;
+	var newPos = -1;
 
-	// If the robot has made it to the new grid square, we can stop animating
-	if (newY <= nextY) {
+	if (instruction === "F") {
+
+		if (heading === NORTH) {
+
+			nextPos = translateOrigin(gridInformation.yDifference * robot.getYPosition() + gridInformation.margin,
+				gridInformation);
+
+			// Update the canvas y position by a small increment
+			newPos = robot.getCanvasYPosition() - (gridInformation.yDifference / 60);
+
+			// If the robot has made it to the new grid square, we can stop animating
+			if (newPos <= nextPos) {
+				return true;
+			}
+
+			robot.setCanvasYPosition(newPos);
+
+		} else if (heading === EAST) {
+
+			nextPos = gridInformation.xDifference * robot.getXPosition() + gridInformation.margin;
+
+			// Update the canvas y position by a small increment
+			newPos = robot.getCanvasXPosition() + (gridInformation.xDifference / 60);
+
+			// If the robot has made it to the new grid square, we can stop animating
+			if (newPos >= nextPos) {
+				return true;
+			}
+
+			robot.setCanvasXPosition(newPos);
+
+		} else if (heading === SOUTH) {
+
+			nextPos = translateOrigin(gridInformation.yDifference * robot.getYPosition() + gridInformation.margin,
+				gridInformation);
+
+			// Update the canvas y position by a small increment
+			newPos = robot.getCanvasYPosition() + (gridInformation.yDifference / 60);
+
+			// If the robot has made it to the new grid square, we can stop animating
+			if (newPos >= nextPos) {
+				return true;
+			}
+
+			robot.setCanvasYPosition(newPos);
+
+		} else if (heading === WEST) {
+
+			nextPos = gridInformation.xDifference * robot.getXPosition() + gridInformation.margin;
+
+			// Update the canvas y position by a small increment
+			newPos = robot.getCanvasXPosition() - (gridInformation.xDifference / 60);
+
+			// If the robot has made it to the new grid square, we can stop animating
+			if (newPos <= nextPos) {
+				return true;
+			}
+
+			robot.setCanvasXPosition(newPos);
+
+		}
+
+		robotsContext.beginPath();
+		robotsContext.clearRect(0, 0, robotsCanvas.width, robotsCanvas.height);
+
+		robot.draw(gridInformation, robotsContext);
+
+	} else {
 		return true;
 	}
-
-	clearPreviousRobotDrawing();
-	robot.setCanvasYPosition(newY);
-	robot.draw(gridInformation, robotsContext);
-
-	return false;
-
-}
-
-function moveEast() {
-
-	var nextX = gridInformation.xDifference * robot.getXPosition() + gridInformation.margin;
-
-	// Update the canvas y position by a small increment
-	var newX = robot.getCanvasXPosition() + (gridInformation.xDifference / 60);
-
-	// If the robot has made it to the new grid square, we can stop animating
-	if (newX >= nextX) {
-		return true;
-	}
-
-	clearPreviousRobotDrawing();
-	robot.setCanvasXPosition(newX);
-	robot.draw(gridInformation, robotsContext);
-
-	return false;
-
-}
-
-function moveSouth() {
-
-	var nextY = translateOrigin(gridInformation.yDifference * robot.getYPosition() + gridInformation.margin, gridInformation);
-
-	// Update the canvas y position by a small increment
-	var newY = robot.getCanvasYPosition() + (gridInformation.yDifference / 60);
-
-	// If the robot has made it to the new grid square, we can stop animating
-	if (newY >= nextY) {
-		return true;
-	}
-
-	clearPreviousRobotDrawing();
-	robot.setCanvasYPosition(newY);
-	robot.draw(gridInformation, robotsContext);
-
-	return false;
-
-}
-
-function moveWest() {
-
-	var nextX = gridInformation.xDifference * robot.getXPosition() + gridInformation.margin;
-
-	// Update the canvas y position by a small increment
-	var newX = robot.getCanvasXPosition() - (gridInformation.xDifference / 60);
-
-	// If the robot has made it to the new grid square, we can stop animating
-	if (newX <= nextX) {
-		return true;
-	}
-
-	clearPreviousRobotDrawing();
-	robot.setCanvasXPosition(newX);
-	robot.draw(gridInformation, robotsContext);
-
-	return false;
-
-}
-
-function clearPreviousRobotDrawing() {
-
-	var robotWidth = robot.getWidth();
-	var robotLength = robot.getLength();
-
-	//context.clearRect(robot.getCanvasXPosition() - (robotWidth/2), robot.getCanvasYPosition() - (robotLength/2), robotWidth, robotLength);
-	robotsContext.clearRect(0, 0, robotsCanvas.width, robotsCanvas.height);
 
 }
 

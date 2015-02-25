@@ -84,13 +84,9 @@ var Robot = function(initialXPosition, initialYPosition, initialHeading, gridInf
 	 */
 	this.draw = function(gridInformation, context) {
 
-		context.beginPath();
-
 		// Draw the rectangle centred on the grid point
+		context.beginPath();
 		context.rect(canvasXPosition - (width/2), canvasYPosition - (length/2), width, length);
-
-		context.closePath();
-
 		context.fillStyle = '#EFEFEF';
 		context.fill();
 
