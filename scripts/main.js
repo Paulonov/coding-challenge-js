@@ -35,11 +35,25 @@ window.requestAnimFrame = (
 
 /**
  * Called when the go button is clicked on the Martian Robots web page.
- * TODO: If the button is clicked again after the program is finished, it will not work again!
  */
 function main() {
 
-	window.cancelAnimationFrame(animationRequestId);
+	// Set all of our global variables back to defaults
+	mars = null;
+	reader = null;
+
+	robot = null;
+	currentRobotInstructions = null;
+	instruction = null;
+	gridInformation = null;
+	i = 0;
+
+	animationRequestId = 0;
+	previousFrameTimestamp = null;
+	simulationFinished = false;
+	finishedAnimating = true;
+	newRobot = true;
+	finishedRobots = [];
 
 	// Static variables, these are set before we call the constructor and so we can begin counting
 	Robot.robotCount = 0;
