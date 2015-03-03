@@ -18,9 +18,9 @@ var Planet = function(planetX, planetY) {
 	var scentMap = [];
 
 	// Make sure that the provided planet co-ordinates are in bounds otherwise set up the planet as normal
-	if (planetX > 50 || planetY > 50 || planetX < 0 || planetY < 0 || typeof planetX === "undefined" ||
+	if (planetX > 50 || planetY > 50 || planetX <= 0 || planetY <= 0 || typeof planetX === "undefined" ||
 		typeof planetY === "undefined") {
-			throw "Planet Creation Error: Specified planet co-ordinates are out of bounds! Max planet size is 50x50";
+		throw "<b>Planet Creation Error: </b> Specified planet co-ordinates are out of bounds! Max planet size is 50x50";
 	} else {
 
 		x = planetX;

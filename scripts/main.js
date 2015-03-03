@@ -43,6 +43,9 @@ function main() {
 	initialiseRobotsCanvas();
 	initialiseFinishedRobotsCanvas();
 
+	var skipButton = document.getElementById("skipButton");
+	skipButton.onclick = null;
+
 	// Set all of our global variables back to defaults
 	mars = null;
 	reader = null;
@@ -96,7 +99,7 @@ function main() {
 	// Draw a grid on the canvas using the size of the planet
 	gridInformation = initialiseGridCanvas(mars.getXBoundary(), mars.getYBoundary());
 
-	var skipButton = document.getElementById("skipButton");
+	skipButton = document.getElementById("skipButton");
 	skipButton.onclick = skipAnimation;
 
 	animationRequestId = window.requestAnimFrame(simulationLoop);
@@ -169,13 +172,13 @@ function simulationLoop(timestamp) {
 			if (typeof currentRobotInstructions[i] === "undefined") {
 
 				newRobot = true;
-
 				finishedRobots.push(robot);
 
 				// Ensure that other robots appear on the canvas if they existed
 				if (typeof finishedRobots[0] !== "undefined") {
 					drawFinishedRobots();
 				}
+
 				addToOutputBox(robot.getFancyPositionInformation());
 
 			} else {
@@ -244,7 +247,7 @@ function skipAnimation() {
 
 					newRobot = true;
 
-					// Update canvas co-ordinates
+					// Update canvas co-ordinates of the finished robot
 					robot.setCanvasXPosition((gridInformation.xDifference * robot.getXPosition()) +
 						gridInformation.margin);
 
@@ -357,4 +360,5 @@ function setUpFileListeners() {
 function addToOutputBox(outputString) {
 	var outputBox = document.getElementById("outputBox");
 	outputBox.insertAdjacentHTML('beforeend', "<p>" + outputString + "<br/>" + "</p>");
+	outputBox.scrollTop = outputBox.scrollHeight;
 }

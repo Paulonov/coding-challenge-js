@@ -125,7 +125,7 @@ function parse(instructions) {
 	if (/^\d+ \d+\s*$/.test(splitInstructions[0])) {
 		planetBoundaries = splitInstructions[0];
 	} else {
-		throw "Syntax Error: " + "The first line should be the planet's boundaries!";
+		throw "<b>Syntax Error: </b>" + "The first line should be the planet's boundaries!";
 	}
 
 	// Flip our separated instructions round so we can use it as a stack
@@ -161,13 +161,13 @@ function parse(instructions) {
 			 */
 			if (!/^[a-zA-Z]+\s*$/.test(robotPosition)) {
 				console.log("Syntax Error on Line: " + robotPosition);
-				throw "Syntax error on line: " + robotPosition;
+				throw "<b>Syntax Error on Line: </b>" + robotPosition;
 			} else if (!/^\d+ \d+ [a-zA-Z]\s*$/.test(robotInstructions)) {
 				console.log("Syntax Error on Line: " + robotInstructions);
-				throw "Syntax Error on Line: " + robotInstructions;
+				throw "<b>Syntax Error on Line: </b>" + robotInstructions;
 			} else {
 				console.log("Syntax Error on Line");
-				throw "Unexplained Syntax Error: " + robotPosition + " or " + robotInstructions;
+				throw "<b>Unexplained Syntax Error: </b>" + robotPosition + " or " + robotInstructions;
 			}
 
 

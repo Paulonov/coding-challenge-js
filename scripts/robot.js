@@ -37,7 +37,7 @@ var Robot = function(initialXPosition, initialYPosition, initialHeading, gridInf
 	if (initialXPosition < 0 || initialYPosition < 0 || initialXPosition > Robot.currentPlanet.getXBoundary() ||
 		initialYPosition > Robot.currentPlanet.getYBoundary()) {
 
-		throw "Robot placement out of bounds: " + initialXPosition + ", " + initialYPosition;
+		throw "<b>Robot Placement Out of Bounds: </b>" + initialXPosition + ", " + initialYPosition;
 
 	} else {
 
@@ -95,6 +95,7 @@ var Robot = function(initialXPosition, initialYPosition, initialHeading, gridInf
 		context.stroke();
 
 		// Draw the robot's number on it
+		context.beginPath();
 		context.lineWidth = 1;
 		context.strokeStyle = "#BFBFBF";
 		context.textAlign = 'center';
