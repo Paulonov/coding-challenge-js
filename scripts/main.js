@@ -12,26 +12,34 @@ var instruction = null;
 var gridInformation = null;
 var i = 0;
 
+var animationRequestId = 0;
+var previousFrameTimestamp = null;
 var simulationFinished = false;
 var finishedAnimating = true;
 var newRobot = true;
 var finishedRobots = [];
 
 // Taken from http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
-window.requestAnimFrame = (function() {
-  return  window.requestAnimationFrame       ||
-          window.webkitRequestAnimationFrame ||
-          window.mozRequestAnimationFrame    ||
-          function( callback ){
-            window.setTimeout(callback, 1000 / 60);
-          };
-})();
+window.requestAnimFrame = (
+
+	function() {
+		return window.requestAnimationFrame       ||
+		       window.webkitRequestAnimationFrame ||
+		       window.mozRequestAnimationFrame    ||
+		       function( callback ) {
+		           window.setTimeout(callback, 1000 / 60);
+		       };
+	}
+
+ )();
 
 /**
  * Called when the go button is clicked on the Martian Robots web page.
  * TODO: If the button is clicked again after the program is finished, it will not work again!
  */
 function main() {
+
+	window.cancelAnimationFrame(animationRequestId);
 
 	// Static variables, these are set before we call the constructor and so we can begin counting
 	Robot.robotCount = 0;
@@ -63,12 +71,15 @@ function main() {
 	Robot.robotCount = 0;
 	Robot.setPlanet(mars);
 
+	// Use the size of the planet to establish a suitable speed for the robots - Totally arbitrary!
+	ROBOT_SPEED = (1/(mars.getXBoundary() + mars.getYBoundary())) * 1.5;
+
 	// Draw a grid on the canvas using the size of the planet
 	gridInformation = initialiseGridCanvas(mars.getXBoundary(), mars.getYBoundary());
 	initialiseRobotsCanvas();
 	initialiseFinishedRobotsCanvas();
 
-	simulationLoop();
+	animationRequestId = window.requestAnimFrame(simulationLoop);
 
 }
 
@@ -76,9 +87,14 @@ function main() {
  * The main simulation loop for the program. Should update at (monitor refresh rate) frames per second; tested on a 60Hz
  * monitor. Uses requestAnimationFrame to achieve smooth animations.
  *
- * TODO: Animation currently updates frame by frame. Needs to be rewritten to use time instead.
+ * @param  {DOMHighResTimeStamp} timestamp The current time when the function was called by requestAnimationFrame.
  */
-function simulationLoop() {
+function simulationLoop(timestamp) {
+
+	// Set up initial window callback time if it's not set
+	if (!previousFrameTimestamp) {
+		previousFrameTimestamp = timestamp;
+	}
 
 	// Update logic called once per animation cycle
 	if (finishedAnimating) {
@@ -92,6 +108,7 @@ function simulationLoop() {
 				robot.executeInstruction(instruction, gridInformation);
 			} else {
 				simulationFinished = true;
+				window.cancelAnimationFrame(animationRequestId);
 			}
 
 		} else {
@@ -105,7 +122,7 @@ function simulationLoop() {
 	// We need to animate!
 	if (!finishedAnimating && !simulationFinished) {
 
-		finishedAnimating = animate();
+		finishedAnimating = animate(timestamp);
 
 		// Things to do when we're all done animating
 		if (finishedAnimating) {
@@ -146,7 +163,9 @@ function simulationLoop() {
 
 		}
 
-		window.requestAnimFrame(simulationLoop);
+		// We're calculating the time difference between frames so we need to save when the current frame was called
+		previousFrameTimestamp = timestamp;
+		animationRequestId = window.requestAnimFrame(simulationLoop);
 
 	}
 

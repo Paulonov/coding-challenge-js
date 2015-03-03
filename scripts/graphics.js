@@ -12,6 +12,9 @@ var robotsContext = null;
 var finishedRobotsCanvas = null;
 var finishedRobotsContext = null;
 
+// The speed of each robot in pixels/s
+var ROBOT_SPEED = 0;
+
 function initialiseGridCanvas(planetX, planetY) {
 
 	// Clear the grid and any robots from the canvas
@@ -101,12 +104,15 @@ function initialiseFinishedRobotsCanvas() {
  * The animate function handles graphical position updates for the current robot.
  * @return {boolean} True if the robot has reached its destination, false otherwise.
  */
-function animate() {
+function animate(timestamp) {
 
 	var heading = robot.getHeading();
 
 	var nextPos = -1;
 	var newPos = -1;
+
+	// The time difference between frames
+	var dt = timestamp - previousFrameTimestamp;
 
 	if (instruction === "F") {
 
@@ -116,7 +122,7 @@ function animate() {
 				gridInformation);
 
 			// Update the canvas y position by a small increment
-			newPos = robot.getCanvasYPosition() - (gridInformation.yDifference / 60);
+			newPos = robot.getCanvasYPosition() - (dt * ROBOT_SPEED);
 
 			// If the robot has made it to the new grid square, we can stop animating
 			if (newPos <= nextPos) {
@@ -130,7 +136,7 @@ function animate() {
 			nextPos = gridInformation.xDifference * robot.getXPosition() + gridInformation.margin;
 
 			// Update the canvas y position by a small increment
-			newPos = robot.getCanvasXPosition() + (gridInformation.xDifference / 60);
+			newPos = robot.getCanvasXPosition() + (dt * ROBOT_SPEED);
 
 			// If the robot has made it to the new grid square, we can stop animating
 			if (newPos >= nextPos) {
@@ -145,7 +151,7 @@ function animate() {
 				gridInformation);
 
 			// Update the canvas y position by a small increment
-			newPos = robot.getCanvasYPosition() + (gridInformation.yDifference / 60);
+			newPos = robot.getCanvasYPosition() + (dt * ROBOT_SPEED);
 
 			// If the robot has made it to the new grid square, we can stop animating
 			if (newPos >= nextPos) {
@@ -159,7 +165,7 @@ function animate() {
 			nextPos = gridInformation.xDifference * robot.getXPosition() + gridInformation.margin;
 
 			// Update the canvas y position by a small increment
-			newPos = robot.getCanvasXPosition() - (gridInformation.xDifference / 60);
+			newPos = robot.getCanvasXPosition() - (dt * ROBOT_SPEED);
 
 			// If the robot has made it to the new grid square, we can stop animating
 			if (newPos <= nextPos) {
