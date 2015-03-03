@@ -97,6 +97,13 @@ canvas {
 	height: 30px;
 }
 
+#sidebar #skipButton {
+	float: left;
+	margin-left: 20px;
+	width: 150px;
+	height: 30px;
+}
+
 #outputBox {
 	background-color: white;
 	margin-left: 50px;

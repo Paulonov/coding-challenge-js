@@ -38,6 +38,11 @@ window.requestAnimFrame = (
  */
 function main() {
 
+	window.cancelAnimationFrame(animationRequestId);
+
+	initialiseRobotsCanvas();
+	initialiseFinishedRobotsCanvas();
+
 	// Set all of our global variables back to defaults
 	mars = null;
 	reader = null;
@@ -90,8 +95,9 @@ function main() {
 
 	// Draw a grid on the canvas using the size of the planet
 	gridInformation = initialiseGridCanvas(mars.getXBoundary(), mars.getYBoundary());
-	initialiseRobotsCanvas();
-	initialiseFinishedRobotsCanvas();
+
+	var skipButton = document.getElementById("skipButton");
+	skipButton.onclick = skipAnimation;
 
 	animationRequestId = window.requestAnimFrame(simulationLoop);
 
@@ -120,6 +126,7 @@ function simulationLoop(timestamp) {
 				newRobot = false;
 				finishedAnimating = false;
 				robot.executeInstruction(instruction, gridInformation);
+				mars.updateScents(robot);
 			} else {
 				simulationFinished = true;
 				window.cancelAnimationFrame(animationRequestId);
@@ -181,6 +188,86 @@ function simulationLoop(timestamp) {
 		previousFrameTimestamp = timestamp;
 		animationRequestId = window.requestAnimFrame(simulationLoop);
 
+	}
+
+}
+
+/**
+ * Cancel the current animation and skip to the end of the simulation. Executes the simulation loop with animation
+ * stripped out.
+ */
+function skipAnimation() {
+
+	window.cancelAnimationFrame(animationRequestId);
+
+	initialiseRobotsCanvas();
+	initialiseFinishedRobotsCanvas();
+
+	while (!simulationFinished) {
+
+		// Update logic called once per animation cycle
+		if (finishedAnimating) {
+
+			if (newRobot) {
+
+				// If we can't get a new robot, the simulation is over
+				if (initialSetup()) {
+					newRobot = false;
+					finishedAnimating = false;
+					robot.executeInstruction(instruction, gridInformation);
+					mars.updateScents(robot);
+				} else {
+					simulationFinished = true;
+					break;
+				}
+
+			} else {
+				robot.executeInstruction(instruction, gridInformation);
+				mars.updateScents(robot);
+				finishedAnimating = false;
+			}
+
+		}
+
+		// We need to animate!
+		if (!finishedAnimating && !simulationFinished) {
+
+			finishedAnimating = true;
+
+			// Things to do when we're all done animating
+			if (finishedAnimating) {
+
+				i++;
+
+				// If we've finished simulating the current robot, perform all of the required updates
+				if (typeof currentRobotInstructions[i] === "undefined") {
+
+					newRobot = true;
+
+					// Update canvas co-ordinates
+					robot.setCanvasXPosition((gridInformation.xDifference * robot.getXPosition()) +
+						gridInformation.margin);
+
+					robot.setCanvasYPosition(translateOrigin((gridInformation.yDifference * robot.getYPosition()) +
+						gridInformation.margin, gridInformation));
+
+					finishedRobots.push(robot);
+
+					addToOutputBox(robot.getFancyPositionInformation());
+
+				} else {
+					instruction = currentRobotInstructions[i];
+				}
+
+			}
+
+		}
+
+	}
+
+	// Ensure that other robots appear on the canvas if they existed
+	if (typeof finishedRobots[0] !== "undefined") {
+		drawFinishedRobots();
 	}
 
 }
