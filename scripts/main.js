@@ -43,6 +43,7 @@ MartianRobots.Core = {
 	 */
 	main: function() {
 
+		// Aliases for the namespace
 		var Core = MartianRobots.Core;
 		var Graphics = MartianRobots.Graphics;
 		var Robot = MartianRobots.Robot;
@@ -58,21 +59,7 @@ MartianRobots.Core = {
 		skipButton.onclick = null;
 
 		// Set all of our global variables back to defaults
-		this.mars = null;
-		this.reader = null;
-
-		this.robot = null;
-		this.currentRobotInstructions = null;
-		this.instruction = null;
-		this.gridInformation = null;
-		this.i = 0;
-
-		this.animationRequestId = 0;
-		this.previousFrameTimestamp = null;
-		this.simulationFinished = false;
-		this.finishedAnimating = true;
-		this.newRobot = true;
-		this.finishedRobots = [];
+		this.initialiseCoreVariables();
 
 		// Static variables, these are set before we call the constructor and so we can begin counting
 		Robot.robotCount = 0;
@@ -393,6 +380,26 @@ MartianRobots.Core = {
 		var outputBox = document.getElementById("outputBox");
 		outputBox.insertAdjacentHTML('beforeend', "<p>" + outputString + "<br/>" + "</p>");
 		outputBox.scrollTop = outputBox.scrollHeight;
+	},
+
+	initialiseCoreVariables: function() {
+
+		this.mars = null;
+		this.reader = null;
+
+		this.robot = null;
+		this.currentRobotInstructions = null;
+		this.instruction = null;
+		this.gridInformation = null;
+		this.i = 0;
+
+		this.animationRequestId = 0;
+		this.previousFrameTimestamp = null;
+		this.simulationFinished = false;
+		this.finishedAnimating = true;
+		this.newRobot = true;
+		this.finishedRobots = [];
+
 	}
 
 };

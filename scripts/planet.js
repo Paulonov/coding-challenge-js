@@ -7,6 +7,7 @@
  */
 
 var MartianRobots = MartianRobots || {};
+MartianRobots.Planet = MartianRobots.Planet || {};
 
 /**
  * Constructor to create a planet object.
@@ -29,9 +30,9 @@ MartianRobots.Planet = function(planetX, planetY) {
 		y = planetY;
 
 		// If a grid square has a value of true, a robot has left a scent before it got lost
-		for (var i = 0; i < planetX; i++) {
+		for (var i = 0; i <= planetX; i++) {
 			scentMap[i] = [];
-			for (var j = 0; j < planetY; j++) {
+			for (var j = 0; j <= planetY; j++) {
 				scentMap[i][j] = false;
 			}
 		}

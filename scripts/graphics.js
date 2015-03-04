@@ -5,6 +5,7 @@
  */
 
 var MartianRobots = MartianRobots || {};
+MartianRobots.Graphics = MartianRobots.Graphics || {};
 
 MartianRobots.Graphics = {
 

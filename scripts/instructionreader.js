@@ -6,6 +6,7 @@
  */
 
 var MartianRobots = MartianRobots || {};
+MartianRobots.InstructionReader = MartianRobots.InstructionReader || {};
 
 /**
  * Constructor for an InstructionReader object.

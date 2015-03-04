@@ -221,7 +221,7 @@ MartianRobots.Robot.prototype.executeInstruction = function(instruction, gridInf
 							!Robot.currentPlanet.getSmellFromCoordinates(xPosition, yPosition)) {
 								this.setIsLost(true);
 						} else if ((xPosition + 1) > currentPlanetXBoundary &&
-							currentPlanet.getSmellFromCoordinates(xPosition, yPosition)) {
+							Robot.currentPlanet.getSmellFromCoordinates(xPosition, yPosition)) {
 								// Do nothing if we're about to leave the grid but we can smell lost robots
 						} else {
 							this.setXPosition(xPosition + 1);
