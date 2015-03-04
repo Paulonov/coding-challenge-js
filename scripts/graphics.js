@@ -3,214 +3,230 @@
  *
  * Used for doing canvas-y things. Includes setup code for both canvases and all of the movement code for the robots.
  */
-var gridCanvas = null;
-var gridContext = null;
 
-var robotsCanvas = null;
-var robotsContext = null;
+var MartianRobots = MartianRobots || {};
 
-var finishedRobotsCanvas = null;
-var finishedRobotsContext = null;
+MartianRobots.Graphics = {
 
-// The speed of each robot in pixels/s
-var ROBOT_SPEED = 0;
+	gridCanvas: null,
+	gridContext: null,
 
-function initialiseGridCanvas(planetX, planetY) {
+	robotsCanvas: null,
+	robotsContext: null,
 
-	// Clear the grid and any robots from the canvas
-	gridCanvas = document.getElementById("grid");
-	gridContext = gridCanvas.getContext("2d");
+	finishedRobotsCanvas: null,
+	finishedRobotsContext: null,
 
-	gridContext.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+	// The speed of each robot in pixels/s
+	ROBOT_SPEED: 0,
 
-	// How far in from 0, 0 we want to draw the grid, we need a margin or the robots can't be centred on the grid
-	var marginValue = 50;
+	initialiseGridCanvas: function(planetX, planetY) {
 
-	/*
-	 * We want to divide our grid based on the size of the planet so we need to consider the margin that surrounds
-	 * the grid in our calculations.
+		var Core = MartianRobots.Core;
+
+		// Clear the grid and any robots from the canvas
+		this.gridCanvas = document.getElementById("grid");
+		this.gridContext = this.gridCanvas.getContext("2d");
+
+		this.gridContext.clearRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
+
+		// How far in from 0, 0 we want to draw the grid, we need a margin or the robots can't be centred on the grid
+		var marginValue = 50;
+
+		/*
+		 * We want to divide our grid based on the size of the planet so we need to consider the margin that surrounds
+		 * the grid in our calculations.
+		 */
+		var xUp = (this.gridCanvas.width - (marginValue*2))/planetX;
+		var yUp = (this.gridCanvas.height - (marginValue*2))/planetY;
+
+		var xBoundary = this.gridCanvas.width - marginValue;
+		var yBoundary = this.gridCanvas.height - marginValue;
+
+		console.log("The difference between x grid positions is: " + xUp);
+		console.log("The difference between y grid positions is: " + yUp);
+
+		console.log("The x boundary of the grid is " + xBoundary);
+		console.log("The y boundary of the grid is " + yBoundary);
+
+		// We have to start a path to define the shape (a grid) we want to draw using stroke()
+		this.gridContext.beginPath();
+
+		for (var x = marginValue; x <= xBoundary; x += xUp) {
+			this.gridContext.moveTo(x, marginValue);
+			this.gridContext.lineTo(x, yBoundary);
+		}
+
+		for (var y = marginValue; y <= yBoundary; y += yUp) {
+			this.gridContext.moveTo(marginValue, y);
+			this.gridContext.lineTo(xBoundary, y);
+		}
+
+		this.gridContext.closePath();
+
+		this.gridContext.strokeStyle = "#B5F779";
+
+		// TODO: Make lineWidth scale with planet size
+		if ((planetX + planetY) < 15) {
+			this.gridContext.lineWidth = 7;
+		} else {
+			this.gridContext.lineWidth = 4;
+		}
+
+		this.gridContext.stroke();
+
+		return {
+			xDifference: xUp,
+			yDifference: yUp,
+			width: xBoundary,
+			height: yBoundary,
+			margin: marginValue
+		};
+
+
+	},
+
+	initialiseRobotsCanvas: function() {
+
+		this.robotsCanvas = document.getElementById("robots");
+		this.robotsContext = this.robotsCanvas.getContext("2d");
+
+		this.robotsContext.clearRect(0, 0, this.robotsCanvas.width, this.robotsCanvas.height);
+
+		// Chrome's JavaScript CPU profiler revealed setting this took lots of time so set it once here
+	  	this.robotsContext.font = "12px Arial";
+
+	},
+
+	initialiseFinishedRobotsCanvas: function() {
+
+		this.finishedRobotsCanvas = document.getElementById("finishedRobots");
+		this.finishedRobotsContext = this.finishedRobotsCanvas.getContext("2d");
+
+		this.finishedRobotsContext.clearRect(0, 0, this.finishedRobotsCanvas.width, this.finishedRobotsCanvas.height);
+
+	},
+
+	/**
+	 * The animate function handles graphical position updates for the current robot.
+	 * @return {boolean} True if the robot has reached its destination, false otherwise.
 	 */
-	var xUp = (gridCanvas.width - (marginValue*2))/planetX;
-	var yUp = (gridCanvas.height - (marginValue*2))/planetY;
+	animate: function(timestamp) {
 
-	var xBoundary = gridCanvas.width - marginValue;
-	var yBoundary = gridCanvas.height - marginValue;
+		var Core = MartianRobots.Core;
+		var Robot = MartianRobots.Robot;
 
-	console.log("The difference between x grid positions is: " + xUp);
-	console.log("The difference between y grid positions is: " + yUp);
+		var heading = Core.robot.getHeading();
 
-	console.log("The x boundary of the grid is " + xBoundary);
-	console.log("The y boundary of the grid is " + yBoundary);
+		var nextPos = -1;
+		var newPos = -1;
 
-	// We have to start a path to define the shape (a grid) we want to draw using stroke()
-	gridContext.beginPath();
+		// The time difference between frames
+		var dt = (timestamp - Core.previousFrameTimestamp);
 
-	for (var x = marginValue; x <= xBoundary; x += xUp) {
-		gridContext.moveTo(x, marginValue);
-		gridContext.lineTo(x, yBoundary);
-	}
+		if (Core.instruction === "F") {
 
-	for (var y = marginValue; y <= yBoundary; y += yUp) {
-		gridContext.moveTo(marginValue, y);
-		gridContext.lineTo(xBoundary, y);
-	}
+			if (heading === Robot.NORTH) {
 
-	gridContext.closePath();
+				nextPos = this.translateOrigin(Core.gridInformation.yDifference * Core.robot.getYPosition() + Core.gridInformation.margin,
+					Core.gridInformation);
 
-	gridContext.strokeStyle = "#B5F779";
+				// Update the canvas y position by a small increment
+				newPos = Core.robot.getCanvasYPosition() - (dt * this.ROBOT_SPEED);
 
-	// TODO: Make lineWidth scale with planet size
-	if ((planetX + planetY) < 15) {
-		gridContext.lineWidth = 7;
-	} else {
-		gridContext.lineWidth = 4;
-	}
+				// If the robot has made it to the new grid square, we can stop animating
+				if (newPos <= nextPos) {
+					return true;
+				}
 
-	gridContext.stroke();
+				Core.robot.setCanvasYPosition(newPos);
 
-	return {
-		xDifference: xUp,
-		yDifference: yUp,
-		width: xBoundary,
-		height: yBoundary,
-		margin: marginValue
-	};
+			} else if (heading === Robot.EAST) {
 
+				nextPos = Core.gridInformation.xDifference * Core.robot.getXPosition() + Core.gridInformation.margin;
 
-}
+				// Update the canvas x position by a small increment
+				newPos = Core.robot.getCanvasXPosition() + (dt * this.ROBOT_SPEED);
 
-function initialiseRobotsCanvas() {
+				// If the robot has made it to the new grid square, we can stop animating
+				if (newPos >= nextPos) {
+					return true;
+				}
 
-	robotsCanvas = document.getElementById("robots");
-	robotsContext = robotsCanvas.getContext("2d");
+				Core.robot.setCanvasXPosition(newPos);
 
-	robotsContext.clearRect(0, 0, robotsCanvas.width, robotsCanvas.height);
+			} else if (heading === Robot.SOUTH) {
 
-	// Chrome's JavaScript CPU profiler revealed setting this took lots of time so set it once here
-  	robotsContext.font = "12px Arial";
+				nextPos = this.translateOrigin(Core.gridInformation.yDifference * Core.robot.getYPosition() + Core.gridInformation.margin,
+					Core.gridInformation);
 
-}
+				// Update the canvas y position by a small increment
+				newPos = Core.robot.getCanvasYPosition() + (dt * this.ROBOT_SPEED);
 
-function initialiseFinishedRobotsCanvas() {
+				// If the robot has made it to the new grid square, we can stop animating
+				if (newPos >= nextPos) {
+					return true;
+				}
 
-	finishedRobotsCanvas = document.getElementById("finishedRobots");
-	finishedRobotsContext = finishedRobotsCanvas.getContext("2d");
+				Core.robot.setCanvasYPosition(newPos);
 
-	finishedRobotsContext.clearRect(0, 0, finishedRobotsCanvas.width, finishedRobotsCanvas.height);
+			} else if (heading === Robot.WEST) {
 
-}
+				nextPos = Core.gridInformation.xDifference * Core.robot.getXPosition() + Core.gridInformation.margin;
 
-/**
- * The animate function handles graphical position updates for the current robot.
- * @return {boolean} True if the robot has reached its destination, false otherwise.
- */
-function animate(timestamp) {
+				// Update the canvas y position by a small increment
+				newPos = Core.robot.getCanvasXPosition() - (dt * this.ROBOT_SPEED);
 
-	var heading = robot.getHeading();
+				// If the robot has made it to the new grid square, we can stop animating
+				if (newPos <= nextPos) {
+					return true;
+				}
 
-	var nextPos = -1;
-	var newPos = -1;
+				Core.robot.setCanvasXPosition(newPos);
 
-	// The time difference between frames
-	var dt = timestamp - previousFrameTimestamp;
-
-	if (instruction === "F") {
-
-		if (heading === NORTH) {
-
-			nextPos = translateOrigin(gridInformation.yDifference * robot.getYPosition() + gridInformation.margin,
-				gridInformation);
-
-			// Update the canvas y position by a small increment
-			newPos = robot.getCanvasYPosition() - (dt * ROBOT_SPEED);
-
-			// If the robot has made it to the new grid square, we can stop animating
-			if (newPos <= nextPos) {
-				return true;
 			}
 
-			robot.setCanvasYPosition(newPos);
+			this.robotsContext.beginPath();
+			this.robotsContext.clearRect(0, 0, this.robotsCanvas.width, this.robotsCanvas.height);
 
-		} else if (heading === EAST) {
+			Core.robot.draw(Core.gridInformation, this.robotsContext);
 
-			nextPos = gridInformation.xDifference * robot.getXPosition() + gridInformation.margin;
+			return false;
 
-			// Update the canvas y position by a small increment
-			newPos = robot.getCanvasXPosition() + (dt * ROBOT_SPEED);
+		} else {
+			return true;
+		}
 
-			// If the robot has made it to the new grid square, we can stop animating
-			if (newPos >= nextPos) {
-				return true;
+	},
+
+	/**
+	 * Use the maintained list of robots that have reached an on-grid destination to draw to a separate "finishedRobots"
+	 * canvas. Reduces the number of draw calls and allows us to optimise usage of the clearRect function.
+	 *
+	 * TODO: Treat it as a stack for even more efficiency
+	 */
+	drawFinishedRobots: function(finishedRobots) {
+
+		var Core = MartianRobots.Core;
+
+		for (var i = 0; i < Core.finishedRobots.length; i++) {
+
+			if (!Core.finishedRobots[i].isLost()) {
+				Core.finishedRobots[i].draw(Core.gridInformation, this.finishedRobotsContext);
 			}
-
-			robot.setCanvasXPosition(newPos);
-
-		} else if (heading === SOUTH) {
-
-			nextPos = translateOrigin(gridInformation.yDifference * robot.getYPosition() + gridInformation.margin,
-				gridInformation);
-
-			// Update the canvas y position by a small increment
-			newPos = robot.getCanvasYPosition() + (dt * ROBOT_SPEED);
-
-			// If the robot has made it to the new grid square, we can stop animating
-			if (newPos >= nextPos) {
-				return true;
-			}
-
-			robot.setCanvasYPosition(newPos);
-
-		} else if (heading === WEST) {
-
-			nextPos = gridInformation.xDifference * robot.getXPosition() + gridInformation.margin;
-
-			// Update the canvas y position by a small increment
-			newPos = robot.getCanvasXPosition() - (dt * ROBOT_SPEED);
-
-			// If the robot has made it to the new grid square, we can stop animating
-			if (newPos <= nextPos) {
-				return true;
-			}
-
-			robot.setCanvasXPosition(newPos);
 
 		}
 
-		robotsContext.beginPath();
-		robotsContext.clearRect(0, 0, robotsCanvas.width, robotsCanvas.height);
+	},
 
-		robot.draw(gridInformation, robotsContext);
-
-	} else {
-		return true;
+	/**
+	 * Translate the origin to be in the bottom left hand corner of the co-ordinate system.
+	 * @param  {int}    coordinate      The co-ordinate value to convert.
+	 * @param  {Object} gridInformation An object with properties that define the properties of the current grid in use.
+	 * @return {int}                    The translated co-ordinate.
+	 */
+	translateOrigin: function(coordinate, gridInformation) {
+		return (-coordinate) + (gridInformation.height + gridInformation.margin);
 	}
 
-}
-
-/**
- * Use the maintained list of robots that have reached an on-grid destination to draw to a separate "finishedRobots"
- * canvas. Reduces the number of draw calls and allows us to optimise usage of the clearRect function.
- *
- * TODO: Treat it as a stack for even more efficiency
- */
-function drawFinishedRobots() {
-
-	for (var i = 0; i < finishedRobots.length; i++) {
-
-		if (!finishedRobots[i].isLost()) {
-			finishedRobots[i].draw(gridInformation, finishedRobotsContext);
-		}
-
-	}
-
-}
-
-/**
- * Translate the origin to be in the bottom left hand corner of the co-ordinate system.
- * @param  {int}    coordinate      The co-ordinate value to convert.
- * @param  {Object} gridInformation An object with properties that define the properties of the current grid in use.
- * @return {int}                    The translated co-ordinate.
- */
-function translateOrigin(coordinate, gridInformation) {
-	return (-coordinate) + (gridInformation.height + gridInformation.margin);
-}
+};

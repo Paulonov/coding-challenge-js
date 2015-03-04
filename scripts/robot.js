@@ -4,15 +4,8 @@
  * Contains the class required to create a Robot along with the logic to handle each instruction.
  */
 
-/*
- * Values increase going clockwise around the compass and the number of directions constant allows us to use modulo
- * arithmetic to work out the new heading.
- */
-var NORTH = 0;
-var EAST = 1;
-var SOUTH = 2;
-var WEST = 3;
-var NUMBER_OF_DIRECTIONS = 4;
+var MartianRobots = MartianRobots || {};
+MartianRobots.Robot = MartianRobots.Robot || {};
 
 /**
  * Constructor for making a Robot object.
@@ -20,7 +13,11 @@ var NUMBER_OF_DIRECTIONS = 4;
  * @param {int} initialYPosition The robot's starting Y position.
  * @param {char} initialHeading  The direction the robot is facing.
  */
-var Robot = function(initialXPosition, initialYPosition, initialHeading, gridInformation) {
+MartianRobots.Robot = function(initialXPosition, initialYPosition, initialHeading, gridInformation) {
+
+	var Robot = MartianRobots.Robot;
+	var Core = MartianRobots.Core;
+	var Graphics = MartianRobots.Graphics;
 
 	var id;
 	var xPosition;
@@ -45,7 +42,7 @@ var Robot = function(initialXPosition, initialYPosition, initialHeading, gridInf
 		yPosition = initialYPosition;
 
 		canvasXPosition = (gridInformation.xDifference * xPosition) + gridInformation.margin;
-		canvasYPosition = translateOrigin((gridInformation.yDifference * yPosition) + gridInformation.margin, gridInformation);
+		canvasYPosition = Graphics.translateOrigin((gridInformation.yDifference * yPosition) + gridInformation.margin, gridInformation);
 
 		// Set up the size of the robot in canvas co-ordinates, scales with the size of the grid
 		if ((Robot.currentPlanet.getXBoundary() + Robot.currentPlanet.getYBoundary()) < 25) {
@@ -57,13 +54,13 @@ var Robot = function(initialXPosition, initialYPosition, initialHeading, gridInf
 		}
 
 		if (initialHeading === "N") {
-			heading = NORTH;
+			heading = Robot.NORTH;
 		} else if (initialHeading === "E") {
-			heading = EAST;
+			heading = Robot.EAST;
 		} else if (initialHeading === "S") {
-			heading = SOUTH;
+			heading = Robot.SOUTH;
 		} else if (initialHeading === "W") {
-			heading = WEST;
+			heading = Robot.WEST;
 		} else {
 			throw "Robot Creation Error: Invalid current heading";
 		}
@@ -99,7 +96,7 @@ var Robot = function(initialXPosition, initialYPosition, initialHeading, gridInf
 		context.lineWidth = 1;
 		context.strokeStyle = "#BFBFBF";
 		context.textAlign = 'center';
-  		context.strokeText(id + " " + headingToString(heading), canvasXPosition, canvasYPosition);
+  		context.strokeText(id + " " + MartianRobots.Robot.headingToString(heading), canvasXPosition, canvasYPosition);
 
 	};
 
@@ -162,14 +159,22 @@ var Robot = function(initialXPosition, initialYPosition, initialHeading, gridInf
 };
 
 // Static variables, these are set before we call the constructor and so we can begin counting
-Robot.robotCount = 0;
-Robot.currentPlanet = null;
+MartianRobots.Robot.robotCount = 0;
+MartianRobots.Robot.currentPlanet = null;
+
+MartianRobots.Robot.NORTH = 0;
+MartianRobots.Robot.EAST = 1;
+MartianRobots.Robot.SOUTH = 2;
+MartianRobots.Robot.WEST = 3;
+MartianRobots.Robot.NUMBER_OF_DIRECTIONS = 4;
 
 /**
  * Execute the instruction given to the robot. Logic is updated along with graphics.
  * @param  {char} instruction A character representing the instruction to execute.
  */
-Robot.prototype.executeInstruction = function(instruction, gridInformation) {
+MartianRobots.Robot.prototype.executeInstruction = function(instruction, gridInformation) {
+
+	var Robot = MartianRobots.Robot;
 
 	// Save values that get accessed a lot early on so that we don't have to keep accessing the getter method
 	var heading = this.getHeading();
@@ -185,18 +190,18 @@ Robot.prototype.executeInstruction = function(instruction, gridInformation) {
 
 			// Using mod 4 allows us to add 3 to the heading to get the heading 90 degrees to the left of it
 			case 'L':
-				this.setHeading((heading + 3) % NUMBER_OF_DIRECTIONS);
+				this.setHeading((heading + 3) % Robot.NUMBER_OF_DIRECTIONS);
 				break;
 
 			case 'R':
-				this.setHeading((heading + 1) % NUMBER_OF_DIRECTIONS);
+				this.setHeading((heading + 1) % Robot.NUMBER_OF_DIRECTIONS);
 				break;
 
 			case 'F':
 
 				switch (heading) {
 
-					case NORTH:
+					case Robot.NORTH:
 
 						if ((yPosition + 1) > currentPlanetYBoundary &&
 							!Robot.currentPlanet.getSmellFromCoordinates(xPosition, yPosition)) {
@@ -205,12 +210,12 @@ Robot.prototype.executeInstruction = function(instruction, gridInformation) {
 							Robot.currentPlanet.getSmellFromCoordinates(xPosition, yPosition)) {
 							// Do nothing if we're about to leave the grid but we can smell lost robots
 						} else {
-							robot.setYPosition(yPosition + 1);
+							this.setYPosition(yPosition + 1);
 						}
 
 						break;
 
-					case EAST:
+					case Robot.EAST:
 
 						if ((xPosition + 1) > currentPlanetXBoundary &&
 							!Robot.currentPlanet.getSmellFromCoordinates(xPosition, yPosition)) {
@@ -219,12 +224,12 @@ Robot.prototype.executeInstruction = function(instruction, gridInformation) {
 							currentPlanet.getSmellFromCoordinates(xPosition, yPosition)) {
 								// Do nothing if we're about to leave the grid but we can smell lost robots
 						} else {
-							robot.setXPosition(xPosition + 1);
+							this.setXPosition(xPosition + 1);
 						}
 
 						break;
 
-					case SOUTH:
+					case Robot.SOUTH:
 
 						if ((yPosition - 1) < 0 &&
 							!Robot.currentPlanet.getSmellFromCoordinates(xPosition, yPosition)) {
@@ -238,7 +243,7 @@ Robot.prototype.executeInstruction = function(instruction, gridInformation) {
 
 						break;
 
-					case WEST:
+					case Robot.WEST:
 
 						if ((xPosition - 1) < 0 &&
 							!Robot.currentPlanet.getSmellFromCoordinates(xPosition, yPosition)) {
@@ -271,14 +276,16 @@ Robot.prototype.executeInstruction = function(instruction, gridInformation) {
  * Get some information about the robot with added HTML tags.
  * @return {String} A string containing useful information about the robot.
  */
-Robot.prototype.getFancyPositionInformation = function() {
+MartianRobots.Robot.prototype.getFancyPositionInformation = function() {
+
+	var Robot = MartianRobots.Robot;
 
 	if (this.isLost()) {
 		return "<b>Robot " + Robot.robotCount + "</b>" + ": " + this.getXPosition() + " " + this.getYPosition() +
-		" " + headingToString(this.getHeading()) + " " + "<b>LOST</b>";
+		" " + Robot.headingToString(this.getHeading()) + " " + "<b>LOST</b>";
 	} else {
 		return "<b>Robot " + Robot.robotCount + "</b>" + ": " + this.getXPosition() + " " + this.getYPosition() +
-			" " + headingToString(this.getHeading());
+			" " + Robot.headingToString(this.getHeading());
 	}
 
 };
@@ -287,29 +294,31 @@ Robot.prototype.getFancyPositionInformation = function() {
  * We're giving the Robot object two methods of its own that you can call without needing an instance. These act as
  * static functions.
  */
-Robot.setPlanet = function(planet) {
-	Robot.currentPlanet = planet;
+MartianRobots.Robot.setPlanet = function(planet) {
+	this.currentPlanet = planet;
 };
 
-Robot.setRobotCount = function(count) {
-	Robot.robotCount = count;
+MartianRobots.Robot.setRobotCount = function(count) {
+	this.robotCount = count;
 };
 
 // Utility function for converting heading values into characters
-function headingToString(heading) {
+MartianRobots.Robot.headingToString = function(heading) {
+
+	var Robot = MartianRobots.Robot;
 
 	switch (heading) {
-		case NORTH:
+		case Robot.NORTH:
 			return "N";
-		case EAST:
+		case Robot.EAST:
 			return "E";
-		case SOUTH:
+		case Robot.SOUTH:
 			return "S";
-		case WEST:
+		case Robot.WEST:
 			return "W";
 		default:
 			return"?";
 
 	}
 
-}
+};

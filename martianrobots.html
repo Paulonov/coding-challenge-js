@@ -15,15 +15,15 @@ The home page for the application.
 	<link href="styles/martianrobots.css" rel="stylesheet" type="text/css">
 	<link href='http://fonts.googleapis.com/css?family=Roboto:700,400' rel='stylesheet' type='text/css'>
 
-	<script src="scripts/planet.js"></script>
 	<script src="scripts/robot.js"></script>
-	<script src="scripts/instructionreader.js"></script>
-	<script src="scripts/graphics.js"></script>
 	<script src="scripts/main.js"></script>
+	<script src="scripts/graphics.js"></script>
+	<script src="scripts/planet.js"></script>
+	<script src="scripts/instructionreader.js"></script>
 
 </head>
 
-<body id="container" onload="setUpFileListeners()">
+<body id="container" onload="MartianRobots.Core.setUpFileListeners()">
 
 	<div id="header">
 		<p>Martian Robots</p>
@@ -41,7 +41,7 @@ The home page for the application.
 
 		<div id="buttonBox">
 			<input class="buttons" type="file" id="fileInput" name="file"/>
-			<button class="buttons" id="goButton" type="button" onclick="main()">Go!</button>
+			<button class="buttons" id="goButton" type="button" onclick="MartianRobots.Core.main()">Go!</button>
 			<button class="buttons" id="skipButton" type="button">Skip Animation</button>
 		</div>
 

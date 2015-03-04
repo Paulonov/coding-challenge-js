@@ -5,11 +5,13 @@
  * detail in the parse function.
  */
 
+var MartianRobots = MartianRobots || {};
+
 /**
  * Constructor for an InstructionReader object.
  * @param {String} instructions The block of instructions to process.
  */
-var InstructionReader = function(instructions) {
+MartianRobots.InstructionReader = function(instructions) {
 
 	var planetBoundaries;
 	var currentRobotStartingInformation;
@@ -19,7 +21,7 @@ var InstructionReader = function(instructions) {
 	var instructionStack;
 
 	try {
-		instructionStack = parse(instructions);
+		instructionStack = MartianRobots.InstructionReader.parse(instructions);
 	} catch (error) {
 		throw error;
 	}
@@ -65,7 +67,7 @@ var InstructionReader = function(instructions) {
  * Prepare a robot for use if there is one available.
  * @return {boolean} True if a robot has been initialised, false otherwise.
  */
-InstructionReader.prototype.initialiseRobot = function() {
+MartianRobots.InstructionReader.prototype.initialiseRobot = function() {
 
 	var instructionStack = this.getInstructionStack();
 
@@ -99,7 +101,7 @@ InstructionReader.prototype.initialiseRobot = function() {
  * @param  {String} instructions A String containing the input data straight from a file or editor box.
  * @return {Array (Stack)}       An Array containing the parsed input data. Should be used as a stack.
  */
-function parse(instructions) {
+MartianRobots.InstructionReader.parse = function(instructions) {
 
 	// Trim trailing whitespace and split the user's input on a new line character
 	var instructionStack = [];
@@ -179,4 +181,4 @@ function parse(instructions) {
 	console.log("Instruction stack is: " + instructionStack.toString());
 	return instructionStack;
 
-}
+};

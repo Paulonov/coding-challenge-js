@@ -6,12 +6,14 @@
  * way.
  */
 
+var MartianRobots = MartianRobots || {};
+
 /**
  * Constructor to create a planet object.
  * @param {int} planetX The X boundary of the planet.
  * @param {int} planetY The Y boundary of the planet.
  */
-var Planet = function(planetX, planetY) {
+MartianRobots.Planet = function(planetX, planetY) {
 
 	var x;
 	var y;
