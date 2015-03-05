@@ -3,12 +3,12 @@
  *
  * Used for doing canvas-y things. Includes setup code for both canvases and all of the movement code for the robots.
  */
-
 var MartianRobots = MartianRobots || {};
 MartianRobots.Graphics = MartianRobots.Graphics || {};
 
 MartianRobots.Graphics = {
 
+	// These properties act as global variable
 	gridCanvas: null,
 	gridContext: null,
 
@@ -18,17 +18,28 @@ MartianRobots.Graphics = {
 	finishedRobotsCanvas: null,
 	finishedRobotsContext: null,
 
-	// The speed of each robot in pixels/s
-	ROBOT_SPEED: 0,
-
+	/**
+	 * Draw a new grid onto the corresponding canvas using the size of the planet as boundaries.
+	 * @param  {int} planetX The x boundary of the current planet.
+	 * @param  {int} planetY The y boundary of the current planet.
+	 * @return {Object}      An object containing useful properties about the grid: It's height and width, the x and y
+	 *                       differences between its grid positions and also the size of the margin surrounding the
+	 *                       grid.
+	 */
 	initialiseGridCanvas: function(planetX, planetY) {
 
-		var Core = MartianRobots.Core;
+		/*
+		 * Adjust the internal resolution of the canvas to match the (relative) size of its container.
+		 * TODO: It would be nice if the canvas could dynamically readjust to window changes.
+		 */
+		var graphicsContainer = document.getElementById("graphicsContainer");
 
-		// Clear the grid and any robots from the canvas
 		this.gridCanvas = document.getElementById("grid");
-		this.gridContext = this.gridCanvas.getContext("2d");
 
+		this.gridCanvas.height = graphicsContainer.offsetHeight;
+		this.gridCanvas.width = graphicsContainer.offsetWidth;
+
+		this.gridContext = this.gridCanvas.getContext("2d");
 		this.gridContext.clearRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
 
 		// How far in from 0, 0 we want to draw the grid, we need a margin or the robots can't be centred on the grid
@@ -37,9 +48,8 @@ MartianRobots.Graphics = {
 		if ((planetX + planetY) < 15) {
 			marginValue = 50;
 		} else {
-			marginValue = 25;
+			marginValue = 20;
 		}
-
 
 		/*
 		 * We want to divide our grid based on the size of the planet so we need to consider the margin that surrounds
@@ -61,18 +71,38 @@ MartianRobots.Graphics = {
 		this.gridContext.beginPath();
 
 		for (var x = marginValue; x <= xBoundary; x += xUp) {
+
+			/*
+			 * We're using floating point numbers for the difference between each grid position so errors can accrue as
+			 * the grid is drawn. Taking the floor of x once it's nearing the x boundary ensures that the last line of
+			 * the grid will be drawn. Quite hacky!
+			 */
+			if ((x + xUp) > xBoundary) {
+				x = Math.floor(x);
+			}
+
 			this.gridContext.moveTo(x, marginValue);
 			this.gridContext.lineTo(x, yBoundary);
+
 		}
 
-		for (var y = marginValue; y <= yBoundary; y += yUp) {
+		for (var y = marginValue; Math.floor(y) <= yBoundary; y += yUp) {
+
+			/*
+			 * We're using floating point numbers for the difference between each grid position so errors can accrue as
+			 * the grid is drawn. Taking the floor of y once it's nearing the y boundary ensures that the last line of
+			 * the grid will be drawn. Quite hacky!
+			 */
+			if ((y + yUp) > yBoundary) {
+				y = Math.floor(y);
+			}
+
 			this.gridContext.moveTo(marginValue, y);
 			this.gridContext.lineTo(xBoundary, y);
+
 		}
 
 		this.gridContext.closePath();
-
-		this.gridContext.strokeStyle = "#B5F779";
 
 		// TODO: Make lineWidth scale with planet size
 		if ((planetX + planetY) < 15) {
@@ -81,6 +111,7 @@ MartianRobots.Graphics = {
 			this.gridContext.lineWidth = 4;
 		}
 
+		this.gridContext.strokeStyle = "#B5F779";
 		this.gridContext.stroke();
 
 		return {
@@ -91,56 +122,80 @@ MartianRobots.Graphics = {
 			margin: marginValue
 		};
 
-
 	},
 
+	/**
+	 * Initialise the canvas that active robots will be drawn to.
+	 */
 	initialiseRobotsCanvas: function() {
 
+		// Adjust the internal resolution of the canvas to match the (relative) size of its container
+		var graphicsContainer = document.getElementById("graphicsContainer");
 		this.robotsCanvas = document.getElementById("robots");
-		this.robotsContext = this.robotsCanvas.getContext("2d");
 
+		this.robotsCanvas.height = graphicsContainer.offsetHeight;
+		this.robotsCanvas.width = graphicsContainer.offsetWidth;
+
+		this.robotsContext = this.robotsCanvas.getContext("2d");
 		this.robotsContext.clearRect(0, 0, this.robotsCanvas.width, this.robotsCanvas.height);
 
 		// Chrome's JavaScript CPU profiler revealed setting this took lots of time so set it once here
-	  	this.robotsContext.font = "12px Arial";
-
-	},
-
-	initialiseFinishedRobotsCanvas: function() {
-
-		this.finishedRobotsCanvas = document.getElementById("finishedRobots");
-		this.finishedRobotsContext = this.finishedRobotsCanvas.getContext("2d");
-
-		this.finishedRobotsContext.clearRect(0, 0, this.finishedRobotsCanvas.width, this.finishedRobotsCanvas.height);
+	  	this.robotsContext.font = "0.8em Arial";
 
 	},
 
 	/**
-	 * The animate function handles graphical position updates for the current robot.
+	 * Initialise the canvas that completed robots will be drawn to.
+	 */
+	initialiseFinishedRobotsCanvas: function() {
+
+		// Adjust the internal resolution of the canvas to match the (relative) size of its container
+		var graphicsContainer = document.getElementById("graphicsContainer");
+		this.finishedRobotsCanvas = document.getElementById("finishedRobots");
+
+		this.finishedRobotsCanvas.height = graphicsContainer.offsetHeight;
+		this.finishedRobotsCanvas.width = graphicsContainer.offsetWidth;
+
+		this.finishedRobotsContext = this.finishedRobotsCanvas.getContext("2d");
+		this.finishedRobotsContext.clearRect(0, 0, this.finishedRobotsCanvas.width, this.finishedRobotsCanvas.height);
+
+		this.finishedRobotsContext.font = "0.8em Arial";
+
+	},
+
+	/**
+	 * The animate function handles graphical position updates for the current robot based on the time elapsed between
+	 * frames.
 	 * @return {boolean} True if the robot has reached its destination, false otherwise.
 	 */
 	animate: function(timestamp) {
 
+		// Namespace aliases
 		var Core = MartianRobots.Core;
 		var Robot = MartianRobots.Robot;
 
 		var heading = Core.robot.getHeading();
+		var speed = Core.robot.getSpeed();
 
 		var nextPos = -1;
 		var newPos = -1;
 
-		// The time difference between frames
+		// The time difference between frames used to calculate how far the robot needs to move this frame
 		var dt = (timestamp - Core.previousFrameTimestamp);
 
 		if (Core.instruction === "F") {
 
 			if (heading === Robot.NORTH) {
 
-				nextPos = this.translateOrigin(Core.gridInformation.yDifference * Core.robot.getYPosition() + Core.gridInformation.margin,
-					Core.gridInformation);
+				/*
+				 * Screen co-ordinates begin in the top left of the canvas but our co-ordinate system begins in the
+				 * bottom left so we need to translate the co-ordinate value accordingly.
+				 */
+				nextPos = this.translateOrigin(Core.gridInformation.yDifference * Core.robot.getYPosition()
+					+ Core.gridInformation.margin, Core.gridInformation);
 
-				// Update the canvas y position by a small increment
-				newPos = Core.robot.getCanvasYPosition() - (dt * this.ROBOT_SPEED);
+				// Update the canvas y position based on the time that's passed between frames
+				newPos = Core.robot.getCanvasYPosition() - (dt * speed);
 
 				// If the robot has made it to the new grid square, we can stop animating
 				if (newPos <= nextPos) {
@@ -151,10 +206,10 @@ MartianRobots.Graphics = {
 
 			} else if (heading === Robot.EAST) {
 
-				nextPos = Core.gridInformation.xDifference * Core.robot.getXPosition() + Core.gridInformation.margin;
+				nextPos = (Core.gridInformation.xDifference * Core.robot.getXPosition()) + Core.gridInformation.margin;
 
-				// Update the canvas x position by a small increment
-				newPos = Core.robot.getCanvasXPosition() + (dt * this.ROBOT_SPEED);
+				// Update the canvas x position based on the time that's passed between frames
+				newPos = Core.robot.getCanvasXPosition() + (dt * speed);
 
 				// If the robot has made it to the new grid square, we can stop animating
 				if (newPos >= nextPos) {
@@ -165,11 +220,11 @@ MartianRobots.Graphics = {
 
 			} else if (heading === Robot.SOUTH) {
 
-				nextPos = this.translateOrigin(Core.gridInformation.yDifference * Core.robot.getYPosition() + Core.gridInformation.margin,
-					Core.gridInformation);
+				nextPos = this.translateOrigin(Core.gridInformation.yDifference * Core.robot.getYPosition()
+					+ Core.gridInformation.margin, Core.gridInformation);
 
-				// Update the canvas y position by a small increment
-				newPos = Core.robot.getCanvasYPosition() + (dt * this.ROBOT_SPEED);
+				// Update the canvas y position based on the time that's passed between frames
+				newPos = Core.robot.getCanvasYPosition() + (dt * speed);
 
 				// If the robot has made it to the new grid square, we can stop animating
 				if (newPos >= nextPos) {
@@ -183,7 +238,7 @@ MartianRobots.Graphics = {
 				nextPos = Core.gridInformation.xDifference * Core.robot.getXPosition() + Core.gridInformation.margin;
 
 				// Update the canvas y position by a small increment
-				newPos = Core.robot.getCanvasXPosition() - (dt * this.ROBOT_SPEED);
+				newPos = Core.robot.getCanvasXPosition() - (dt * speed);
 
 				// If the robot has made it to the new grid square, we can stop animating
 				if (newPos <= nextPos) {
@@ -199,36 +254,20 @@ MartianRobots.Graphics = {
 
 			Core.robot.draw(Core.gridInformation, this.robotsContext);
 
+			// The animation isn't finished yet so return false
 			return false;
 
 		} else {
+
+			// Some instructions don't require animation or may be unimplemented so simply return true
 			return true;
-		}
-
-	},
-
-	/**
-	 * Use the maintained list of robots that have reached an on-grid destination to draw to a separate "finishedRobots"
-	 * canvas. Reduces the number of draw calls and allows us to optimise usage of the clearRect function.
-	 *
-	 * TODO: Treat it as a stack for even more efficiency
-	 */
-	drawFinishedRobots: function(finishedRobots) {
-
-		var Core = MartianRobots.Core;
-
-		for (var i = 0; i < Core.finishedRobots.length; i++) {
-
-			if (!Core.finishedRobots[i].isLost()) {
-				Core.finishedRobots[i].draw(Core.gridInformation, this.finishedRobotsContext);
-			}
 
 		}
 
 	},
 
 	/**
-	 * Translate the origin to be in the bottom left hand corner of the co-ordinate system.
+	 * Translate the origin to be in the bottom left hand corner of the co-ordinate system from the top left.
 	 * @param  {int}    coordinate      The co-ordinate value to convert.
 	 * @param  {Object} gridInformation An object with properties that define the properties of the current grid in use.
 	 * @return {int}                    The translated co-ordinate.

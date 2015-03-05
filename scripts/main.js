@@ -18,11 +18,13 @@ window.requestAnimFrame = (
 
  )();
 
+// Contain the application within an object so our functions and variables don't pollute the window
 var MartianRobots = MartianRobots || {};
 
 MartianRobots.Core = {
 
-	mars: null,
+	// These properties are all treated as global variables as multiple areas of the program need to access them.
+	planet: null,
 	reader: null,
 
 	robot: null,
@@ -36,29 +38,26 @@ MartianRobots.Core = {
 	simulationFinished: false,
 	finishedAnimating: true,
 	newRobot: true,
-	finishedRobots: [],
 
 	/**
 	 * Called when the go button is clicked on the Martian Robots web page.
 	 */
 	main: function() {
 
-		// Aliases for the namespace
+		// Namespace aliases
 		var Core = MartianRobots.Core;
 		var Graphics = MartianRobots.Graphics;
 		var Robot = MartianRobots.Robot;
 		var Planet = MartianRobots.Planet;
 		var InstructionReader = MartianRobots.InstructionReader;
 
+		// Cancel a previous animation frame if it hasn't been cancelled already
 		window.cancelAnimationFrame(this.animationRequestId);
 
-		Graphics.initialiseRobotsCanvas();
-		Graphics.initialiseFinishedRobotsCanvas();
-
+		// Get rid of the skip button on-click event so that it can't be used before the animation has started
 		var skipButton = document.getElementById("skipButton");
 		skipButton.onclick = null;
 
-		// Set all of our global variables back to defaults
 		this.initialiseCoreVariables();
 
 		// Static variables, these are set before we call the constructor and so we can begin counting
@@ -77,10 +76,11 @@ MartianRobots.Core = {
 			return;
 		}
 
+		// Make a new planet from the boundaries passed in by the user
 		var planetBoundaries = this.reader.getPlanetBoundaries();
 
 		try {
-			this.mars = new Planet(parseInt(planetBoundaries[0]), parseInt(planetBoundaries[1]));
+			this.planet = new Planet(parseInt(planetBoundaries[0]), parseInt(planetBoundaries[1]));
 		} catch (error) {
 			console.log(error);
 			Core.addToOutputBox(error);
@@ -89,36 +89,61 @@ MartianRobots.Core = {
 
 		// Initialise static variables
 		Robot.robotCount = 0;
-		Robot.setPlanet(this.mars);
-
-		// Use the size of the planet to establish a suitable speed for the robots - Totally arbitrary!
-		Graphics.ROBOT_SPEED = (1/(this.mars.getXBoundary() + this.mars.getYBoundary())) * 1.5;
+		Robot.setPlanet(this.planet);
 
 		// Draw a grid on the canvas using the size of the planet
-		this.gridInformation = Graphics.initialiseGridCanvas(this.mars.getXBoundary(), this.mars.getYBoundary());
+		this.gridInformation = Graphics.initialiseGridCanvas(this.planet.getXBoundary(), this.planet.getYBoundary());
+		Graphics.initialiseRobotsCanvas();
+		Graphics.initialiseFinishedRobotsCanvas();
 
+		// Add an onclick event to the skip button so that animations can now be skipped
 		skipButton = document.getElementById("skipButton");
 		skipButton.onclick = Core.skipAnimation;
 
+		// Start the simulation
 		this.animationRequestId = window.requestAnimFrame(this.simulationLoop);
 
 	},
 
 	/**
-	 * The main simulation loop for the program. Should update at (monitor refresh rate) frames per second; tested on a 60Hz
-	 * monitor. Uses requestAnimationFrame to achieve smooth animations.
+	 * Set all of the "global" properties to their default values. Ensures that program can be run again after it has
+	 * run once in the same session!
+	 */
+	initialiseCoreVariables: function() {
+
+		this.planet = null;
+		this.reader = null;
+
+		this.robot = null;
+		this.currentRobotInstructions = null;
+		this.instruction = null;
+		this.gridInformation = null;
+		this.i = 0;
+
+		this.animationRequestId = 0;
+		this.previousFrameTimestamp = null;
+		this.simulationFinished = false;
+		this.finishedAnimating = true;
+		this.newRobot = true;
+
+	},
+
+	/**
+	 * The main simulation loop for the program. Should update at (monitor refresh rate) frames per second; tested on a
+	 * 60Hz monitor. Uses requestAnimationFrame to achieve smooth animations.
 	 *
 	 * @param  {DOMHighResTimeStamp} timestamp The current time when the function was called by requestAnimationFrame.
 	 */
 	simulationLoop: function(timestamp) {
 
+		// Namespace aliases
 		var Core = MartianRobots.Core;
 		var Graphics = MartianRobots.Graphics;
 		var Robot = MartianRobots.Robot;
 		var Planet = MartianRobots.Planet;
 		var InstructionReader = MartianRobots.InstructionReader;
 
-		// Set up initial window callback time if it's not set
+		// Set up initial frame call time
 		if (!Core.previousFrameTimestamp) {
 			Core.previousFrameTimestamp = timestamp;
 		}
@@ -129,20 +154,28 @@ MartianRobots.Core = {
 			if (Core.newRobot) {
 
 				// If we can't get a new robot, the simulation is over
-				if (Core.initialSetup()) {
+				if (Core.prepareRobot()) {
+
+					// Logic update
+					Core.robot.executeInstruction(Core.instruction, Core.gridInformation);
+					Core.planet.updateScents(Core.robot);
+
 					Core.newRobot = false;
 					Core.finishedAnimating = false;
-					Core.robot.executeInstruction(Core.instruction, Core.gridInformation);
-					Core.mars.updateScents(Core.robot);
+
 				} else {
 					Core.simulationFinished = true;
 					window.cancelAnimationFrame(Core.animationRequestId);
 				}
 
 			} else {
+
+				// If we've finished our last animation, we need to execute the next instruction
 				Core.robot.executeInstruction(Core.instruction, Core.gridInformation);
-				Core.mars.updateScents(Core.robot);
+				Core.planet.updateScents(Core.robot);
+
 				Core.finishedAnimating = false;
+
 			}
 
 		}
@@ -155,39 +188,45 @@ MartianRobots.Core = {
 			// Things to do when we're all done animating
 			if (Core.finishedAnimating) {
 
-				// Re-draw the robot centred on its end position
+				// Re-draw the robot centred on its end position if it's still on the grid
 				if (!Core.robot.isLost()) {
 
 					Graphics.robotsContext.beginPath();
 					Graphics.robotsContext.clearRect(0, 0, Graphics.robotsCanvas.width,
 						Graphics.robotsCanvas.height);
 
-					Core.robot.setCanvasXPosition((Core.gridInformation.xDifference * Core.robot.getXPosition()) + Core.gridInformation.margin);
+					Core.robot.setCanvasXPosition((Core.gridInformation.xDifference * Core.robot.getXPosition()) +
+						Core.gridInformation.margin);
 
-					Core.robot.setCanvasYPosition(Graphics.translateOrigin((Core.gridInformation.yDifference * Core.robot.getYPosition()) +
-						Core.gridInformation.margin, Core.gridInformation));
+					Core.robot.setCanvasYPosition(Graphics.translateOrigin((Core.gridInformation.yDifference *
+						Core.robot.getYPosition()) + Core.gridInformation.margin, Core.gridInformation));
+
+
+					Core.robot.draw(Core.gridInformation, Graphics.robotsContext);
 
 				}
 
-				Core.robot.draw(Core.gridInformation, Graphics.robotsContext);
-
+				// Increment the instruction counter
 				Core.i++;
 
 				// If we've finished simulating the current robot, perform all of the required updates
 				if (typeof Core.currentRobotInstructions[Core.i] === "undefined") {
 
 					Core.newRobot = true;
-					Core.finishedRobots.push(Core.robot);
 
-					// Ensure that other robots appear on the canvas if they existed
-					if (typeof Core.finishedRobots[0] !== "undefined") {
-						Graphics.drawFinishedRobots(Core.finishedRobots);
+					// If the completed the robot is still on the grid, add it to the finishedRobots canvas
+					if (!Core.robot.isLost()) {
+						Core.robot.draw(Core.gridInformation, Graphics.finishedRobotsContext);
 					}
 
 					Core.addToOutputBox(Core.robot.getFancyPositionInformation());
 
+
 				} else {
+
+					// Get a new instruction
 					Core.instruction = Core.currentRobotInstructions[Core.i];
+
 				}
 
 			}
@@ -202,12 +241,11 @@ MartianRobots.Core = {
 
 	/**
 	 * Cancel the current animation and skip to the end of the simulation. Executes the simulation loop with animation
-	 * stripped out.
+	 * stripped out as this means the simulation will complete properly no matter when the skip button is clicked.
 	 */
 	skipAnimation: function() {
 
-		var Globals = MartianRobots.Core.Globals;
-
+		// Namespace aliases
 		var Core = MartianRobots.Core;
 		var Graphics = MartianRobots.Graphics;
 		var Robot = MartianRobots.Robot;
@@ -227,20 +265,28 @@ MartianRobots.Core = {
 				if (Core.newRobot) {
 
 					// If we can't get a new robot, the simulation is over
-					if (Core.initialSetup()) {
+					if (Core.prepareRobot()) {
+
+						// Logic update
+						Core.robot.executeInstruction(Core.instruction, Core.gridInformation);
+						Core.planet.updateScents(Core.robot);
+
 						Core.newRobot = false;
 						Core.finishedAnimating = false;
-						Core.robot.executeInstruction(Core.instruction, Core.gridInformation);
-						Core.mars.updateScents(Core.robot);
+
 					} else {
 						Core.simulationFinished = true;
 						break;
 					}
 
 				} else {
+
+					// If we've finished our last (fake) animation, we need to execute the next instruction
 					Core.robot.executeInstruction(Core.instruction, Core.gridInformation);
-					Core.mars.updateScents(Core.robot);
+					Core.planet.updateScents(Core.robot);
+
 					Core.finishedAnimating = false;
+
 				}
 
 			}
@@ -253,6 +299,7 @@ MartianRobots.Core = {
 				// Things to do when we're all done animating
 				if (Core.finishedAnimating) {
 
+					// Increment the instruction counter
 					Core.i++;
 
 					// If we've finished simulating the current robot, perform all of the required updates
@@ -260,14 +307,19 @@ MartianRobots.Core = {
 
 						Core.newRobot = true;
 
-						// Update canvas co-ordinates of the finished robot
-						Core.robot.setCanvasXPosition((Core.gridInformation.xDifference * Core.robot.getXPosition()) +
-							Core.gridInformation.margin);
+						// Update canvas co-ordinates of the finished robot and draw it to the finishedRobots canvas
 
-						Core.robot.setCanvasYPosition(Graphics.translateOrigin((Core.gridInformation.yDifference * Core.robot.getYPosition()) +
-							Core.gridInformation.margin, Core.gridInformation));
+						if (!Core.robot.isLost()) {
 
-						Core.finishedRobots.push(Core.robot);
+							Core.robot.setCanvasXPosition((Core.gridInformation.xDifference *
+								Core.robot.getXPosition()) + Core.gridInformation.margin);
+
+							Core.robot.setCanvasYPosition(Graphics.translateOrigin((Core.gridInformation.yDifference *
+								Core.robot.getYPosition()) + Core.gridInformation.margin, Core.gridInformation));
+
+							Core.robot.draw(Core.gridInformation, Graphics.finishedRobotsContext);
+
+						}
 
 						Core.addToOutputBox(Core.robot.getFancyPositionInformation());
 
@@ -281,37 +333,32 @@ MartianRobots.Core = {
 
 		}
 
-		// Ensure that other robots appear on the canvas if they existed
-		if (typeof Core.finishedRobots[0] !== "undefined") {
-			Graphics.drawFinishedRobots(Core.finishedRobots);
-		}
-
 	},
 
 	/**
-	 * Takes care of preparing new robots. If a robot creates an error upon creation, this function is called recursively.
+	 * Takes care of preparing new robots. If a robot creates an error upon creation, this function is called
+	 * recursively.
 	 * @return {boolean} True if a robot has been created successfully, false if there are no robots left to process.
 	 */
-	initialSetup: function() {
+	prepareRobot: function() {
 
+		// Namespace aliases
 		var Core = MartianRobots.Core;
-		var Graphics = MartianRobots.Graphics;
 		var Robot = MartianRobots.Robot;
-		var Planet = MartianRobots.Planet;
-		var InstructionReader = MartianRobots.InstructionReader;
 
 		if (!Core.reader.empty()) {
 
 			// If there's a robot to set up, initialiseRobot returns true and we can continue
 			if (Core.reader.initialiseRobot()) {
 
+				// Reset the instruction counter
+				Core.i = 0;
 			    var robotPosition = Core.reader.getCurrentRobotStartingInformation();
-			    Core.i = 0;
 
 			    try {
 
-			    	Core.robot = new Robot(parseInt(robotPosition[0], 10), parseInt(robotPosition[1], 10), robotPosition[2],
-			    		Core.gridInformation);
+			    	Core.robot = new Robot(parseInt(robotPosition[0], 10), parseInt(robotPosition[1], 10),
+			    		robotPosition[2], Core.gridInformation);
 
 				    Core.currentRobotInstructions = Core.reader.getCurrentRobotInstructions();
 				    Core.instruction = Core.currentRobotInstructions[Core.i].toUpperCase();
@@ -320,11 +367,11 @@ MartianRobots.Core = {
 
 		    	} catch (error) {
 		    		Core.addToOutputBox(error);
-		    		return Core.initialSetup();
+		    		return Core.prepareRobot();
 		    	}
 
 			} else {
-				return Core.initialSetup();
+				return Core.prepareRobot();
 			}
 
 		} else {
@@ -336,11 +383,11 @@ MartianRobots.Core = {
 	/**
 	 * Sets up a listener so that we can read in robot instructions from a suitable file.
 	 */
-	setUpFileListeners: function() {
+	initialiseFileListener: function() {
 
 		// Check for the various File API support - Taken from HTML5Rocks.com
 		if (window.File && window.FileReader && window.FileList && window.Blob) {
-		// Great success! All the File APIs are supported.
+			// Great success! All the File APIs are supported.
 		} else {
 			alert('The File APIs are not fully supported in this browser.');
 			return;
@@ -373,33 +420,13 @@ MartianRobots.Core = {
 	},
 
 	/**
-	 * Take a String and put it nicely into the output box.
+	 * Take a String and add it to the output box.
 	 * @param {String} outputString The string to add to the output box.
 	 */
 	addToOutputBox: function(outputString) {
 		var outputBox = document.getElementById("outputBox");
 		outputBox.insertAdjacentHTML('beforeend', "<p>" + outputString + "<br/>" + "</p>");
 		outputBox.scrollTop = outputBox.scrollHeight;
-	},
-
-	initialiseCoreVariables: function() {
-
-		this.mars = null;
-		this.reader = null;
-
-		this.robot = null;
-		this.currentRobotInstructions = null;
-		this.instruction = null;
-		this.gridInformation = null;
-		this.i = 0;
-
-		this.animationRequestId = 0;
-		this.previousFrameTimestamp = null;
-		this.simulationFinished = false;
-		this.finishedAnimating = true;
-		this.newRobot = true;
-		this.finishedRobots = [];
-
 	}
 
 };

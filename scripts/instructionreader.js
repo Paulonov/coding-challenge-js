@@ -4,7 +4,6 @@
  * Used to handle input data from text box. Parses data naively using regular expressions; this is explained in more
  * detail in the parse function.
  */
-
 var MartianRobots = MartianRobots || {};
 MartianRobots.InstructionReader = MartianRobots.InstructionReader || {};
 
@@ -27,6 +26,7 @@ MartianRobots.InstructionReader = function(instructions) {
 		throw error;
 	}
 
+	// Planet boundaries are always the first line so we can get them first
 	planetBoundaries = instructionStack.pop().trim().split(" ");
 
 	this.getPlanetBoundaries = function() {

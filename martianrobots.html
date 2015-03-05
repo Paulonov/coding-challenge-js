@@ -23,7 +23,7 @@ The home page for the application.
 
 </head>
 
-<body id="container" onload="MartianRobots.Core.setUpFileListeners()">
+<body id="container" onload="MartianRobots.Core.initialiseFileListener()">
 
 	<div id="header">
 		<p>Martian Robots</p>
@@ -33,9 +33,9 @@ The home page for the application.
 
 		<!-- TODO: Make the canvas scalable somehow -->
 		<div id="graphicsContainer">
-			<canvas id="grid" width="1265.48px" height="640px"></canvas>
-			<canvas id="finishedRobots" width="1265.48px" height="640px"></canvas>
-			<canvas id="robots" width="1265.48px" height="640px"></canvas>
+			<canvas id="grid" width="1360px" height="640px"></canvas>
+			<canvas id="finishedRobots" width="1360px" height="640px"></canvas>
+			<canvas id="robots" width="1360px" height="640px"></canvas>
 		</div>
 
 		<div id="sidebar">
