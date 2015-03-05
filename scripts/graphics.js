@@ -32,7 +32,14 @@ MartianRobots.Graphics = {
 		this.gridContext.clearRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
 
 		// How far in from 0, 0 we want to draw the grid, we need a margin or the robots can't be centred on the grid
-		var marginValue = 50;
+		var marginValue = 0;
+
+		if ((planetX + planetY) < 15) {
+			marginValue = 50;
+		} else {
+			marginValue = 25;
+		}
+
 
 		/*
 		 * We want to divide our grid based on the size of the planet so we need to consider the margin that surrounds
