@@ -17,10 +17,10 @@ body, html {
 	color: white;
 	font-family: Roboto, Arial, sans-serif;
 	font-weight: bold;
-	font-size: 180%;
+	font-size: 260%;
 	margin-left: 2%;
 	margin-top: 0;
-	top: 0.75em;
+	top: 1em;
 }
 
 #mainArea {
@@ -36,8 +36,8 @@ body, html {
 #graphicsContainer {
 	position: relative;
 	float: left;
-	background-image: url(../images/mars_surface.jpg);
-	background-color: #b0c4de;
+	background-image: url(../images/mars_surface_scaled.jpg);
+	background-color: #508FBB;
 	background-size: cover;
 	background-repeat: no-repeat;
 	width: 75%;

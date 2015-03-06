@@ -1,5 +1,5 @@
 /**
- * main.js
+ * core.js
  *
  * Create a planet, create a robot and get going!
  */
