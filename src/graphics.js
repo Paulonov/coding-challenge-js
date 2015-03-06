@@ -191,8 +191,8 @@ MartianRobots.Graphics = {
 				 * Screen co-ordinates begin in the top left of the canvas but our co-ordinate system begins in the
 				 * bottom left so we need to translate the co-ordinate value accordingly.
 				 */
-				nextPos = this.translateOrigin(Core.gridInformation.yDifference * Core.robot.getYPosition()
-					+ Core.gridInformation.margin, Core.gridInformation);
+				nextPos = this.translateOrigin(Core.gridInformation.yDifference * Core.robot.getYPosition() +
+					Core.gridInformation.margin, Core.gridInformation);
 
 				// Update the canvas y position based on the time that's passed between frames
 				newPos = Core.robot.getCanvasYPosition() - (dt * speed);
@@ -220,8 +220,8 @@ MartianRobots.Graphics = {
 
 			} else if (heading === Robot.SOUTH) {
 
-				nextPos = this.translateOrigin(Core.gridInformation.yDifference * Core.robot.getYPosition()
-					+ Core.gridInformation.margin, Core.gridInformation);
+				nextPos = this.translateOrigin(Core.gridInformation.yDifference * Core.robot.getYPosition() +
+					Core.gridInformation.margin, Core.gridInformation);
 
 				// Update the canvas y position based on the time that's passed between frames
 				newPos = Core.robot.getCanvasYPosition() + (dt * speed);

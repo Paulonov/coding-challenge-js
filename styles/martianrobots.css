@@ -9,7 +9,7 @@ body, html {
 #header {
 	width: 100%;
 	background-color: #FF4500;
-	height: 5em;
+	height: 4.25em;
 }
 
 #header p {
@@ -17,10 +17,10 @@ body, html {
 	color: white;
 	font-family: Roboto, Arial, sans-serif;
 	font-weight: bold;
-	font-size: 260%;
+	font-size: 320%;
 	margin-left: 2%;
 	margin-top: 0;
-	top: 1em;
+	top: 0.375em;
 }
 
 #mainArea {
@@ -101,14 +101,14 @@ canvas {
 #sidebar #goButton {
 	float: left;
 	clear: left;
-	width: 35%;
+	width: 45%;
 	height: 2em;
 }
 
 #sidebar #skipButton {
 	float: left;
-	margin-left: 1.25em;
-	width: 35%;
+	margin-left: 5%;
+	width: 45%;
 	height: 2em;
 }
 

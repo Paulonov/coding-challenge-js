@@ -4,7 +4,10 @@
  * Create a planet, create a robot and get going!
  */
 
-// Taken from http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
+/*
+ * Taken from http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
+ * Used for animation compatibility across browsers.
+ */
 window.requestAnimFrame = (
 
 	function() {
@@ -42,7 +45,7 @@ MartianRobots.Core = {
 	/**
 	 * Called when the go button is clicked on the Martian Robots web page.
 	 */
-	main: function() {
+	start: function() {
 
 		// Namespace aliases
 		var Core = MartianRobots.Core;
@@ -204,6 +207,8 @@ MartianRobots.Core = {
 
 					Core.robot.draw(Core.gridInformation, Graphics.robotsContext);
 
+				} else {
+					Graphics.robotsContext.clearRect(0, 0, Graphics.robotsCanvas.width, Graphics.robotsCanvas.height);
 				}
 
 				// Increment the instruction counter
@@ -216,6 +221,7 @@ MartianRobots.Core = {
 
 					// If the completed the robot is still on the grid, add it to the finishedRobots canvas
 					if (!Core.robot.isLost()) {
+						Graphics.robotsContext.clearRect(0, 0, Graphics.robotsCanvas.width, Graphics.robotsCanvas.height);
 						Core.robot.draw(Core.gridInformation, Graphics.finishedRobotsContext);
 					}
 

@@ -59,6 +59,8 @@ MartianRobots.Robot = function(initialXPosition, initialYPosition, initialHeadin
 			width = 30;
 		}
 
+		console.log(initialHeading);
+
 		// Headings are represented internally as numbers so we need to do a conversion
 		if (initialHeading === "N") {
 			heading = Robot.NORTH;
@@ -69,7 +71,7 @@ MartianRobots.Robot = function(initialXPosition, initialYPosition, initialHeadin
 		} else if (initialHeading === "W") {
 			heading = Robot.WEST;
 		} else {
-			throw "Robot Creation Error: Invalid current heading";
+			throw "<b>Robot Creation Error:</b> Invalid current heading";
 		}
 
 		// Robot has been successfully created so increase the count
@@ -209,11 +211,12 @@ MartianRobots.Robot.prototype.executeInstruction = function(instruction, gridInf
 
 		switch (instruction) {
 
-			// Using mod 4 allows us to add 3 to the heading to get the heading 90 degrees to the left of it
+			// Using mod n allows us to add (n - 1) to the heading to get the next heading the left
 			case 'L':
-				this.setHeading((heading + 3) % Robot.NUMBER_OF_DIRECTIONS);
+				this.setHeading((heading + (Robot.NUMBER_OF_DIRECTIONS - 1)) % Robot.NUMBER_OF_DIRECTIONS);
 				break;
 
+			// Same again but we add 1 to get the next heading to the right
 			case 'R':
 				this.setHeading((heading + 1) % Robot.NUMBER_OF_DIRECTIONS);
 				break;

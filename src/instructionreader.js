@@ -150,29 +150,31 @@ MartianRobots.InstructionReader.parse = function(instructions) {
 	for (var i = 0; i < splitInstructions.length - 1; i += 2) {
 
 		// Variable accesses appear to be quicker than array accesses (6.1ms vs 5.1ms per run)
-		var robotPosition = splitInstructions[i];
-		var robotInstructions = splitInstructions[i+1];
+		var robotInstructions = splitInstructions[i].trim();
+		var robotPosition = splitInstructions[i+1].trim();
 
-		if (/^[a-zA-Z]+ \d+ \d+ [a-zA-Z]\s*$/.test(robotPosition + " " + robotInstructions)) {
-			instructionStack.push(robotPosition);
+		console.log("Robot pos: " + robotPosition);
+		console.log("Instructions: " + robotInstructions);
+
+		if (/^[a-zA-Z]+ \d+ \d+ [a-zA-Z]\s*$/.test(robotInstructions + " " + robotPosition)) {
 			instructionStack.push(robotInstructions);
+			instructionStack.push(robotPosition);
 		}  else {
 
 			/*
 			 * If the position part of the robot statement has a syntax error, report it otherwise the error has to be
 			 * in the instruction part so we don't need to test for it (but we do anyway).
 			 */
-			if (!/^[a-zA-Z]+\s*$/.test(robotPosition)) {
+			if (!/^\d+ \d+ [a-zA-Z]\s*$/.test(robotPosition)) {
 				console.log("Syntax Error on Line: " + robotPosition);
 				throw "<b>Syntax Error on Line: </b>" + robotPosition;
-			} else if (!/^\d+ \d+ [a-zA-Z]\s*$/.test(robotInstructions)) {
+			} else if (!/^[a-zA-Z]+\s*$/.test(robotInstructions)) {
 				console.log("Syntax Error on Line: " + robotInstructions);
 				throw "<b>Syntax Error on Line: </b>" + robotInstructions;
 			} else {
 				console.log("Syntax Error on Line");
 				throw "<b>Unexplained Syntax Error: </b>" + robotPosition + " or " + robotInstructions;
 			}
-
 
 		}
 
