@@ -153,9 +153,6 @@ MartianRobots.InstructionReader.parse = function(instructions) {
 		var robotInstructions = splitInstructions[i].trim();
 		var robotPosition = splitInstructions[i+1].trim();
 
-		console.log("Robot pos: " + robotPosition);
-		console.log("Instructions: " + robotInstructions);
-
 		if (/^[a-zA-Z]+ \d+ \d+ [a-zA-Z]\s*$/.test(robotInstructions + " " + robotPosition)) {
 			instructionStack.push(robotInstructions);
 			instructionStack.push(robotPosition);
@@ -181,7 +178,6 @@ MartianRobots.InstructionReader.parse = function(instructions) {
 	}
 
 	instructionStack.push(planetBoundaries);
-	console.log("Instruction stack is: " + instructionStack.toString());
 	return instructionStack;
 
 };

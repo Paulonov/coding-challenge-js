@@ -20,7 +20,7 @@ body, html {
 	font-size: 320%;
 	margin-left: 2%;
 	margin-top: 0;
-	top: 0.375em;
+	top: 0.385em;
 }
 
 #mainArea {
@@ -90,6 +90,13 @@ canvas {
 	position: relative;
 }
 
+.buttonText {
+	width: 100%;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
 #sidebar #fileInput {
 	float: left;
 	width: 100%;
@@ -101,14 +108,14 @@ canvas {
 #sidebar #goButton {
 	float: left;
 	clear: left;
-	width: 45%;
+	width: 47%;
 	height: 2em;
 }
 
 #sidebar #skipButton {
 	float: left;
-	margin-left: 5%;
-	width: 45%;
+	margin-left: 6%;
+	width: 47%;
 	height: 2em;
 }
 

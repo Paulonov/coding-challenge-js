@@ -1,7 +1,7 @@
 <!--
 martianrobots.html
 
-The home page for the application.
+The front-end for the application.
 -->
 
 <!DOCTYPE html>
@@ -31,7 +31,6 @@ The home page for the application.
 
 	<div id="mainArea">
 
-		<!-- TODO: Make the canvas scalable somehow -->
 		<div id="graphicsContainer">
 			<canvas id="grid" width="1360px" height="640px"></canvas>
 			<canvas id="finishedRobots" width="1360px" height="640px"></canvas>
@@ -43,9 +42,17 @@ The home page for the application.
 			<textarea id="editor" placeholder="Enter your code here!" rows="30" cols="75"></textarea>
 
 			<div id="buttonBox">
+
 				<input class="buttons" type="file" id="fileInput" name="file"/>
-				<button class="buttons" id="goButton" type="button" onclick="MartianRobots.Core.start()">Go!</button>
-				<button class="buttons" id="skipButton" type="button">Skip Animation</button>
+
+				<button class="buttons" id="goButton" type="button" onclick="MartianRobots.Core.go()">
+					<div class="buttonText">Go!</div>
+				</button>
+
+				<button class="buttons" id="skipButton" type="button">
+					<div class="buttonText">Skip Animation</div>
+				</button>
+
 			</div>
 
 		</div>

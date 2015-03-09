@@ -59,8 +59,6 @@ MartianRobots.Robot = function(initialXPosition, initialYPosition, initialHeadin
 			width = 30;
 		}
 
-		console.log(initialHeading);
-
 		// Headings are represented internally as numbers so we need to do a conversion
 		if (initialHeading === "N") {
 			heading = Robot.NORTH;

@@ -2,8 +2,7 @@
  * planet.js
  *
  * A representation of the planet. Simply stores the X and Y boundaries of its grid and also a "scent map" so that a
- * robot can sniff the air at its current position for the smell of a sad, lost and alone friend... And not go the same
- * way.
+ * robot can sniff the air at its current position for the smell of a friend that's wandered off the grid.
  */
 var MartianRobots = MartianRobots || {};
 MartianRobots.Planet = MartianRobots.Planet || {};

@@ -1,7 +1,8 @@
 /**
  * graphics.js
  *
- * Used for doing canvas-y things. Includes setup code for both canvases and all of the movement code for the robots.
+ * Contains functions for manipulating the canvases. Includes setup code for all canvases and all of the animation code
+ * for the robots.
  */
 var MartianRobots = MartianRobots || {};
 MartianRobots.Graphics = MartianRobots.Graphics || {};
@@ -48,7 +49,7 @@ MartianRobots.Graphics = {
 		if ((planetX + planetY) < 15) {
 			marginValue = 50;
 		} else {
-			marginValue = 20;
+			marginValue = 25;
 		}
 
 		/*
@@ -60,12 +61,6 @@ MartianRobots.Graphics = {
 
 		var xBoundary = this.gridCanvas.width - marginValue;
 		var yBoundary = this.gridCanvas.height - marginValue;
-
-		console.log("The difference between x grid positions is: " + xUp);
-		console.log("The difference between y grid positions is: " + yUp);
-
-		console.log("The x boundary of the grid is " + xBoundary);
-		console.log("The y boundary of the grid is " + yBoundary);
 
 		// We have to start a path to define the shape (a grid) we want to draw using stroke()
 		this.gridContext.beginPath();

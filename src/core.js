@@ -1,7 +1,8 @@
 /**
  * core.js
  *
- * Create a planet, create a robot and get going!
+ * Brings each module together so that we can run the program. The important function here is the simulationLoop that
+ * updates the state of the world and updates the state of each animation with every frame.
  */
 
 /*
@@ -26,7 +27,7 @@ var MartianRobots = MartianRobots || {};
 
 MartianRobots.Core = {
 
-	// These properties are all treated as global variables as multiple areas of the program need to access them.
+	// These properties are all treated as global variables as multiple areas of the program need to access them
 	planet: null,
 	reader: null,
 
@@ -34,7 +35,7 @@ MartianRobots.Core = {
 	currentRobotInstructions: null,
 	instruction: null,
 	gridInformation: null,
-	i: 0,
+	instructionCount: 0,
 
 	animationRequestId: 0,
 	previousFrameTimestamp: null,
@@ -45,7 +46,7 @@ MartianRobots.Core = {
 	/**
 	 * Called when the go button is clicked on the Martian Robots web page.
 	 */
-	start: function() {
+	go: function() {
 
 		// Namespace aliases
 		var Core = MartianRobots.Core;
@@ -56,10 +57,6 @@ MartianRobots.Core = {
 
 		// Cancel a previous animation frame if it hasn't been cancelled already
 		window.cancelAnimationFrame(this.animationRequestId);
-
-		// Get rid of the skip button on-click event so that it can't be used before the animation has started
-		var skipButton = document.getElementById("skipButton");
-		skipButton.onclick = null;
 
 		this.initialiseCoreVariables();
 
@@ -121,7 +118,7 @@ MartianRobots.Core = {
 		this.currentRobotInstructions = null;
 		this.instruction = null;
 		this.gridInformation = null;
-		this.i = 0;
+		this.instructionCount = 0;
 
 		this.animationRequestId = 0;
 		this.previousFrameTimestamp = null;
@@ -167,8 +164,14 @@ MartianRobots.Core = {
 					Core.finishedAnimating = false;
 
 				} else {
+
 					Core.simulationFinished = true;
 					window.cancelAnimationFrame(Core.animationRequestId);
+
+					// Disable the skip button
+					var skipButton = document.getElementById("skipButton");
+					skipButton.onclick = null;
+
 				}
 
 			} else {
@@ -212,10 +215,10 @@ MartianRobots.Core = {
 				}
 
 				// Increment the instruction counter
-				Core.i++;
+				Core.instructionCount++;
 
 				// If we've finished simulating the current robot, perform all of the required updates
-				if (typeof Core.currentRobotInstructions[Core.i] === "undefined") {
+				if (typeof Core.currentRobotInstructions[Core.instructionCount] === "undefined") {
 
 					Core.newRobot = true;
 
@@ -235,7 +238,7 @@ MartianRobots.Core = {
 				} else {
 
 					// Get a new instruction
-					Core.instruction = Core.currentRobotInstructions[Core.i];
+					Core.instruction = Core.currentRobotInstructions[Core.instructionCount];
 
 				}
 
@@ -308,10 +311,10 @@ MartianRobots.Core = {
 				if (Core.finishedAnimating) {
 
 					// Increment the instruction counter
-					Core.i++;
+					Core.instructionCount++;
 
 					// If we've finished simulating the current robot, perform all of the required updates
-					if (typeof Core.currentRobotInstructions[Core.i] === "undefined") {
+					if (typeof Core.currentRobotInstructions[Core.instructionCount] === "undefined") {
 
 						Core.newRobot = true;
 
@@ -331,7 +334,7 @@ MartianRobots.Core = {
 						Core.addToOutputBox(Core.robot.getFancyPositionInformation());
 
 					} else {
-						Core.instruction = Core.currentRobotInstructions[Core.i];
+						Core.instruction = Core.currentRobotInstructions[Core.instructionCount];
 					}
 
 				}
@@ -344,7 +347,7 @@ MartianRobots.Core = {
 
 	/**
 	 * Takes care of preparing new robots. If a robot creates an error upon creation, this function is called
-	 * recursively.
+	 * recursively so we can try and get another robot.
 	 * @return {boolean} True if a robot has been created successfully, false if there are no robots left to process.
 	 */
 	prepareRobot: function() {
@@ -359,7 +362,7 @@ MartianRobots.Core = {
 			if (Core.reader.initialiseRobot()) {
 
 				// Reset the instruction counter
-				Core.i = 0;
+				Core.instructionCount = 0;
 			    var robotPosition = Core.reader.getCurrentRobotStartingInformation();
 
 			    try {
@@ -368,7 +371,7 @@ MartianRobots.Core = {
 			    		robotPosition[2], Core.gridInformation);
 
 				    Core.currentRobotInstructions = Core.reader.getCurrentRobotInstructions();
-				    Core.instruction = Core.currentRobotInstructions[Core.i].toUpperCase();
+				    Core.instruction = Core.currentRobotInstructions[Core.instructionCount].toUpperCase();
 
 				    return true;
 
@@ -392,11 +395,11 @@ MartianRobots.Core = {
 	 */
 	initialiseFileListener: function() {
 
-		// Check for the various File API support - Taken from HTML5Rocks.com
+		// Check for File APIs support - Taken from HTML5Rocks.com
 		if (window.File && window.FileReader && window.FileList && window.Blob) {
-			// Great success! All the File APIs are supported.
+			// File APIs supported
 		} else {
-			alert('The File APIs are not fully supported in this browser.');
+			alert('File APIs not fully supported in this browser, loading instructions from a file is disabled.');
 			return;
 		}
 
@@ -406,7 +409,6 @@ MartianRobots.Core = {
 
 	    fileList.addEventListener('change', function (e) {
 
-		    //Get the file object
 		    var file = fileList.files[0];
 
 	        reader.onload = function (e) {
