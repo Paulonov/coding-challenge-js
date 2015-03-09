@@ -219,10 +219,14 @@ MartianRobots.Core = {
 
 					Core.newRobot = true;
 
-					// If the completed the robot is still on the grid, add it to the finishedRobots canvas
+					// If the completed robot is still on the grid, add it to the finishedRobots canvas
 					if (!Core.robot.isLost()) {
-						Graphics.robotsContext.clearRect(0, 0, Graphics.robotsCanvas.width, Graphics.robotsCanvas.height);
+
+						Graphics.robotsContext.clearRect(0, 0, Graphics.robotsCanvas.width,
+							Graphics.robotsCanvas.height);
+
 						Core.robot.draw(Core.gridInformation, Graphics.finishedRobotsContext);
+
 					}
 
 					Core.addToOutputBox(Core.robot.getFancyPositionInformation());
@@ -259,9 +263,7 @@ MartianRobots.Core = {
 		var InstructionReader = MartianRobots.InstructionReader;
 
 		window.cancelAnimationFrame(Core.animationRequestId);
-
 		Graphics.initialiseRobotsCanvas();
-		Graphics.initialiseFinishedRobotsCanvas();
 
 		while (!Core.simulationFinished) {
 
@@ -314,7 +316,6 @@ MartianRobots.Core = {
 						Core.newRobot = true;
 
 						// Update canvas co-ordinates of the finished robot and draw it to the finishedRobots canvas
-
 						if (!Core.robot.isLost()) {
 
 							Core.robot.setCanvasXPosition((Core.gridInformation.xDifference *
