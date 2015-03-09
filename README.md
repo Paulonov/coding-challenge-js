@@ -38,6 +38,8 @@ A few more nice features that could be added:
 
 2. **Proportional brush sizes for drawing:** The lines making up the grid and each robot can get a bit thick as the grid size increases and the current solution is very temporary.
 
+3. **Off-screen rendering:** The Chrome CPU profiler shows the `strokeText` as being quite expensive. The robot could be rendered off-screen once per animation cycle and then simply copied and moved.
+
 4. **Add a proper language parser:** Purely for "fun". The current instruction language is simple and assumed to be regular and so it's currently parsed using regular expressions. A true parser would be far more future proof.
 
 5. **Mass refactoring:** Is encapsulation necessary? If so, the getters and setters associated with the Robot, Planet and InstructionReader objects could be turned into properties.
