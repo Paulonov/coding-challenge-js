@@ -14,57 +14,57 @@ MartianRobots.Planet = MartianRobots.Planet || {};
  */
 MartianRobots.Planet = function(planetX, planetY) {
 
-	var x;
-	var y;
-	var scentMap = [];
+    var x;
+    var y;
+    var scentMap = [];
 
-	// Make sure that the provided planet co-ordinates are in bounds otherwise set up the planet as normal
-	if (planetX > 50 || planetY > 50 || planetX <= 0 || planetY <= 0 || typeof planetX === "undefined" ||
-		typeof planetY === "undefined") {
+    // Make sure that the provided planet co-ordinates are in bounds otherwise set up the planet as normal
+    if (planetX > 50 || planetY > 50 || planetX <= 0 || planetY <= 0 || typeof planetX === "undefined" ||
+        typeof planetY === "undefined") {
 
-			throw "<b>Planet Creation Error: </b> Specified planet co-ordinates are out of bounds! Max planet size " +
-					"is 50x50";
+            throw "<b>Planet Creation Error: </b> Specified planet co-ordinates are out of bounds! Max planet size " +
+                    "is 50x50";
 
-	} else {
+    } else {
 
-		x = planetX;
-		y = planetY;
+        x = planetX;
+        y = planetY;
 
-		// If a grid square has a value of true, a robot has left a scent before it got lost
-		for (var i = 0; i <= planetX; i++) {
+        // If a grid square has a value of true, a robot has left a scent before it got lost
+        for (var i = 0; i <= planetX; i++) {
 
-			scentMap[i] = [];
+            scentMap[i] = [];
 
-			for (var j = 0; j <= planetY; j++) {
-				scentMap[i][j] = false;
-			}
+            for (var j = 0; j <= planetY; j++) {
+                scentMap[i][j] = false;
+            }
 
-		}
+        }
 
-	}
+    }
 
-	this.getXBoundary = function() {
-		return x;
-	};
+    this.getXBoundary = function() {
+        return x;
+    };
 
-	this.getYBoundary = function() {
-		return y;
-	};
+    this.getYBoundary = function() {
+        return y;
+    };
 
-	this.getSmellFromCoordinates = function(xPosition, yPosition) {
-		return scentMap[xPosition][yPosition];
-	};
+    this.getSmellFromCoordinates = function(xPosition, yPosition) {
+        return scentMap[xPosition][yPosition];
+    };
 
-	this.updateScents = function(robot) {
+    this.updateScents = function(robot) {
 
-		/*
-		 * The robot stops processing instructions once it is lost so we can use its latest position as the point it got
-		 * lost at.
-		 */
-		if (robot.isLost()) {
-			scentMap[robot.getXPosition()][robot.getYPosition()] = true;
-		}
+        /*
+         * The robot stops processing instructions once it is lost so we can use its latest position as the point it got
+         * lost at.
+         */
+        if (robot.isLost()) {
+            scentMap[robot.getXPosition()][robot.getYPosition()] = true;
+        }
 
-	};
+    };
 
 };
