@@ -6,8 +6,8 @@
 *
 * TODO: We should now have a global State we can access - Use it!
 */
+"use strict";
 
-import * as Core from "./core.js"
 import State from "./core.js";
 import Robot from "./robot.js";
 

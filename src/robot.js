@@ -4,7 +4,9 @@
  * Contains the constructor required to create a Robot along with the logic to handle each instruction.
  *
  * Properties: xPosition, yPosition, heading, width, length, canvasXPosition, canvasYPosition, speed, isLost
+ * TODO: Should these properties be set to some default values?
  */
+"use strict";
 
 import * as Core from "./core.js";
 import State from "./core.js";
@@ -23,6 +25,8 @@ export default class Robot {
         /**
          * Internal heading values: Counted clockwise from north
          * Defining them outside of this doesn't seem to get them "counted" with the export
+         *
+         * TODO: Can these use the const keyword?
          */
         Robot.NUMBER_OF_DIRECTIONS = 4;
         Robot.NORTH = 0;
@@ -41,8 +45,8 @@ export default class Robot {
             this.yPosition = initialYPosition;
 
             this.canvasXPosition = (gridInformation.xDifference * this.xPosition) + gridInformation.margin;
-            this.canvasYPosition = Graphics.translateOrigin((gridInformation.yDifference * this.yPosition) + gridInformation.margin,
-                gridInformation);
+            this.canvasYPosition = Graphics.translateOrigin((gridInformation.yDifference * this.yPosition) +
+                gridInformation.margin, gridInformation);
 
             // Use the size of the planet to establish a suitable speed for the robots - Totally arbitrary!
             this.speed = (1/(State.planet.x + State.planet.y)) * 1.5;
@@ -183,70 +187,64 @@ export default class Robot {
 
     }
 
-}
-
-/**
- * We're giving the Robot object two methods of its own that you can call without needing an instance. These act as
- * static functions.
- */
-Robot.setPlanet = function(planet) {
-    this.currentPlanet = planet;
-};
-
-Robot.setRobotCount = function(count) {
-    this.robotCount = count;
-};
-
-Robot.stringToHeading = function(heading) {
-
-    // Headings are represented internally as numbers so we need to do a conversion
-    /*if (initialHeading === "N") {
-        return Robot.NORTH;
-    } else if (initialHeading === "E") {
-        return Robot.EAST;
-    } else if (initialHeading === "S") {
-        return Robot.SOUTH;
-    } else if (initialHeading === "W") {
-        return Robot.WEST;
-    } else {
-        return "?";
-    }*/
-
-    switch (heading) {
-        case "N":
-            return Robot.NORTH;
-        case "E":
-            return Robot.EAST;
-        case "S":
-            return Robot.SOUTH;
-        case "W":
-            return Robot.WEST;
-        default:
-            return "?";
+    /**
+     * We're giving the Robot object two methods of its own that you can call without needing an instance. These act as
+     * static functions.
+     */
+    static setPlanet(planet) {
+        this.currentPlanet = planet;
     }
 
-}
+    static setRobotCount(count) {
+        this.robotCount = count;
+    }
 
-/**
- * Convert a (numerical) heading value back into its String form.
- * TODO: Refactor using an enum maybe?
- * @param  {int}    heading A numerical value representing the current heading.
- * @return {String}         The String form of that value.
- */
-Robot.headingToString = function(heading) {
 
-    switch (heading) {
-        case Robot.NORTH:
-            return "N";
-        case Robot.EAST:
-            return "E";
-        case Robot.SOUTH:
-            return "S";
-        case Robot.WEST:
-            return "W";
-        default:
-            return "?";
+    /**
+     * Convert a heading string into its numerical equivalent.
+     * @param  {string} heading A string containing the heading character to convert.
+     * @return {int}            A numerical value corresponding to the heading passed in or a question mark if the value
+     *                          cannot be converted.
+     */
+    static stringToHeading(heading) {
+
+        switch (heading) {
+            case "N":
+                return Robot.NORTH;
+            case "E":
+                return Robot.EAST;
+            case "S":
+                return Robot.SOUTH;
+            case "W":
+                return Robot.WEST;
+            default:
+                return "?";
+        }
 
     }
 
-};
+    /**
+     * Convert a (numerical) heading value back into its string form.
+     * TODO: Refactor using an enum maybe?
+     * @param  {int}    heading A numerical value representing the current heading.
+     * @return {String}         The String form of that value.
+     */
+    static headingToString(heading) {
+
+        switch (heading) {
+            case Robot.NORTH:
+                return "N";
+            case Robot.EAST:
+                return "E";
+            case Robot.SOUTH:
+                return "S";
+            case Robot.WEST:
+                return "W";
+            default:
+                return "?";
+
+        }
+
+    }
+
+}

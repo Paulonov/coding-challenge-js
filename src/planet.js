@@ -6,6 +6,7 @@
  *
  * Properties: x, y, scentMap
  */
+"use strict";
 
 /**
  * Constructor to create a planet object.

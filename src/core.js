@@ -4,6 +4,7 @@
  * Brings each module together so that we can run the program. The important function here is the simulationLoop that
  * updates the State of the world and updates the State of each animation with every frame.
  */
+"use strict";
 
 // Imports
 import Robot from "./robot.js";
@@ -29,8 +30,8 @@ window.requestAnimFrame = (
  )();
 
 /**
- * Bring State together into a single object, useful as they'll be conveniently global (and we shouldn't have to
- * instantiate a State object)
+ * Bring State together into a single object, useful as they'll be conveniently global once a State object is created to
+ * execute the constructor.
  */
 export default class State {
 
@@ -260,28 +261,45 @@ function updateLogic() {
 }
 
 /**
- * When an animation is finished, re-draw the robot if necessary.
+ * When an animation is finished, re-draw the robot if necessary and then get a new instruction.
  */
 function finaliseAnimationStep() {
 
     // Re-draw the robot centred on its end position if it's still on the grid
     if (!State.robot.isLost) {
-
-        State.robotsContext.beginPath();
-        State.robotsContext.clearRect(0, 0, State.robotsCanvas.width,
-            State.robotsCanvas.height);
-
-        State.robot.canvasXPosition = (State.gridInformation.xDifference * State.robot.xPosition) +
-            State.gridInformation.margin;
-
-        State.robot.canvasYPosition = Graphics.translateOrigin((State.gridInformation.yDifference *
-            State.robot.yPosition) + State.gridInformation.margin, State.gridInformation);
-
-        Graphics.drawRobot(State.robotsContext);
-
+        redrawRobot();
     } else {
         State.robotsContext.clearRect(0, 0, State.robotsCanvas.width, State.robotsCanvas.height);
     }
+
+    updateCurrentInstruction();
+
+}
+
+/**
+ * Redraw the robot bases on its final position.
+ */
+function redrawRobot() {
+
+    State.robotsContext.beginPath();
+    State.robotsContext.clearRect(0, 0, State.robotsCanvas.width,
+        State.robotsCanvas.height);
+
+    State.robot.canvasXPosition = (State.gridInformation.xDifference * State.robot.xPosition) +
+        State.gridInformation.margin;
+
+    State.robot.canvasYPosition = Graphics.translateOrigin((State.gridInformation.yDifference *
+        State.robot.yPosition) + State.gridInformation.margin, State.gridInformation);
+
+    Graphics.drawRobot(State.robotsContext);
+
+}
+
+/**
+ * Determines whether or not the robot has completed its instructions; a new instruction is obtained if it hasn't or
+ * its position is updated and added to the output box if it has.
+ */
+function updateCurrentInstruction() {
 
     // Increment the instruction counter
     State.instructionCount++;

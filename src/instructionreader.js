@@ -6,6 +6,7 @@
  *
  * Properties: planetBoundaries, instructionStack, currentRobotInstructions, currentRobotStartingInformation
  */
+"use strict";
 
 /**
  *
@@ -21,8 +22,6 @@ export default class InstructionReader {
         this.currentRobotInstructions;
 
         // Split first item on stack into two boundary numbers
-        // var instructionStack ;
-
         try {
             this.instructionStack = InstructionReader.parse(instructions);
         } catch (error) {
