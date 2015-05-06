@@ -4,71 +4,74 @@
  * Used to handle input data from text box. Parses data naively using regular expressions; this is explained in more
  * detail in the parse function.
  */
-var MartianRobots = MartianRobots || {};
-MartianRobots.InstructionReader = MartianRobots.InstructionReader || {};
 
 /**
+ *
  * Constructor for an InstructionReader object.
  * @param {String} instructions The block of instructions to process.
  */
-MartianRobots.InstructionReader = function(instructions) {
+export default class InstructionReader {
 
-    var planetBoundaries;
-    var currentRobotStartingInformation;
-    var currentRobotInstructions;
+    constructor(instructions) {
 
-    // Split first item on stack into two boundary numbers
-    var instructionStack;
+        this.planetBoundaries;
+        this.currentRobotStartingInformation;
+        this.currentRobotInstructions;
 
-    try {
-        instructionStack = MartianRobots.InstructionReader.parse(instructions);
-    } catch (error) {
-        throw error;
+        // Split first item on stack into two boundary numbers
+        // var instructionStack ;
+
+        try {
+            this.instructionStack = InstructionReader.parse(instructions);
+        } catch (error) {
+            throw error;
+        }
+
+        // Planet boundaries are always the first line so we can get them first
+        this.planetBoundaries = this.instructionStack.pop().trim().split(" ");
+
     }
 
-    // Planet boundaries are always the first line so we can get them first
-    planetBoundaries = instructionStack.pop().trim().split(" ");
+    getPlanetBoundaries() {
+        return this.planetBoundaries;
+    }
 
-    this.getPlanetBoundaries = function() {
-        return planetBoundaries;
-    };
+    getInstructionStack() {
+        return this.instructionStack;
+    }
 
-    this.getInstructionStack = function() {
-        return instructionStack;
-    };
+    getCurrentRobotInstructions() {
+        return this.currentRobotInstructions;
+    }
 
-    this.getCurrentRobotInstructions = function() {
-        return currentRobotInstructions;
-    };
+    getCurrentRobotStartingInformation() {
+        return this.currentRobotStartingInformation;
+    }
 
-    this.getCurrentRobotStartingInformation = function() {
-        return currentRobotStartingInformation;
-    };
+    setInstructionStack(updatedStack) {
+        this.instructionStack = updatedStack;
+    }
 
-    this.setInstructionStack = function(updatedStack) {
-        instructionStack = updatedStack;
-    };
+    setCurrentRobotInstructions(instructions) {
+        this.currentRobotInstructions = instructions;
+    }
 
-    this.setCurrentRobotInstructions = function(instructions) {
-        currentRobotInstructions = instructions;
-    };
-
-    this.setCurrentRobotStartingInformation = function(startingInformation) {
-        currentRobotStartingInformation = startingInformation;
-    };
+    setCurrentRobotStartingInformation(startingInformation) {
+        this.currentRobotStartingInformation = startingInformation;
+    }
 
     // If the top of the stack contains nothing, return true
-    this.empty = function() {
-        return (typeof instructionStack[instructionStack.length - 1] === "undefined") ? true : false;
-    };
+    empty() {
+        return (typeof this.instructionStack[this.instructionStack.length - 1] === "undefined") ? true : false;
+    }
 
-};
+}
 
 /**
  * Prepare a robot for use if there is one available.
  * @return {boolean} True if a robot has been initialised, false otherwise.
  */
-MartianRobots.InstructionReader.prototype.initialiseRobot = function() {
+InstructionReader.prototype.initialiseRobot = function() {
 
     var instructionStack = this.getInstructionStack();
 
@@ -102,7 +105,7 @@ MartianRobots.InstructionReader.prototype.initialiseRobot = function() {
  * @param  {String} instructions A String containing the input data straight from a file or editor box.
  * @return {Array (Stack)}       An Array containing the parsed input data. Should be used as a stack.
  */
-MartianRobots.InstructionReader.parse = function(instructions) {
+InstructionReader.parse = function(instructions) {
 
     // Trim trailing whitespace and split the user's input on a new line character
     var instructionStack = [];

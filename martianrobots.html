@@ -15,15 +15,11 @@ The front-end for the application.
     <link href="styles/martianrobots.css" rel="stylesheet" type="text/css">
     <link href='http://fonts.googleapis.com/css?family=Roboto:700,400' rel='stylesheet' type='text/css'>
 
-    <script src="src/core.js"></script>
-    <script src="src/graphics.js"></script>
-    <script src="src/robot.js"></script>
-    <script src="src/planet.js"></script>
-    <script src="src/instructionreader.js"></script>
+    <script src="bundle.js"></script>
 
 </head>
 
-<body id="container" onload="MartianRobots.Core.initialiseFileListener()">
+<body id="container">
 
     <div id="header">
         <p>Martian Robots</p>
@@ -45,7 +41,7 @@ The front-end for the application.
 
                 <input class="buttons" type="file" id="fileInput" name="file"/>
 
-                <button class="buttons" id="goButton" type="button" onclick="MartianRobots.Core.go()">
+                <button class="buttons" id="goButton" type="button">
                     <div class="buttonText">Go!</div>
                 </button>
 

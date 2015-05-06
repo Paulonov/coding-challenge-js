@@ -4,67 +4,67 @@
  * A representation of the planet. Simply stores the X and Y boundaries of its grid and also a "scent map" so that a
  * robot can sniff the air at its current position for the smell of a friend that's wandered off the grid.
  */
-var MartianRobots = MartianRobots || {};
-MartianRobots.Planet = MartianRobots.Planet || {};
 
 /**
  * Constructor to create a planet object.
  * @param {int} planetX The X boundary of the planet.
  * @param {int} planetY The Y boundary of the planet.
  */
-MartianRobots.Planet = function(planetX, planetY) {
+export default class Planet {
 
-    var x;
-    var y;
-    var scentMap = [];
+    constructor(planetX, planetY) {
 
-    // Make sure that the provided planet co-ordinates are in bounds otherwise set up the planet as normal
-    if (planetX > 50 || planetY > 50 || planetX <= 0 || planetY <= 0 || typeof planetX === "undefined" ||
-        typeof planetY === "undefined") {
+        this.scentMap = [];
 
-            throw "<b>Planet Creation Error: </b> Specified planet co-ordinates are out of bounds! Max planet size " +
-                    "is 50x50";
+        // Make sure that the provided planet co-ordinates are in bounds otherwise set up the planet as normal
+        if (planetX > 50 || planetY > 50 || planetX <= 0 || planetY <= 0 || typeof planetX === "undefined" ||
+            typeof planetY === "undefined") {
 
-    } else {
+                throw "<b>Planet Creation Error: </b> Specified planet co-ordinates are out of bounds! Max planet size " +
+                        "is 50x50";
 
-        x = planetX;
-        y = planetY;
+        } else {
 
-        // If a grid square has a value of true, a robot has left a scent before it got lost
-        for (var i = 0; i <= planetX; i++) {
+            this.x = planetX;
+            this.y = planetY;
 
-            scentMap[i] = [];
+            // If a grid square has a value of true, a robot has left a scent before it got lost
+            for (var i = 0; i <= planetX; i++) {
 
-            for (var j = 0; j <= planetY; j++) {
-                scentMap[i][j] = false;
+                this.scentMap[i] = [];
+
+                for (var j = 0; j <= planetY; j++) {
+                    this.scentMap[i][j] = false;
+                }
+
             }
 
         }
 
     }
 
-    this.getXBoundary = function() {
-        return x;
-    };
+    getXBoundary() {
+        return this.x;
+    }
 
-    this.getYBoundary = function() {
-        return y;
-    };
+    getYBoundary() {
+        return this.y;
+    }
 
-    this.getSmellFromCoordinates = function(xPosition, yPosition) {
-        return scentMap[xPosition][yPosition];
-    };
+    getSmellFromCoordinates(xPosition, yPosition) {
+        return this.scentMap[xPosition][yPosition];
+    }
 
-    this.updateScents = function(robot) {
+    updateScents(robot) {
 
         /*
          * The robot stops processing instructions once it is lost so we can use its latest position as the point it got
          * lost at.
          */
-        if (robot.isLost()) {
-            scentMap[robot.getXPosition()][robot.getYPosition()] = true;
+        if (robot.isLost) {
+            this.scentMap[robot.getXPosition()][robot.getYPosition()] = true;
         }
 
-    };
+    }
 
-};
+}
