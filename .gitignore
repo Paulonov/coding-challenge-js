@@ -4,3 +4,7 @@
 
 # Ignore OS X files
 .DS_Store
+
+# Ignore WebPack production files
+bundle.js
+bundle.js.map
