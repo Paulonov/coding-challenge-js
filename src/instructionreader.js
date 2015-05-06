@@ -3,6 +3,8 @@
  *
  * Used to handle input data from text box. Parses data naively using regular expressions; this is explained in more
  * detail in the parse function.
+ *
+ * Properties: planetBoundaries, instructionStack, currentRobotInstructions, currentRobotStartingInformation
  */
 
 /**
@@ -32,34 +34,6 @@ export default class InstructionReader {
 
     }
 
-    getPlanetBoundaries() {
-        return this.planetBoundaries;
-    }
-
-    getInstructionStack() {
-        return this.instructionStack;
-    }
-
-    getCurrentRobotInstructions() {
-        return this.currentRobotInstructions;
-    }
-
-    getCurrentRobotStartingInformation() {
-        return this.currentRobotStartingInformation;
-    }
-
-    setInstructionStack(updatedStack) {
-        this.instructionStack = updatedStack;
-    }
-
-    setCurrentRobotInstructions(instructions) {
-        this.currentRobotInstructions = instructions;
-    }
-
-    setCurrentRobotStartingInformation(startingInformation) {
-        this.currentRobotStartingInformation = startingInformation;
-    }
-
     // If the top of the stack contains nothing, return true
     empty() {
         return (typeof this.instructionStack[this.instructionStack.length - 1] === "undefined") ? true : false;
@@ -73,16 +47,16 @@ export default class InstructionReader {
  */
 InstructionReader.prototype.initialiseRobot = function() {
 
-    var instructionStack = this.getInstructionStack();
+    var instructionStack = this.instructionStack;
 
     // If the current stack isn't empty, it's time to initialise a robot!
     if (typeof instructionStack[instructionStack.length - 1] !== "undefined") {
 
         // Get the next robot's starting position from the top of the list
-        this.setCurrentRobotStartingInformation(instructionStack.pop().trim().split(" "));
+        this.currentRobotStartingInformation = instructionStack.pop().trim().split(" ");
 
         // Get the list of instructions for that robot from the top of the list, split on empty string to get chars
-        this.setCurrentRobotInstructions(instructionStack.pop().trim().split(""));
+        this.currentRobotInstructions = instructionStack.pop().trim().split("");
 
         // If we've found a blank line, remove it
         if (typeof instructionStack[instructionStack.length - 1] !== "undefined" &&
@@ -90,7 +64,7 @@ InstructionReader.prototype.initialiseRobot = function() {
                 instructionStack.pop();
         }
 
-        this.setInstructionStack(instructionStack);
+        this.instructionStack = instructionStack;
         return true;
 
     } else {

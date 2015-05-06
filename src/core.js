@@ -84,33 +84,15 @@ export function go() {
     var outputBox = document.getElementById("outputBox");
     outputBox.innerHTML = "";
 
-    // Grab the text from the textarea and give it to the InstructionReader to process
-    try {
-        State.reader = new InstructionReader(editor.value);
-    } catch (error) {
-        addToOutputBox(error);
+    if (!createReader() || !createPlanet()) {
         return;
     }
 
-    // Make a new planet from the boundaries passed in by the user
-    var planetBoundaries = State.reader.getPlanetBoundaries();
-
-    try {
-        State.planet = new Planet(parseInt(planetBoundaries[0]), parseInt(planetBoundaries[1]));
-    } catch (error) {
-        console.log(error);
-        addToOutputBox(error);
-        return;
-    }
+    initialiseCanvases();
 
     // Initialise static variables
     Robot.robotCount = 0;
-    Robot.setPlanet(State.planet);
-
-    // Draw a grid on the canvas using the size of the planet
-    State.gridInformation = Graphics.initialiseGridCanvas(State.planet.getXBoundary(), State.planet.getYBoundary());
-    Graphics.initialiseRobotsCanvas();
-    Graphics.initialiseFinishedRobotsCanvas();
+    Robot.currentPlanet = State.planet;
 
     // Add an onclick event to the skip button so that animations can now be skipped
     var skipButton = document.getElementById("skipButton");
@@ -121,6 +103,53 @@ export function go() {
 
 }
 
+/**
+ * Create a new planet from the boundaries specified by the user.
+ * @return {boolean} True when the planet was successfully created, false otherwise.
+ */
+function createPlanet() {
+
+    // Make a new planet from the boundaries passed in by the user
+    var planetBoundaries = State.reader.planetBoundaries;
+
+    try {
+        State.planet = new Planet(parseInt(planetBoundaries[0]), parseInt(planetBoundaries[1]));
+    } catch (error) {
+        console.log(error);
+        addToOutputBox(error);
+        return false;
+    }
+
+    return true;
+
+}
+
+/**
+ * Create a new reader using the text submitted by the user.
+ * @return {boolean} True if a reader was created successfully, false otherwise.
+ */
+function createReader() {
+
+    // Grab the text from the textarea and give it to the InstructionReader to process
+    try {
+        State.reader = new InstructionReader(editor.value);
+    } catch (error) {
+        addToOutputBox(error);
+        return false;
+    }
+
+    return true;
+
+}
+
+function initialiseCanvases() {
+
+    // Draw a grid on the canvas using the size of the planet
+    State.gridInformation = Graphics.initialiseGridCanvas(State.planet.x, State.planet.y);
+    Graphics.initialiseRobotsCanvas();
+    Graphics.initialiseFinishedRobotsCanvas();
+
+}
 
 /**
  * The main simulation loop for the program. Should update at (monitor refresh rate) frames per second; tested on a
@@ -137,40 +166,7 @@ function simulationLoop(timestamp) {
 
     // Update logic called once per animation cycle
     if (State.finishedAnimating) {
-
-        if (State.newRobot) {
-
-            // If we can't get a new robot, the simulation is over
-            if (prepareRobot()) {
-
-                // Logic update
-                State.robot.executeInstruction(State.instruction, State.gridInformation);
-                State.planet.updateScents(State.robot);
-
-                State.newRobot = false;
-                State.finishedAnimating = false;
-
-            } else {
-
-                State.simulationFinished = true;
-                window.cancelAnimationFrame(State.animationRequestId);
-
-                // Disable the skip button
-                var skipButton = document.getElementById("skipButton");
-                skipButton.onclick = null;
-
-            }
-
-        } else {
-
-            // If we've finished our last animation, we need to execute the next instruction
-            State.robot.executeInstruction(State.instruction, State.gridInformation);
-            State.planet.updateScents(State.robot);
-
-            State.finishedAnimating = false;
-
-        }
-
+        updateLogic();
     }
 
     // We need to animate!
@@ -180,55 +176,7 @@ function simulationLoop(timestamp) {
 
         // Things to do when we're all done animating
         if (State.finishedAnimating) {
-
-            // Re-draw the robot centred on its end position if it's still on the grid
-            if (!State.robot.isLost) {
-
-                State.robotsContext.beginPath();
-                State.robotsContext.clearRect(0, 0, State.robotsCanvas.width,
-                    State.robotsCanvas.height);
-
-                State.robot.setCanvasXPosition((State.gridInformation.xDifference * State.robot.getXPosition()) +
-                    State.gridInformation.margin);
-
-                State.robot.setCanvasYPosition(Graphics.translateOrigin((State.gridInformation.yDifference *
-                    State.robot.getYPosition()) + State.gridInformation.margin, State.gridInformation));
-
-
-                State.robot.draw(State.gridInformation, State.robotsContext);
-
-            } else {
-                State.robotsContext.clearRect(0, 0, State.robotsCanvas.width, State.robotsCanvas.height);
-            }
-
-            // Increment the instruction counter
-            State.instructionCount++;
-
-            // If we've finished simulating the current robot, perform all of the required updates
-            if (typeof State.currentRobotInstructions[State.instructionCount] === "undefined") {
-
-                State.newRobot = true;
-
-                // If the completed robot is still on the grid, add it to the finishedRobots canvas
-                if (!State.robot.isLost) {
-
-                    State.robotsContext.clearRect(0, 0, State.robotsCanvas.width,
-                        State.robotsCanvas.height);
-
-                    State.robot.draw(State.gridInformation, State.finishedRobotsContext);
-
-                }
-
-                addToOutputBox(State.robot.getFancyPositionInformation());
-
-
-            } else {
-
-                // Get a new instruction
-                State.instruction = State.currentRobotInstructions[State.instructionCount];
-
-            }
-
+            finaliseAnimationStep();
         }
 
         // We're calculating the time difference between frames so we need to save when the current frame was called
@@ -252,34 +200,7 @@ function skipAnimation() {
 
         // Update logic called once per animation cycle
         if (State.finishedAnimating) {
-
-            if (State.newRobot) {
-
-                // If we can't get a new robot, the simulation is over
-                if (prepareRobot()) {
-
-                    // Logic update
-                    State.robot.executeInstruction(State.instruction, State.gridInformation);
-                    State.planet.updateScents(State.robot);
-
-                    State.newRobot = false;
-                    State.finishedAnimating = false;
-
-                } else {
-                    State.simulationFinished = true;
-                    break;
-                }
-
-            } else {
-
-                // If we've finished our last (fake) animation, we need to execute the next instruction
-                State.robot.executeInstruction(State.instruction, State.gridInformation);
-                State.planet.updateScents(State.robot);
-
-                State.finishedAnimating = false;
-
-            }
-
+            updateLogic();
         }
 
         // We need to animate!
@@ -289,38 +210,139 @@ function skipAnimation() {
 
             // Things to do when we're all done animating
             if (State.finishedAnimating) {
-
-                // Increment the instruction counter
-                State.instructionCount++;
-
-                // If we've finished simulating the current robot, perform all of the required updates
-                if (typeof State.currentRobotInstructions[State.instructionCount] === "undefined") {
-
-                    State.newRobot = true;
-
-                    // Update canvas co-ordinates of the finished robot and draw it to the finishedRobots canvas
-                    if (!State.robot.isLost) {
-
-                        State.robot.setCanvasXPosition((State.gridInformation.xDifference *
-                            State.robot.getXPosition()) + State.gridInformation.margin);
-
-                        State.robot.setCanvasYPosition(Graphics.translateOrigin((State.gridInformation.yDifference *
-                            State.robot.getYPosition()) + State.gridInformation.margin, State.gridInformation));
-
-                        State.robot.draw(State.gridInformation, State.finishedRobotsContext);
-
-                    }
-
-                    addToOutputBox(State.robot.getFancyPositionInformation());
-
-                } else {
-                    State.instruction = State.currentRobotInstructions[State.instructionCount];
-                }
-
+                finaliseSkipAnimationStep();
             }
 
         }
 
+    }
+
+}
+
+/**
+ * Update the robot's internal state by one step.
+ */
+function updateLogic() {
+
+    if (State.newRobot) {
+
+        // If we can't get a new robot, the simulation is over
+        if (prepareRobot()) {
+
+            // Logic update
+            State.robot.executeInstruction(State.instruction, State.gridInformation);
+            State.planet.updateScents(State.robot);
+
+            State.newRobot = false;
+            State.finishedAnimating = false;
+
+        } else {
+
+            State.simulationFinished = true;
+            window.cancelAnimationFrame(State.animationRequestId);
+
+            // Disable the skip button
+            var skipButton = document.getElementById("skipButton");
+            skipButton.onclick = null;
+
+        }
+
+    } else {
+
+        // If we've finished our last animation, we need to execute the next instruction
+        State.robot.executeInstruction(State.instruction, State.gridInformation);
+        State.planet.updateScents(State.robot);
+
+        State.finishedAnimating = false;
+
+    }
+
+}
+
+/**
+ * When an animation is finished, re-draw the robot if necessary.
+ */
+function finaliseAnimationStep() {
+
+    // Re-draw the robot centred on its end position if it's still on the grid
+    if (!State.robot.isLost) {
+
+        State.robotsContext.beginPath();
+        State.robotsContext.clearRect(0, 0, State.robotsCanvas.width,
+            State.robotsCanvas.height);
+
+        State.robot.canvasXPosition = (State.gridInformation.xDifference * State.robot.xPosition) +
+            State.gridInformation.margin;
+
+        State.robot.canvasYPosition = Graphics.translateOrigin((State.gridInformation.yDifference *
+            State.robot.yPosition) + State.gridInformation.margin, State.gridInformation);
+
+        State.robot.draw(State.gridInformation, State.robotsContext);
+
+    } else {
+        State.robotsContext.clearRect(0, 0, State.robotsCanvas.width, State.robotsCanvas.height);
+    }
+
+    // Increment the instruction counter
+    State.instructionCount++;
+
+    // If we've finished simulating the current robot, perform all of the required updates
+    if (typeof State.currentRobotInstructions[State.instructionCount] === "undefined") {
+
+        State.newRobot = true;
+
+        // If the completed robot is still on the grid, add it to the finishedRobots canvas
+        if (!State.robot.isLost) {
+
+            State.robotsContext.clearRect(0, 0, State.robotsCanvas.width,
+                State.robotsCanvas.height);
+
+            State.robot.draw(State.gridInformation, State.finishedRobotsContext);
+
+        }
+
+        addToOutputBox(State.robot.getFancyPositionInformation());
+
+
+    } else {
+
+        // Get a new instruction
+        State.instruction = State.currentRobotInstructions[State.instructionCount];
+
+    }
+
+}
+
+/**
+ * When an animation has been skipped, ensure that the robot is drawn in its final location if necessary.
+ */
+function finaliseSkipAnimationStep() {
+
+    // Increment the instruction counter
+    State.instructionCount++;
+
+    // If we've finished simulating the current robot, perform all of the required updates
+    if (typeof State.currentRobotInstructions[State.instructionCount] === "undefined") {
+
+        State.newRobot = true;
+
+        // Update canvas co-ordinates of the finished robot and draw it to the finishedRobots canvas
+        if (!State.robot.isLost) {
+
+            State.robot.canvasXPosition = (State.gridInformation.xDifference *
+                State.robot.xPosition) + State.gridInformation.margin;
+
+            State.robot.canvasYPosition = (Graphics.translateOrigin((State.gridInformation.yDifference *
+                State.robot.yPosition) + State.gridInformation.margin, State.gridInformation));
+
+            State.robot.draw(State.gridInformation, State.finishedRobotsContext);
+
+        }
+
+        addToOutputBox(State.robot.getFancyPositionInformation());
+
+    } else {
+        State.instruction = State.currentRobotInstructions[State.instructionCount];
     }
 
 }
@@ -339,14 +361,14 @@ function prepareRobot() {
 
             // Reset the instruction counter
             State.instructionCount = 0;
-            var robotPosition = State.reader.getCurrentRobotStartingInformation();
+            var robotPosition = State.reader.currentRobotStartingInformation;
 
             try {
 
                 State.robot = new Robot(parseInt(robotPosition[0], 10), parseInt(robotPosition[1], 10),
                     robotPosition[2], State.gridInformation);
 
-                State.currentRobotInstructions = State.reader.getCurrentRobotInstructions();
+                State.currentRobotInstructions = State.reader.currentRobotInstructions;
                 State.instruction = State.currentRobotInstructions[State.instructionCount].toUpperCase();
 
                 return true;

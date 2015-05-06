@@ -3,6 +3,8 @@
  *
  * A representation of the planet. Simply stores the X and Y boundaries of its grid and also a "scent map" so that a
  * robot can sniff the air at its current position for the smell of a friend that's wandered off the grid.
+ *
+ * Properties: x, y, scentMap
  */
 
 /**
@@ -43,14 +45,6 @@ export default class Planet {
 
     }
 
-    getXBoundary() {
-        return this.x;
-    }
-
-    getYBoundary() {
-        return this.y;
-    }
-
     getSmellFromCoordinates(xPosition, yPosition) {
         return this.scentMap[xPosition][yPosition];
     }
@@ -62,7 +56,7 @@ export default class Planet {
          * lost at.
          */
         if (robot.isLost) {
-            this.scentMap[robot.getXPosition()][robot.getYPosition()] = true;
+            this.scentMap[robot.xPosition][robot.yPosition] = true;
         }
 
     }

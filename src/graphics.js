@@ -20,6 +20,11 @@ import Robot from "./robot.js";
  *                       grid.
  */
 export function initialiseGridCanvas(planetX, planetY) {
+    clearGridCanvas();
+    return drawGrid(planetX, planetY);
+}
+
+function clearGridCanvas() {
 
     /*
      * Adjust the internal resolution of the canvas to match the (relative) size of its container.
@@ -34,6 +39,11 @@ export function initialiseGridCanvas(planetX, planetY) {
 
     State.gridContext = State.gridCanvas.getContext("2d");
     State.gridContext.clearRect(0, 0, State.gridCanvas.width, State.gridCanvas.height);
+
+}
+
+
+function drawGrid(planetX, planetY) {
 
     // How far in from 0, 0 we want to draw the grid, we need a margin or the robots can't be centred on the grid
     var marginValue = 0;
@@ -101,8 +111,6 @@ export function initialiseGridCanvas(planetX, planetY) {
     State.gridContext.strokeStyle = "#B5F779";
     State.gridContext.stroke();
 
-    console.log(State.gridContext);
-
     return {
         xDifference: xUp,
         yDifference: yUp,
@@ -159,11 +167,8 @@ export function initialiseFinishedRobotsCanvas() {
  */
 export function animate(timestamp) {
 
-    var heading = State.robot.getHeading();
-    var speed = State.robot.getSpeed();
-
-    var nextPos = -1;
-    var newPos = -1;
+    var heading = State.robot.heading;
+    var speed = State.robot.speed;
 
     // The time difference between frames used to calculate how far the robot needs to move this frame
     var dt = (timestamp - State.previousFrameTimestamp);
@@ -172,65 +177,30 @@ export function animate(timestamp) {
 
         if (heading === Robot.NORTH) {
 
-            /*
-             * Screen co-ordinates begin in the top left of the canvas but our co-ordinate system begins in the
-             * bottom left so we need to translate the co-ordinate value accordingly.
-             */
-            nextPos = translateOrigin(State.gridInformation.yDifference * State.robot.getYPosition() +
-                State.gridInformation.margin, State.gridInformation);
-
-            // Update the canvas y position based on the time that's passed between frames
-            newPos = State.robot.getCanvasYPosition() - (dt * speed);
-
-            // If the robot has made it to the new grid square, we can stop animating
-            if (newPos <= nextPos) {
+            if (animateNorth(speed, dt)) {
                 return true;
             }
-
-            State.robot.setCanvasYPosition(newPos);
 
         } else if (heading === Robot.EAST) {
 
-            nextPos = (State.gridInformation.xDifference * State.robot.getXPosition()) + State.gridInformation.margin;
-
-            // Update the canvas x position based on the time that's passed between frames
-            newPos = State.robot.getCanvasXPosition() + (dt * speed);
-
-            // If the robot has made it to the new grid square, we can stop animating
-            if (newPos >= nextPos) {
+            if (animateEast(speed, dt)) {
                 return true;
             }
 
-            State.robot.setCanvasXPosition(newPos);
 
         } else if (heading === Robot.SOUTH) {
 
-            nextPos = translateOrigin(State.gridInformation.yDifference * State.robot.getYPosition() +
-                State.gridInformation.margin, State.gridInformation);
-
-            // Update the canvas y position based on the time that's passed between frames
-            newPos = State.robot.getCanvasYPosition() + (dt * speed);
-
-            // If the robot has made it to the new grid square, we can stop animating
-            if (newPos >= nextPos) {
+            if (animateSouth(speed, dt)) {
                 return true;
             }
 
-            State.robot.setCanvasYPosition(newPos);
 
         } else if (heading === Robot.WEST) {
 
-            nextPos = State.gridInformation.xDifference * State.robot.getXPosition() + State.gridInformation.margin;
-
-            // Update the canvas y position by a small increment
-            newPos = State.robot.getCanvasXPosition() - (dt * speed);
-
-            // If the robot has made it to the new grid square, we can stop animating
-            if (newPos <= nextPos) {
+            if (animateWest(speed, dt)) {
                 return true;
             }
 
-            State.robot.setCanvasXPosition(newPos);
 
         }
 
@@ -248,6 +218,80 @@ export function animate(timestamp) {
         return true;
 
     }
+
+}
+
+function animateNorth(speed, dt) {
+
+    /*
+     * Screen co-ordinates begin in the top left of the canvas but our co-ordinate system begins in the
+     * bottom left so we need to translate the co-ordinate value accordingly.
+     */
+    var nextPos = translateOrigin(State.gridInformation.yDifference * State.robot.yPosition +
+        State.gridInformation.margin, State.gridInformation);
+
+    // Update the canvas y position based on the time that's passed between frames
+    var newPos = State.robot.canvasYPosition - (dt * speed);
+
+    // If the robot has made it to the new grid square, we can stop animating
+    if (newPos <= nextPos) {
+        return true;
+    }
+
+    State.robot.canvasYPosition = newPos;
+    return false;
+
+}
+
+function animateEast(speed, dt) {
+
+    var nextPos = (State.gridInformation.xDifference * State.robot.xPosition) + State.gridInformation.margin;
+
+    // Update the canvas x position based on the time that's passed between frames
+    var newPos = State.robot.canvasXPosition + (dt * speed);
+
+    // If the robot has made it to the new grid square, we can stop animating
+    if (newPos >= nextPos) {
+        return true;
+    }
+
+    State.robot.canvasXPosition = newPos;
+    return false;
+
+}
+
+function animateSouth(speed, dt) {
+
+    var nextPos = translateOrigin(State.gridInformation.yDifference * State.robot.yPosition +
+        State.gridInformation.margin, State.gridInformation);
+
+    // Update the canvas y position based on the time that's passed between frames
+    var newPos = State.robot.canvasYPosition + (dt * speed);
+
+    // If the robot has made it to the new grid square, we can stop animating
+    if (newPos >= nextPos) {
+        return true;
+    }
+
+    State.robot.canvasYPosition = newPos;
+    return false;
+
+}
+
+function animateWest(speed, dt) {
+
+    var nextPos = State.gridInformation.xDifference * State.robot.xPosition + State.gridInformation.margin;
+
+    // Update the canvas y position by a small increment
+    var newPos = State.robot.canvasXPosition - (dt * speed);
+
+    // If the robot has made it to the new grid square, we can stop animating
+    if (newPos <= nextPos) {
+        return true;
+    }
+
+    State.robot.canvasXPosition = newPos;
+    return false;
 
 }
 
