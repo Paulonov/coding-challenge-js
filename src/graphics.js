@@ -12,6 +12,38 @@ import State from "./core.js";
 import Robot from "./robot.js";
 
 /**
+ * Draw a robot (currently a grey square...) onto a selected canvas.
+ * @param  {Object} gridInformation An object whose properties are various useful information about the created
+ *                                  grid.
+ * @param  {Object} context         The canvas context to draw to.
+ */
+export function drawRobot(context) {
+
+    // Draw the robot centred on the grid point
+    context.beginPath();
+
+    context.rect(State.robot.canvasXPosition - (State.robot.width/2), State.robot.canvasYPosition - (State.robot.length/2),
+        State.robot.width, State.robot.length);
+
+    context.fillStyle = '#EFEFEF';
+    context.fill();
+
+    // Add an outline to the robot
+    context.strokeStyle = '#BFBFBF';
+    context.lineWidth = 5;
+    context.stroke();
+
+    // Draw the robot's number on it
+    context.beginPath();
+    context.lineWidth = 1;
+    context.strokeStyle = "#BFBFBF";
+    context.textAlign = 'center';
+    context.strokeText(State.robot.id + " " + Robot.headingToString(State.robot.heading),
+        State.robot.canvasXPosition, State.robot.canvasYPosition);
+
+}
+
+/**
  * Draw a new grid onto the corresponding canvas using the size of the planet as boundaries.
  * @param  {int} planetX The x boundary of the current planet.
  * @param  {int} planetY The y boundary of the current planet.
@@ -41,7 +73,6 @@ function clearGridCanvas() {
     State.gridContext.clearRect(0, 0, State.gridCanvas.width, State.gridCanvas.height);
 
 }
-
 
 function drawGrid(planetX, planetY) {
 
@@ -207,7 +238,7 @@ export function animate(timestamp) {
         State.robotsContext.beginPath();
         State.robotsContext.clearRect(0, 0, State.robotsCanvas.width, State.robotsCanvas.height);
 
-        State.robot.draw(State.gridInformation, State.robotsContext);
+        drawRobot(State.robotsContext);
 
         // The animation isn't finished yet so return false
         return false;

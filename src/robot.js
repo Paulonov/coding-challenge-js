@@ -72,34 +72,6 @@ export default class Robot {
     }
 
     /**
-     * Draw a robot (currently a grey square...) onto a selected canvas.
-     * @param  {Object} gridInformation An object whose properties are various useful information about the created
-     *                                  grid.
-     * @param  {Object} context         The canvas context to draw to.
-     */
-    draw(gridInformation, context) {
-
-        // Draw the robot centred on the grid point
-        context.beginPath();
-        context.rect(this.canvasXPosition - (this.width/2), this.canvasYPosition - (this.length/2), this.width, this.length);
-        context.fillStyle = '#EFEFEF';
-        context.fill();
-
-        // Add an outline to the robot
-        context.strokeStyle = '#BFBFBF';
-        context.lineWidth = 5;
-        context.stroke();
-
-        // Draw the robot's number on it
-        context.beginPath();
-        context.lineWidth = 1;
-        context.strokeStyle = "#BFBFBF";
-        context.textAlign = 'center';
-        context.strokeText(this.id + " " + Robot.headingToString(this.heading), this.canvasXPosition, this.canvasYPosition);
-
-    }
-
-    /**
      * Execute the instruction given to the robot and update its internal state.
      * @param  {char} instruction A character representing the instruction to execute.
      */

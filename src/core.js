@@ -277,7 +277,7 @@ function finaliseAnimationStep() {
         State.robot.canvasYPosition = Graphics.translateOrigin((State.gridInformation.yDifference *
             State.robot.yPosition) + State.gridInformation.margin, State.gridInformation);
 
-        State.robot.draw(State.gridInformation, State.robotsContext);
+        Graphics.drawRobot(State.robotsContext);
 
     } else {
         State.robotsContext.clearRect(0, 0, State.robotsCanvas.width, State.robotsCanvas.height);
@@ -297,7 +297,7 @@ function finaliseAnimationStep() {
             State.robotsContext.clearRect(0, 0, State.robotsCanvas.width,
                 State.robotsCanvas.height);
 
-            State.robot.draw(State.gridInformation, State.finishedRobotsContext);
+            Graphics.drawRobot(State.finishedRobotsContext);
 
         }
 
@@ -335,7 +335,7 @@ function finaliseSkipAnimationStep() {
             State.robot.canvasYPosition = (Graphics.translateOrigin((State.gridInformation.yDifference *
                 State.robot.yPosition) + State.gridInformation.margin, State.gridInformation));
 
-            State.robot.draw(State.gridInformation, State.finishedRobotsContext);
+            Graphics.drawRobot(State.finishedRobotsContext);
 
         }
 
