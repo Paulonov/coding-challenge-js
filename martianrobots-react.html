@@ -1,0 +1,139 @@
+<!--
+martianrobots.html
+
+The front-end for the application.
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta charset="UTF-8">
+    <title>Martian Robots</title>
+
+    <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+    <link href="styles/martianrobots.css" rel="stylesheet" type="text/css">
+    <link href='http://fonts.googleapis.com/css?family=Roboto:700,400' rel='stylesheet' type='text/css'>
+
+    <script src="https://fb.me/react-0.13.2.js"></script>
+    <script src="https://fb.me/JSXTransformer-0.13.2.js"></script>
+    <script src="bundle.js"></script>
+
+</head>
+
+<body id="container">
+
+    <script type="text/jsx;harmony=true">
+
+        var AppContainer = React.createClass({
+
+            render: function() {
+                return (
+                    <div id="appContainer">
+                        <Header />
+                        <MainArea />
+                    </div>
+                );
+            }
+
+        });
+
+        var MainArea = React.createClass({
+
+            render: function() {
+                return (
+                    <div id="mainArea">
+                        <GraphicsContainer />
+                        <SideBar />
+                        <OutputBox />
+                    </div>
+                );
+            }
+
+
+        });
+
+        var Header = React.createClass({
+
+            render: function() {
+                return (
+                    <div id="header">
+                        <p>Martian Robots</p>
+                    </div>
+                );
+            }
+
+        });
+
+        var GraphicsContainer = React.createClass({
+
+            render: function() {
+                return (
+                    <div id="graphicsContainer">
+                        <canvas id="grid" width="1360px" height="640px"></canvas>
+                        <canvas id="finishedRobots" width="1360px" height="640px"></canvas>
+                        <canvas id="robots" width="1360px" height="640px"></canvas>
+                    </div>
+                );
+
+            }
+
+        });
+
+        var SideBar = React.createClass({
+
+            render: function() {
+                return (
+                    <div id="sidebar">
+                        <textarea id="editor" placeholder="Enter your code here!" rows="30" cols="75"></textarea>
+                        <ButtonBox />
+                    </div>
+                );
+            }
+
+        });
+
+        var ButtonBox = React.createClass({
+
+            render: function() {
+                return (
+
+                    <div id="buttonBox">
+
+                        <input className="buttons" type="file" id="fileInput" name="file" />
+
+                        <button className="buttons" id="goButton" type="button">
+                            <div className="buttonText">Go!</div>
+                        </button>
+
+                        <button className="buttons" id="skipButton" type="button">
+                            <div className="buttonText">Skip Animation</div>
+                        </button>
+
+                    </div>
+
+                );
+
+            }
+
+        });
+
+        var OutputBox = React.createClass({
+
+            render: function() {
+                return (
+                    <div id="outputBox"></div>
+                );
+            }
+
+        });
+
+        React.render(
+            <AppContainer />,
+            document.getElementById("container")
+        );
+
+    </script>
+
+</body>
+</html>
