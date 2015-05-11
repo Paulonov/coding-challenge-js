@@ -45,7 +45,8 @@ class MainArea extends React.Component {
             instruction: null,
             instructionCount: 0,
 
-            newRobot: true
+            newRobot: true,
+            outputBoxData: []
 
         }
 
@@ -82,6 +83,12 @@ class MainArea extends React.Component {
         var gridInformation;
         Robot.currentPlanet = this.state.planet;
 
+        /**
+         * Get a robot from the reader, execute all of its instructions and record its final state.
+         *
+         * TODO: Save the robot's final position.
+         * TODO: Add the output to the output box.
+         */
         while (!this.state.reader.empty()) {
 
             if (this.prepareRobot()) {
@@ -97,7 +104,10 @@ class MainArea extends React.Component {
 
                 }
 
-                console.log(this.state.robot.getFancyPositionInformation());
+                this.state.outputBoxData.push(this.state.robot.getFancyPositionInformation());
+
+                var output = this.state.robot.getFancyPositionInformation();
+                console.log(output.robot + output.position + output.lost);
 
             }
 
@@ -165,7 +175,7 @@ class MainArea extends React.Component {
             <div id="mainArea">
                 <GraphicsContainer />
                 <SideBar saveInstructions={saveInstructions} />
-                <OutputBox />
+                <OutputBox data={this.state.outputBoxData} />
             </div>
         );
 
@@ -196,9 +206,6 @@ class GraphicsContainer extends React.Component {
     render() {
         return (
             <div id="graphicsContainer">
-                <canvas id="grid" width="1360px" height="640px"></canvas>
-                <canvas id="finishedRobots" width="1360px" height="640px"></canvas>
-                <canvas id="robots" width="1360px" height="640px"></canvas>
             </div>
         );
 
@@ -270,8 +277,47 @@ class OutputBox extends React.Component {
 
     render() {
 
+        var parentContext = this;
+        var outputNodes = this.props.data.map(function (output) {
+
+            console.log(output);
+            var lost = "";
+
+            if (output.lost) {
+                lost = "LOST";
+            }
+
+            return (
+                <Output robot={output.robot}>
+                    {output.position + " " + lost}
+                </Output>
+            );
+
+        });
+
         return (
-            <div id="outputBox"></div>
+            <div id="outputBox">
+                {outputNodes}
+            </div>
+        );
+
+    }
+
+}
+
+class Output extends React.Component {
+
+    render() {
+
+        console.log(this.props.children);
+
+        return (
+
+            <div className="output">
+                <b>{this.props.robot}</b>
+                {this.props.children}
+            </div>
+
         );
 
     }
