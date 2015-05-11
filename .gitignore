@@ -8,3 +8,6 @@
 # Ignore WebPack production files
 bundle.js
 bundle.js.map
+
+# Ignore Node modules
+./node_modules

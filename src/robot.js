@@ -20,7 +20,7 @@ import * as Graphics from "./graphics.js";
  */
 export default class Robot {
 
-    constructor(initialXPosition, initialYPosition, initialHeading, gridInformation) {
+    constructor(initialXPosition, initialYPosition, initialHeading) {
 
         /**
          * Internal heading values: Counted clockwise from north
@@ -44,21 +44,21 @@ export default class Robot {
             this.xPosition = initialXPosition;
             this.yPosition = initialYPosition;
 
-            this.canvasXPosition = (gridInformation.xDifference * this.xPosition) + gridInformation.margin;
-            this.canvasYPosition = Graphics.translateOrigin((gridInformation.yDifference * this.yPosition) +
-                gridInformation.margin, gridInformation);
+             // this.canvasXPosition = (gridInformation.xDifference * this.xPosition) + gridInformation.margin;
+            // this.canvasYPosition = Graphics.translateOrigin((gridInformation.yDifference * this.yPosition) +
+                // gridInformation.margin, gridInformation);
 
             // Use the size of the planet to establish a suitable speed for the robots - Totally arbitrary!
-            this.speed = (1/(State.planet.x + State.planet.y)) * 1.5;
+            // this.speed = (1/(State.planet.x + State.planet.y)) * 1.5;
 
             // Set up the size of the robot in canvas co-ordinates, scales with the size of the grid
-            if ((Robot.currentPlanet.x + Robot.currentPlanet.y) < 25) {
+            /*if ((Robot.currentPlanet.x + Robot.currentPlanet.y) < 25) {
                 this.length = 50;
                 this.width = 50;
             } else {
                 this.length = 30;
                 this.width = 30;
-            }
+            } */
 
             this.heading = Robot.stringToHeading(initialHeading);
 
@@ -79,7 +79,7 @@ export default class Robot {
      * Execute the instruction given to the robot and update its internal state.
      * @param  {char} instruction A character representing the instruction to execute.
      */
-    executeInstruction(instruction, gridInformation) {
+    executeInstruction(instruction) {
 
         // Save values that get accessed a lot early on so that we don't have to keep accessing the getter method
         var heading = this.heading;
