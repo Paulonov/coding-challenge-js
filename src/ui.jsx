@@ -60,13 +60,32 @@ class MainArea extends React.Component {
         Robot.robotCount = 0;
         Robot.currentPlanet = null;
 
-        // Grab the text from the textarea and give it to the InstructionReader to process
+        if (!this.createReader() || !this.createPlanet()) {
+            return;
+        }
+
+        // TODO: Convert the initialise canvas functions into a non-canvasy version
+        Robot.currentPlanet = this.state.planet;
+
+        this.executeLogic();
+
+    }
+
+    createReader() {
+
+       // Grab the text from the textarea and give it to the InstructionReader to process
         try {
             this.state.reader = new InstructionReader(this.state.instructions);
         } catch (error) {
             console.log(error);
-            return;
+            return false;
         }
+
+        return true;
+
+    }
+
+    createPlanet() {
 
         // Make a new planet from the boundaries passed in by the user
         var planetBoundaries = this.state.reader.planetBoundaries;
@@ -75,13 +94,17 @@ class MainArea extends React.Component {
             this.state.planet = new Planet(parseInt(planetBoundaries[0]), parseInt(planetBoundaries[1]));
         } catch (error) {
             console.log(error);
-            //addToOutputBox(error);
-            return;
+            return false;
         }
 
-        // TODO: Convert the initialise canvas functions into a non-canvasy version
-        var gridInformation;
-        Robot.currentPlanet = this.state.planet;
+        return true;
+
+    }
+
+    /**
+     * Finish simulating every robot using its instructions.
+     */
+    executeLogic() {
 
         /**
          * Get a robot from the reader, execute all of its instructions and record its final state.
@@ -167,6 +190,10 @@ class MainArea extends React.Component {
             parentContext.setState({instructionsSet: true});
         }
 
+        /*
+         * React triggers a re-render when the state changes; since getting the user's instructions updates the state,
+         * we need this check to stop the logic from executing too early.
+         */
         if (this.state.instructionsSet) {
             this.setup();
         }
@@ -281,11 +308,8 @@ class OutputBox extends React.Component {
         var outputNodes = this.props.data.map(function (output) {
 
             console.log(output);
-            var lost = "";
 
-            if (output.lost) {
-                lost = "LOST";
-            }
+            var lost = output.lost ? "LOST" : "";
 
             return (
                 <Output robot={output.robot}>
