@@ -339,6 +339,16 @@ class SideBar extends React.Component {
 
 class OutputBox extends React.Component {
 
+    constructor() {
+
+        super();
+
+        this.state = {
+            id: -1
+        };
+
+    }
+
     render() {
 
         var parentContext = this;
@@ -349,7 +359,7 @@ class OutputBox extends React.Component {
             var lost = output.lost ? "LOST" : "";
 
             return (
-                <Output robot={output.robot}>
+                <Output key={parentContext.state.id += 1} robot={output.robot}>
                     {output.position + " " + lost}
                 </Output>
             );
