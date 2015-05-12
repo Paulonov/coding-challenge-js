@@ -35,7 +35,8 @@ export default class Robot {
         Robot.WEST = 3;
 
         if (initialXPosition < 0 || initialYPosition < 0 || initialXPosition > Robot.currentPlanet.x ||
-            initialYPosition > Robot.currentPlanet.y) {
+            initialYPosition > Robot.currentPlanet.y || typeof initialXPosition === "undefined" ||
+                typeof initialYPosition === "undefined" || initialXPosition === null || initialYPosition === null) {
 
             throw "<b>Robot Placement Out of Bounds: </b>" + initialXPosition + ", " + initialYPosition;
 
@@ -49,7 +50,7 @@ export default class Robot {
                 // gridInformation.margin, gridInformation);
 
             // Use the size of the planet to establish a suitable speed for the robots - Totally arbitrary!
-            // this.speed = (1/(State.planet.x + State.planet.y)) * 1.5;
+            this.speed = (1/(Robot.currentPlanet.x + Robot.currentPlanet.y)) * 1.5;
 
             // Set up the size of the robot in canvas co-ordinates, scales with the size of the grid
             /*if ((Robot.currentPlanet.x + Robot.currentPlanet.y) < 25) {
@@ -190,19 +191,6 @@ export default class Robot {
                  lost: this.isLost };
 
     }
-
-    /**
-     * We're giving the Robot object two methods of its own that you can call without needing an instance. These act as
-     * static functions.
-     */
-    static setPlanet(planet) {
-        this.currentPlanet = planet;
-    }
-
-    static setRobotCount(count) {
-        this.robotCount = count;
-    }
-
 
     /**
      * Convert a heading string into its numerical equivalent.

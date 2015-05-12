@@ -11,7 +11,7 @@ import React from "react";
 
 import Robot from "./robot.js";
 import Planet from "./planet.js";
-import InstructionReader from "./InstructionReader.js";
+import InstructionReader from "./instructionreader.js";
 
 export default class AppContainer extends React.Component {
 
@@ -125,6 +125,8 @@ class MainArea extends React.Component {
 
                 }
 
+                // Save the finished robot along with its instructions
+                this.state.finishedRobots.push({robot: this.state.robot, instructions: };
                 this.state.outputBoxData.push(this.state.robot.getFancyPositionInformation());
 
                 var output = this.state.robot.getFancyPositionInformation();
