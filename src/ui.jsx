@@ -4,8 +4,6 @@
  * A file describing the UI of the application using React. A lot of the state accesses occur on the state property
  * which apparently isn't the best practice but it gets rid of lots of unnecessary re-renders.
  *
- * TODO: Couldn't get the HTML5 file API working with React
- *      <input className="buttons" type="file" id="fileInput" name="file" />
  */
 "use strict";
 
@@ -247,6 +245,45 @@ class GraphicsContainer extends React.Component {
  */
 class SideBar extends React.Component {
 
+    componentDidMount() {
+        this.initialiseFileListener();
+    }
+
+    initialiseFileListener() {
+
+        // Check for File APIs support - Taken from HTML5Rocks.com
+        if (window.File && window.FileReader && window.FileList && window.Blob) {
+            // File APIs supported
+        } else {
+            alert('File APIs not fully supported in this browser, loading instructions from a file is disabled.');
+            return;
+        }
+
+        var reader = new FileReader();
+        var fileList = document.getElementById("fileInput");
+        var editor = document.getElementById("editor");
+
+        fileList.addEventListener('change', function (e) {
+
+            var file = fileList.files[0];
+
+            reader.onload = function (e) {
+
+                // Check the MIME type of the file to see if it's a text file
+                if (file.type.match("text/*")) {
+                    editor.value = reader.result;
+                } else {
+                    alert("File extension not supported!");
+                }
+
+            };
+
+            reader.readAsText(file);
+
+        });
+
+    }
+
     /**
      * Save the instructions entered into the editor into the application's state when the submit button is clicked.
      */
@@ -255,19 +292,13 @@ class SideBar extends React.Component {
         this.props.saveInstructions(editor.value);
     }
 
-    handleSkipClick(){
+    handleSkipClick() {
 
     }
 
     /**
      * [render description]
      * @return {[type]} [description]
-     *
-     * TODO: Get the HTML5 file API working again
-     *
-     *              <button className="buttons" id="fileInput" type="button" onClick={this.handleSubmitClick.bind(this)} >
-     *                  <div className="buttonText">Submit Instructions</div>
-     *              </button>
      */
     render() {
 
@@ -280,6 +311,8 @@ class SideBar extends React.Component {
                 </textarea>
 
                 <div id="buttonBox">
+
+                    <input className="buttons" type="file" id="fileInput" name="file" />
 
                     <button className="buttons" id="goButton" type="button" onClick={this.handleGoClick.bind(this)}>
                         <div className="buttonText">Go!</div>
@@ -332,8 +365,6 @@ class OutputBox extends React.Component {
 class Output extends React.Component {
 
     render() {
-
-        console.log(this.props.children);
 
         return (
 
