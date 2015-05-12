@@ -21,7 +21,7 @@ export default class Planet {
 
         // Make sure that the provided planet co-ordinates are in bounds otherwise set up the planet as normal
         if (planetX > 50 || planetY > 50 || planetX <= 0 || planetY <= 0 || typeof planetX === "undefined" ||
-            typeof planetY === "undefined") {
+            typeof planetY === "undefined" || planetX === null || planetY === null) {
 
                 throw "<b>Planet Creation Error: </b> Specified planet co-ordinates are out of bounds! Max planet size " +
                         "is 50x50";
