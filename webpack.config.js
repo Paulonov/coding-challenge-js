@@ -1,6 +1,6 @@
 var path = require('path');
 module.exports = {
-    entry: 'mocha!./src/entry.jsx',
+    entry: './src/entry.jsx',
     output: {
         path: __dirname,
         filename: 'bundle.js'

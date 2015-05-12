@@ -42,6 +42,7 @@ class MainArea extends React.Component {
             currentRobotInstructions: null,
             instruction: null,
             instructionCount: 0,
+            finishedRobots: [],
 
             newRobot: true,
             outputBoxData: []
@@ -106,9 +107,6 @@ class MainArea extends React.Component {
 
         /**
          * Get a robot from the reader, execute all of its instructions and record its final state.
-         *
-         * TODO: Save the robot's final position.
-         * TODO: Add the output to the output box.
          */
         while (!this.state.reader.empty()) {
 
@@ -126,7 +124,11 @@ class MainArea extends React.Component {
                 }
 
                 // Save the finished robot along with its instructions
-                this.state.finishedRobots.push({robot: this.state.robot, instructions: };
+                this.state.finishedRobots.push({
+                    robot: this.state.robot,
+                    instructions: this.state.reader.currentRobotInstructions.join("")
+                });
+
                 this.state.outputBoxData.push(this.state.robot.getFancyPositionInformation());
 
                 var output = this.state.robot.getFancyPositionInformation();

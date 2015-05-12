@@ -42,7 +42,7 @@ export default class InstructionReader {
      * Prepare a robot for use if there is one available.
      * @return {boolean} True if a robot has been initialised, false otherwise.
      */
-    static initialiseRobot() {
+    initialiseRobot() {
 
         var instructionStack = this.instructionStack;
 
