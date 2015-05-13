@@ -34,7 +34,7 @@ describe("InstructionReader", function() {
     describe("#constructor()", function() {
 
         it("should return an instance of InstructionReader", function() {
-            expect(reader).to.be.an.instanceof(InstructionReader);
+            expect(new InstructionReader(testData)).to.be.an.instanceof(InstructionReader);
         });
 
     });
@@ -66,14 +66,8 @@ describe("InstructionReader", function() {
         });
 
         it("should expect the first line of the input to be the planet's boundaries", function() {
-
-            try {
-                reader = new InstructionReader("3 4 N\n");
-            } catch(error) {
-                var errorMessage = "<b>Syntax Error: </b>" + "The first line should be the planet's boundaries!";
-                error.should.equal(errorMessage);
-            }
-
+            var errorMessage = "<b>Syntax Error: </b>" + "The first line should be the planet's boundaries!";
+            expect( r => new InstructionReader("3 4 N\n") ).to.throw(errorMessage);
         });
 
     });

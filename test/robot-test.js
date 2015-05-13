@@ -40,75 +40,38 @@ describe("Robot", function() {
         });
 
         it("should return an instance of Robot", function() {
-            var robot = new Robot(0, 0, "N", stubbedGridInformation);
-            expect(robot).to.be.an.instanceof(Robot);
+            expect(new Robot(0, 0, "N", stubbedGridInformation)).to.be.an.instanceof(Robot);
         });
 
         it("should not create a robot with an x position greater than the planet's x boundary", function() {
-
-            try {
-                var robot = new Robot((planet.x + 1), planet.y);
-            } catch (error) {
-                var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + (planet.x + 1) + ", " + planet.y;
-                expect(error).to.equal(errorMessage);
-            }
-
+            var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + (planet.x + 1) + ", " + planet.y;
+            expect( robot => new Robot((planet.x + 1), planet.y) ).to.throw(errorMessage);
         });
 
         it("should not create a robot with a y position greater than the planet's y boundary", function() {
-
-            try {
-                var robot = new Robot(planet.x, (planet.y + 1));
-            } catch (error) {
-                var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + planet.x + ", " + (planet.y + 1);
-                expect(error).to.equal(errorMessage);
-            }
-
+            var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + planet.x + ", " + (planet.y + 1);
+            expect( robot => new Robot(planet.x, (planet.y + 1) )).to.throw(errorMessage);
         });
 
 
         it("should not create a robot with an x position less than 0", function() {
-
-            try {
-                var robot = new Robot(-1, 0);
-            } catch (error) {
-                var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + (-1) + ", " + 0;
-                expect(error).to.equal(errorMessage);
-            }
-
+            var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + (-1) + ", " + 0;
+            expect( robot => new Robot(-1, 0) ).to.throw(errorMessage);
         });
 
         it("should not create a robot with a y position less than 0", function() {
-
-            try {
-                var robot = new Robot(0, -1);
-            } catch (error) {
-                var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + 0 + ", " + (-1);
-                expect(error).to.equal(errorMessage);
-            }
-
+            var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + 0 + ", " + (-1);
+            expect( robot => new Robot(0, -1) ).to.throw(errorMessage);
         });
 
         it("should not create a robot with an undefined x position", function() {
-
-            try {
-                var robot = new Robot(null, 0);
-            } catch (error) {
-                var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + null + ", " + 0;
-                expect(error).to.equal(errorMessage);
-            }
-
+            var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + null + ", " + 0;
+            expect( robot => new Robot(null, 0) ).to.throw(errorMessage);
         });
 
         it("should not create a robot with an undefined y position", function() {
-
-            try {
-                var robot = new Robot(0, null);
-            } catch (error) {
-                var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + 0 + ", " + null;
-                expect(error).to.equal(errorMessage);
-            }
-
+            var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + 0 + ", " + null;
+            expect( robot => new Robot(0, null) ).to.throw(errorMessage);
         });
 
     });

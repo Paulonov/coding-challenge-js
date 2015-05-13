@@ -29,6 +29,7 @@
   "eslintConfig": {
     "ecmaFeatures": {
       "modules": true,
+      "arrowFunctions": true,
       "jsx": true
     },
     "env": {
