@@ -19,9 +19,9 @@ import InstructionReader from "./instructionreader.js";
 window.requestAnimFrame = (
 
     function() {
-        return window.requestAnimationFrame       ||
+        return window.requestAnimationFrame ||
                window.webkitRequestAnimationFrame ||
-               window.mozRequestAnimationFrame    ||
+               window.mozRequestAnimationFrame ||
                function( callback ) {
                    window.setTimeout(callback, 1000 / 60);
                };
@@ -35,7 +35,7 @@ window.requestAnimFrame = (
  */
 export default class State {
 
-    constructor() {
+    static initialiseState() {
 
         // Statics
         State.planet = null;
@@ -70,41 +70,6 @@ export default class State {
 }
 
 /**
- * Called when the go button is clicked on the Martian Robots web page.
- */
-export function go() {
-
-    // Cancel a previous animation frame if it hasn't been cancelled already
-    window.cancelAnimationFrame(State.animationRequestId);
-
-    // Static variables, these are set before we call the constructor and so we can begin counting
-    Robot.robotCount = 0;
-    Robot.currentPlanet = null;
-
-    // Clear the output box
-    var outputBox = document.getElementById("outputBox");
-    outputBox.innerHTML = "";
-
-    if (!createReader() || !createPlanet()) {
-        return;
-    }
-
-    initialiseCanvases();
-
-    // Initialise static variables
-    Robot.robotCount = 0;
-    Robot.currentPlanet = State.planet;
-
-    // Add an onclick event to the skip button so that animations can now be skipped
-    var skipButton = document.getElementById("skipButton");
-    skipButton.onclick = skipAnimation;
-
-    // Start the simulation
-    State.animationRequestId = window.requestAnimFrame(simulationLoop);
-
-}
-
-/**
  * Create a new planet from the boundaries specified by the user.
  * @return {boolean} True when the planet was successfully created, false otherwise.
  */
@@ -116,7 +81,6 @@ function createPlanet() {
     try {
         State.planet = new Planet(parseInt(planetBoundaries[0]), parseInt(planetBoundaries[1]));
     } catch (error) {
-        console.log(error);
         addToOutputBox(error);
         return false;
     }
@@ -130,6 +94,8 @@ function createPlanet() {
  * @return {boolean} True if a reader was created successfully, false otherwise.
  */
 function createReader() {
+
+    var editor = document.getElementById("editor");
 
     // Grab the text from the textarea and give it to the InstructionReader to process
     try {
@@ -149,6 +115,38 @@ function initialiseCanvases() {
     State.gridInformation = Graphics.initialiseGridCanvas(State.planet.x, State.planet.y);
     Graphics.initialiseRobotsCanvas();
     Graphics.initialiseFinishedRobotsCanvas();
+
+}
+
+/**
+ * Cancel the current animation and skip to the end of the simulation. Executes the simulation loop with animation
+ * stripped out as this means the simulation will complete properly no matter when the skip button is clicked.
+ */
+function skipAnimation() {
+
+    window.cancelAnimationFrame(State.animationRequestId);
+    Graphics.initialiseRobotsCanvas();
+
+    while (!State.simulationFinished) {
+
+        // Update logic called once per animation cycle
+        if (State.finishedAnimating) {
+            updateLogic();
+        }
+
+        // We need to animate!
+        if (!State.finishedAnimating && !State.simulationFinished) {
+
+            State.finishedAnimating = true;
+
+            // Things to do when we're all done animating
+            if (State.finishedAnimating) {
+                finaliseSkipAnimationStep();
+            }
+
+        }
+
+    }
 
 }
 
@@ -188,35 +186,39 @@ function simulationLoop(timestamp) {
 
 }
 
+
 /**
- * Cancel the current animation and skip to the end of the simulation. Executes the simulation loop with animation
- * stripped out as this means the simulation will complete properly no matter when the skip button is clicked.
+ * Called when the go button is clicked on the Martian Robots web page.
  */
-function skipAnimation() {
+export function go() {
 
+    // Cancel a previous animation frame if it hasn't been cancelled already
     window.cancelAnimationFrame(State.animationRequestId);
-    Graphics.initialiseRobotsCanvas();
 
-    while (!State.simulationFinished) {
+    // Static variables, these are set before we call the constructor and so we can begin counting
+    Robot.robotCount = 0;
+    Robot.currentPlanet = null;
 
-        // Update logic called once per animation cycle
-        if (State.finishedAnimating) {
-            updateLogic();
-        }
+    // Clear the output box
+    var outputBox = document.getElementById("outputBox");
+    outputBox.innerHTML = "";
 
-        // We need to animate!
-        if (!State.finishedAnimating && !State.simulationFinished) {
-
-            State.finishedAnimating = true;
-
-            // Things to do when we're all done animating
-            if (State.finishedAnimating) {
-                finaliseSkipAnimationStep();
-            }
-
-        }
-
+    if (!createReader() || !createPlanet()) {
+        return;
     }
+
+    initialiseCanvases();
+
+    // Initialise static variables
+    Robot.robotCount = 0;
+    Robot.currentPlanet = State.planet;
+
+    // Add an onclick event to the skip button so that animations can now be skipped
+    var skipButton = document.getElementById("skipButton");
+    skipButton.onclick = skipAnimation;
+
+    // Start the simulation
+    State.animationRequestId = window.requestAnimFrame(simulationLoop);
 
 }
 
@@ -261,41 +263,6 @@ function updateLogic() {
 }
 
 /**
- * When an animation is finished, re-draw the robot if necessary and then get a new instruction.
- */
-function finaliseAnimationStep() {
-
-    // Re-draw the robot centred on its end position if it's still on the grid
-    if (!State.robot.isLost) {
-        redrawRobot();
-    } else {
-        State.robotsContext.clearRect(0, 0, State.robotsCanvas.width, State.robotsCanvas.height);
-    }
-
-    updateCurrentInstruction();
-
-}
-
-/**
- * Redraw the robot bases on its final position.
- */
-function redrawRobot() {
-
-    State.robotsContext.beginPath();
-    State.robotsContext.clearRect(0, 0, State.robotsCanvas.width,
-        State.robotsCanvas.height);
-
-    State.robot.canvasXPosition = (State.gridInformation.xDifference * State.robot.xPosition) +
-        State.gridInformation.margin;
-
-    State.robot.canvasYPosition = Graphics.translateOrigin((State.gridInformation.yDifference *
-        State.robot.yPosition) + State.gridInformation.margin, State.gridInformation);
-
-    Graphics.drawRobot(State.robotsContext);
-
-}
-
-/**
  * Determines whether or not the robot has completed its instructions; a new instruction is obtained if it hasn't or
  * its position is updated and added to the output box if it has.
  */
@@ -328,6 +295,41 @@ function updateCurrentInstruction() {
         State.instruction = State.currentRobotInstructions[State.instructionCount];
 
     }
+
+}
+
+/**
+ * When an animation is finished, re-draw the robot if necessary and then get a new instruction.
+ */
+function finaliseAnimationStep() {
+
+    // Re-draw the robot centred on its end position if it's still on the grid
+    if (!State.robot.isLost) {
+        redrawRobot();
+    } else {
+        State.robotsContext.clearRect(0, 0, State.robotsCanvas.width, State.robotsCanvas.height);
+    }
+
+    updateCurrentInstruction();
+
+}
+
+/**
+ * Redraw the robot bases on its final position.
+ */
+function redrawRobot() {
+
+    State.robotsContext.beginPath();
+    State.robotsContext.clearRect(0, 0, State.robotsCanvas.width,
+        State.robotsCanvas.height);
+
+    State.robot.canvasXPosition = (State.gridInformation.xDifference * State.robot.xPosition) +
+        State.gridInformation.margin;
+
+    State.robot.canvasYPosition = Graphics.translateOrigin((State.gridInformation.yDifference *
+        State.robot.yPosition) + State.gridInformation.margin, State.gridInformation);
+
+    Graphics.drawRobot(State.robotsContext);
 
 }
 
@@ -415,7 +417,7 @@ export function initialiseFileListener() {
     if (window.File && window.FileReader && window.FileList && window.Blob) {
         // File APIs supported
     } else {
-        alert('File APIs not fully supported in this browser, loading instructions from a file is disabled.');
+        addToOutputBox("File APIs not fully supported in this browser, loading instructions from a file is disabled.");
         return;
     }
 
@@ -423,17 +425,17 @@ export function initialiseFileListener() {
     var fileList = document.getElementById("fileInput");
     var editor = document.getElementById("editor");
 
-    fileList.addEventListener('change', function (e) {
+    fileList.addEventListener("change", function() {
 
         var file = fileList.files[0];
 
-        reader.onload = function (e) {
+        reader.onload = function() {
 
             // Check the MIME type of the file to see if it's a text file
             if (file.type.match("text/*")) {
                 editor.value = reader.result;
             } else {
-                alert("File extension not supported!");
+                addToOutputBox("File extension not supported!");
             }
 
         };
@@ -450,6 +452,6 @@ export function initialiseFileListener() {
  */
 function addToOutputBox(outputString) {
     var outputBox = document.getElementById("outputBox");
-    outputBox.insertAdjacentHTML('beforeend', "<p>" + outputString + "<br/>" + "</p>");
+    outputBox.insertAdjacentHTML("beforeend", "<p>" + outputString + "<br/>" + "</p>");
     outputBox.scrollTop = outputBox.scrollHeight;
 }

@@ -8,8 +8,6 @@
  */
 "use strict";
 
-import * as Core from "./core.js";
-import State from "./core.js";
 import * as Graphics from "./graphics.js";
 
 /**
@@ -20,7 +18,7 @@ import * as Graphics from "./graphics.js";
  */
 export default class Robot {
 
-    constructor(initialXPosition, initialYPosition, initialHeading) {
+    constructor(initialXPosition, initialYPosition, initialHeading, gridInformation) {
 
         /**
          * Internal heading values: Counted clockwise from north
@@ -45,21 +43,21 @@ export default class Robot {
             this.xPosition = initialXPosition;
             this.yPosition = initialYPosition;
 
-             // this.canvasXPosition = (gridInformation.xDifference * this.xPosition) + gridInformation.margin;
-            // this.canvasYPosition = Graphics.translateOrigin((gridInformation.yDifference * this.yPosition) +
-                // gridInformation.margin, gridInformation);
+            this.canvasXPosition = (gridInformation.xDifference * this.xPosition) + gridInformation.margin;
+            this.canvasYPosition = Graphics.translateOrigin((gridInformation.yDifference * this.yPosition) +
+                gridInformation.margin, gridInformation);
 
             // Use the size of the planet to establish a suitable speed for the robots - Totally arbitrary!
-            this.speed = (1/(Robot.currentPlanet.x + Robot.currentPlanet.y)) * 1.5;
+            this.speed = (1 / (Robot.currentPlanet.x + Robot.currentPlanet.y)) * 1.5;
 
             // Set up the size of the robot in canvas co-ordinates, scales with the size of the grid
-            /*if ((Robot.currentPlanet.x + Robot.currentPlanet.y) < 25) {
+            if ((Robot.currentPlanet.x + Robot.currentPlanet.y) < 25) {
                 this.length = 50;
                 this.width = 50;
             } else {
                 this.length = 30;
                 this.width = 30;
-            } */
+            }
 
             this.heading = Robot.stringToHeading(initialHeading);
 
@@ -96,16 +94,16 @@ export default class Robot {
             switch (instruction) {
 
                 // Using mod n allows us to add (n - 1) to the heading to get the next heading the left
-                case 'L':
+                case "L":
                     this.heading = (heading + (Robot.NUMBER_OF_DIRECTIONS - 1)) % Robot.NUMBER_OF_DIRECTIONS;
                     break;
 
                 // Same again but we add 1 to get the next heading to the right
-                case 'R':
+                case "R":
                     this.heading = (heading + 1) % Robot.NUMBER_OF_DIRECTIONS;
                     break;
 
-                case 'F':
+                case "F":
 
                     switch (heading) {
 

@@ -5,14 +5,16 @@
  */
 "use strict";
 
-var chai = require("chai");
+import chai from "chai";
 var assert = chai.assert;
 var expect = chai.expect;
+
+/*eslint-disable no-unused-vars*/
 var should = chai.should();
 
-var InstructionReader = require("../src/instructionreader.js");
-var Robot = require("../src/robot.js");
-var Planet = require("../src/planet.js");
+import InstructionReader from "../src/instructionreader.js";
+import Robot from "../src/robot.js";
+import Planet from "../src/planet.js";
 
 describe("InstructionReader", function() {
 
@@ -31,27 +33,27 @@ describe("InstructionReader", function() {
         reader = new InstructionReader(instructions);
         emptyReader = new InstructionReader("4 3");
 
-    })
+    });
 
     describe("#constructor()", function() {
 
         it("should return an instance of InstructionReader", function() {
             expect(reader).to.be.an.instanceof(InstructionReader);
-        })
+        });
 
-    })
+    });
 
     describe("#empty()", function() {
 
         it("should return true when there are no instructions in the stack", function() {
             assert.equal(emptyReader.empty(), true);
-        })
+        });
 
         it("should return false when there are instructions in the stack", function() {
             assert.equal(reader.empty(), false);
-        })
+        });
 
-    })
+    });
 
     describe("#parse()", function() {
 
@@ -63,33 +65,34 @@ describe("InstructionReader", function() {
 
                 // Deep equal so that each value in the array is compared
                 expect(result).to.deep.equal(InstructionReader.parse(testData));
-            })
+            });
 
-        })
+        });
 
         it("should expect the first line of the input to be the planet's boundaries", function() {
 
             try {
-                var reader = new InstructionReader("3 4 N\n");
+                reader = new InstructionReader("3 4 N\n");
             } catch(error) {
                 var errorMessage = "<b>Syntax Error: </b>" + "The first line should be the planet's boundaries!";
                 error.should.equal(errorMessage);
             }
 
-        })
+        });
 
-    })
+    });
 
 });
 
 describe("Planet", function() {
 
+
+    /*eslint-disable no-unused-vars*/
     describe("#constructor()", function() {
 
         it("should return an instance of Planet", function() {
-            var planet = new Planet(5, 5);
-            expect(planet).to.be.an.instanceof(Planet);
-        })
+            expect(new Planet(5, 5)).to.be.an.instanceof(Planet);
+        });
 
         it("should not create a planet with an x larger than 50", function() {
 
@@ -104,7 +107,7 @@ describe("Planet", function() {
 
             }
 
-        })
+        });
 
         it("should not create a planet with a y larger than 50", function() {
 
@@ -119,7 +122,7 @@ describe("Planet", function() {
 
             }
 
-        })
+        });
 
         it("should not create a planet with an x smaller than 0", function() {
 
@@ -134,7 +137,7 @@ describe("Planet", function() {
 
             }
 
-        })
+        });
 
         it("should not create a planet with a y smaller than 0", function() {
 
@@ -149,7 +152,7 @@ describe("Planet", function() {
 
             }
 
-        })
+        });
 
         it("should not create a planet with an undefined x", function() {
 
@@ -164,7 +167,7 @@ describe("Planet", function() {
 
             }
 
-        })
+        });
 
         it("should not create a planet with an undefined y", function() {
 
@@ -179,9 +182,9 @@ describe("Planet", function() {
 
             }
 
-        })
+        });
 
-    })
+    });
 
 
     describe("#getSmellFromCoordinates()", function() {
@@ -193,9 +196,9 @@ describe("Planet", function() {
 
             assert(planet.getSmellFromCoordinates(5, 5), true);
 
-        })
+        });
 
-    })
+    });
 
 });
 
@@ -214,7 +217,7 @@ describe("Robot", function() {
             margin: 0
         };
 
-    })
+    });
 
     describe("#constructor()", function() {
 
@@ -223,12 +226,12 @@ describe("Robot", function() {
         before(function() {
             planet = new Planet(5, 5);
             Robot.currentPlanet = planet;
-        })
+        });
 
         it("should return an instance of Robot", function() {
             var robot = new Robot(0, 0, "N", stubbedGridInformation);
             expect(robot).to.be.an.instanceof(Robot);
-        })
+        });
 
         it("should not create a robot with an x position greater than the planet's x boundary", function() {
 
@@ -239,7 +242,7 @@ describe("Robot", function() {
                 expect(error).to.equal(errorMessage);
             }
 
-        })
+        });
 
         it("should not create a robot with a y position greater than the planet's y boundary", function() {
 
@@ -250,7 +253,7 @@ describe("Robot", function() {
                 expect(error).to.equal(errorMessage);
             }
 
-        })
+        });
 
 
         it("should not create a robot with an x position less than 0", function() {
@@ -262,7 +265,7 @@ describe("Robot", function() {
                 expect(error).to.equal(errorMessage);
             }
 
-        })
+        });
 
         it("should not create a robot with a y position less than 0", function() {
 
@@ -273,7 +276,7 @@ describe("Robot", function() {
                 expect(error).to.equal(errorMessage);
             }
 
-        })
+        });
 
         it("should not create a robot with an undefined x position", function() {
 
@@ -284,7 +287,7 @@ describe("Robot", function() {
                 expect(error).to.equal(errorMessage);
             }
 
-        })
+        });
 
         it("should not create a robot with an undefined y position", function() {
 
@@ -295,9 +298,9 @@ describe("Robot", function() {
                 expect(error).to.equal(errorMessage);
             }
 
-        })
+        });
 
-    })
+    });
 
     describe("#executeInstruction()", function() {
 
@@ -308,7 +311,7 @@ describe("Robot", function() {
             planet = new Planet(5, 5);
             Robot.currentPlanet = planet;
             robot = new Robot(1, 1, "E", stubbedGridInformation);
-        })
+        });
 
         describe("when the robot is lost", function() {
 
@@ -325,9 +328,9 @@ describe("Robot", function() {
                 expect(robot.yPosition).to.equal(startingY);
                 expect(robot.heading).to.equal(startingHeading);
 
-            })
+            });
 
-        })
+        });
 
         describe("when the robot is not lost", function() {
 
@@ -358,9 +361,9 @@ describe("Robot", function() {
                                 expect(robot.heading).to.equal(startingHeading);
                                 expect(robot.isLost).to.equal(false);
 
-                            })
+                            });
 
-                        })
+                        });
 
                         describe("while facing east", function() {
 
@@ -383,9 +386,9 @@ describe("Robot", function() {
                                 expect(robot.heading).to.equal(startingHeading);
                                 expect(robot.isLost).to.equal(false);
 
-                            })
+                            });
 
-                        })
+                        });
 
                         describe("while facing south", function() {
 
@@ -408,9 +411,9 @@ describe("Robot", function() {
                                 expect(robot.heading).to.equal(startingHeading);
                                 expect(robot.isLost).to.equal(false);
 
-                            })
+                            });
 
-                        })
+                        });
 
                         describe("while facing west", function() {
 
@@ -433,11 +436,11 @@ describe("Robot", function() {
                                 expect(robot.heading).to.equal(startingHeading);
                                 expect(robot.isLost).to.equal(false);
 
-                            })
+                            });
 
-                        })
+                        });
 
-                    })
+                    });
 
                     describe("if there is not a scent", function() {
 
@@ -460,9 +463,9 @@ describe("Robot", function() {
                                 expect(robot.heading).to.equal(startingHeading);
                                 expect(robot.isLost).to.equal(true);
 
-                            })
+                            });
 
-                        })
+                        });
 
                         describe("while facing east", function() {
 
@@ -483,9 +486,9 @@ describe("Robot", function() {
                                 expect(robot.heading).to.equal(startingHeading);
                                 expect(robot.isLost).to.equal(true);
 
-                            })
+                            });
 
-                        })
+                        });
 
 
                         describe("while facing south", function() {
@@ -507,10 +510,9 @@ describe("Robot", function() {
                                 expect(robot.heading).to.equal(startingHeading);
                                 expect(robot.isLost).to.equal(true);
 
-                            })
+                            });
 
-                        })
-
+                        });
 
                         describe("while facing west", function() {
 
@@ -531,13 +533,13 @@ describe("Robot", function() {
                                 expect(robot.heading).to.equal(startingHeading);
                                 expect(robot.isLost).to.equal(true);
 
-                            })
+                            });
 
-                        })
+                        });
 
-                    })
+                    });
 
-                })
+                });
 
                 describe("that won't move the robot off of the grid", function() {
 
@@ -553,11 +555,11 @@ describe("Robot", function() {
                             robot.executeInstruction("F");
 
                             expect(startingX).to.equal(robot.xPosition);
-                            expect(startingY+1).to.equal(robot.yPosition);
+                            expect(startingY + 1).to.equal(robot.yPosition);
 
-                        })
+                        });
 
-                    })
+                    });
 
                     describe("while facing east", function() {
 
@@ -570,13 +572,13 @@ describe("Robot", function() {
 
                             robot.executeInstruction("F");
 
-                            expect(startingX+1).to.equal(robot.xPosition);
+                            expect(startingX + 1).to.equal(robot.xPosition);
                             expect(startingY).to.equal(robot.yPosition);
 
 
-                        })
+                        });
 
-                    })
+                    });
 
                     describe("while facing south", function() {
 
@@ -589,11 +591,11 @@ describe("Robot", function() {
                             robot.executeInstruction("F");
 
                             expect(startingX).to.equal(robot.xPosition);
-                            expect(startingY-1).to.equal(robot.yPosition);
+                            expect(startingY - 1).to.equal(robot.yPosition);
 
-                        })
+                        });
 
-                    })
+                    });
 
                     describe("while facing west", function() {
 
@@ -605,17 +607,17 @@ describe("Robot", function() {
                             robot.heading = Robot.WEST;
                             robot.executeInstruction("F");
 
-                            expect(startingX-1).to.equal(robot.xPosition);
+                            expect(startingX - 1).to.equal(robot.xPosition);
                             expect(startingY).to.equal(robot.yPosition);
 
 
-                        })
+                        });
 
-                    })
+                    });
 
-                })
+                });
 
-            })
+            });
 
             describe("an L instruction", function() {
 
@@ -628,9 +630,9 @@ describe("Robot", function() {
                         robot.executeInstruction("L");
                         expect(robot.heading).to.equal(Robot.WEST);
 
-                    })
+                    });
 
-                })
+                });
 
                 describe("while facing east", function() {
 
@@ -641,9 +643,9 @@ describe("Robot", function() {
                         robot.executeInstruction("L");
                         expect(robot.heading).to.equal(Robot.NORTH);
 
-                    })
+                    });
 
-                })
+                });
 
                 describe("while facing south", function() {
 
@@ -654,9 +656,9 @@ describe("Robot", function() {
                         robot.executeInstruction("L");
                         expect(robot.heading).to.equal(Robot.EAST);
 
-                    })
+                    });
 
-                })
+                });
 
                 describe("while facing west", function() {
 
@@ -668,11 +670,11 @@ describe("Robot", function() {
                         expect(robot.heading).to.equal(Robot.SOUTH);
 
 
-                    })
+                    });
 
-                })
+                });
 
-            })
+            });
 
             describe("an R instruction", function() {
 
@@ -685,9 +687,9 @@ describe("Robot", function() {
                         robot.executeInstruction("R");
                         expect(robot.heading).to.equal(Robot.EAST);
 
-                    })
+                    });
 
-                })
+                });
 
                 describe("while facing east", function() {
 
@@ -698,9 +700,9 @@ describe("Robot", function() {
                         robot.executeInstruction("R");
                         expect(robot.heading).to.equal(Robot.SOUTH);
 
-                    })
+                    });
 
-                })
+                });
 
                 describe("while facing south", function() {
 
@@ -711,9 +713,9 @@ describe("Robot", function() {
                         robot.executeInstruction("R");
                         expect(robot.heading).to.equal(Robot.WEST);
 
-                    })
+                    });
 
-                })
+                });
 
                 describe("while facing west", function() {
 
@@ -725,63 +727,63 @@ describe("Robot", function() {
                         expect(robot.heading).to.equal(Robot.NORTH);
 
 
-                    })
+                    });
 
-                })
+                });
 
-            })
+            });
 
-        })
+        });
 
-    })
+    });
 
     describe("#stringToHeading()", function() {
 
         it("should return Robot.NORTH when N is given", function() {
             assert.equal(Robot.NORTH, Robot.stringToHeading("N"));
-        })
+        });
 
         it("should return Robot.EAST when E is given", function() {
             assert.equal(Robot.EAST, Robot.stringToHeading("E"));
-        })
+        });
 
         it("should return Robot.SOUTH when S is given", function() {
             assert.equal(Robot.SOUTH, Robot.stringToHeading("S"));
-        })
+        });
 
         it("should return Robot.WEST when W is given", function() {
             assert.equal(Robot.WEST, Robot.stringToHeading("W"));
-        })
+        });
 
         it("should return ? when an unknown heading is given", function() {
             assert.equal("?", Robot.stringToHeading("A"));
-        })
+        });
 
-    })
+    });
 
     describe("#headingToString()", function() {
 
         it("should return N when Robot.NORTH is given", function() {
             assert.equal("N", Robot.headingToString(Robot.NORTH));
-        })
+        });
 
         it("should return E when Robot.EAST is given", function() {
             assert.equal("E", Robot.headingToString(Robot.EAST));
-        })
+        });
 
         it("should return S when Robot.SOUTH is given", function() {
             assert.equal("S", Robot.headingToString(Robot.SOUTH));
-        })
+        });
 
         it("should return W when Robot.WEST is given", function() {
             assert.equal("W", Robot.headingToString(Robot.WEST));
-        })
+        });
 
         it("should return ? when anything else is given", function() {
             assert.equal("?", Robot.headingToString(99));
-        })
+        });
 
-    })
+    });
 
     describe("#updateScents()", function() {
 
@@ -795,7 +797,7 @@ describe("Robot", function() {
 
             assert.equal(planet.getSmellFromCoordinates(robot.xPosition, robot.yPosition), true);
 
-        })
+        });
 
         it("should not add a scent to the scent map if the given robot is not lost", function() {
             var planet = new Planet(5, 5);
@@ -807,8 +809,8 @@ describe("Robot", function() {
 
             assert.equal(planet.getSmellFromCoordinates(robot.xPosition, robot.yPosition), false);
 
-        })
+        });
 
-    })
+    });
 
 });

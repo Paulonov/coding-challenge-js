@@ -17,9 +17,9 @@ export default class InstructionReader {
 
     constructor(instructions) {
 
-        this.planetBoundaries;
-        this.currentRobotStartingInformation;
-        this.currentRobotInstructions;
+        this.planetBoundaries = null;
+        this.currentRobotStartingInformation = null;
+        this.currentRobotInstructions = null;
 
         // Split first item on stack into two boundary numbers
         try {
@@ -65,7 +65,6 @@ export default class InstructionReader {
             return true;
 
         } else {
-            console.log("Instruction stack empty...");
             return false;
         }
 
@@ -125,25 +124,22 @@ export default class InstructionReader {
 
             // Variable accesses appear to be quicker than array accesses (6.1ms vs 5.1ms per run)
             var robotInstructions = splitInstructions[i].trim();
-            var robotPosition = splitInstructions[i+1].trim();
+            var robotPosition = splitInstructions[i + 1].trim();
 
             if (/^[a-zA-Z]+ \d+ \d+ [a-zA-Z]\s*$/.test(robotInstructions + " " + robotPosition)) {
                 instructionStack.push(robotInstructions);
                 instructionStack.push(robotPosition);
-            }  else {
+            } else {
 
                 /*
                  * If the position part of the robot statement has a syntax error, report it otherwise the error has to be
                  * in the instruction part so we don't need to test for it (but we do anyway).
                  */
                 if (!/^\d+ \d+ [a-zA-Z]\s*$/.test(robotPosition)) {
-                    console.log("Syntax Error on Line: " + robotPosition);
                     throw "<b>Syntax Error on Line: </b>" + robotPosition;
                 } else if (!/^[a-zA-Z]+\s*$/.test(robotInstructions)) {
-                    console.log("Syntax Error on Line: " + robotInstructions);
                     throw "<b>Syntax Error on Line: </b>" + robotInstructions;
                 } else {
-                    console.log("Syntax Error on Line");
                     throw "<b>Unexplained Syntax Error: </b>" + robotPosition + " or " + robotInstructions;
                 }
 

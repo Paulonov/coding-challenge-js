@@ -6,8 +6,11 @@ module.exports = {
         filename: 'bundle.js'
     },
     module: {
+        preLoaders: [
+            { test: /\.js$/, exclude: /node_modules/, loader: "eslint-loader" }
+        ],
         loaders: [
-            { test: path.join(__dirname, 'src'), exclude: /node_modules/, loader: 'babel-loader' }
+            { test: /\.js$/, exclude: /node_modules/, loader: "babel-loader" }
         ]
     }
 };
