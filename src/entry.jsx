@@ -6,8 +6,8 @@
  */
 "use strict";
 
-import React from 'react';
-import AppContainer from './ui.jsx';
+import React from "react";
+import AppContainer from "./ui.jsx";
 
 window.onload = function () {
 

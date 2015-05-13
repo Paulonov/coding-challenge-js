@@ -178,17 +178,13 @@ export default class Robot {
      */
     getFancyPositionInformation() {
 
-        /* if (this.isLost) {
+        if (this.isLost) {
             return "<b>Robot " + Robot.robotCount + "</b>" + ": " + this.xPosition + " " + this.yPosition +
             " " + Robot.headingToString(this.heading) + " " + "<b>LOST</b>";
         } else {
             return "<b>Robot " + Robot.robotCount + "</b>" + ": " + this.xPosition + " " + this.yPosition +
                 " " + Robot.headingToString(this.heading);
-        } */
-
-        return { robot: "Robot " + Robot.robotCount + ": ",
-                 position: this.yPosition + " " + this.xPosition + " " + Robot.headingToString(this.heading) + " ",
-                 lost: this.isLost };
+        }
 
     }
 

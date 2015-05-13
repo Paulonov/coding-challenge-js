@@ -29,9 +29,9 @@ export default class AppContainer extends React.Component {
 // Common owner for state
 class MainArea extends React.Component {
 
-    constructor(props) {
+    constructor() {
 
-        super(props);
+        super();
 
         this.state = {
 
@@ -76,6 +76,7 @@ class MainArea extends React.Component {
         try {
             this.state.reader = new InstructionReader(this.state.instructions);
         } catch (error) {
+            this.state.outputBoxData.push(error);
             console.log(error);
             return false;
         }
@@ -92,6 +93,7 @@ class MainArea extends React.Component {
         try {
             this.state.planet = new Planet(parseInt(planetBoundaries[0]), parseInt(planetBoundaries[1]));
         } catch (error) {
+            this.state.outputBoxData.push(error);
             console.log(error);
             return false;
         }
@@ -131,9 +133,6 @@ class MainArea extends React.Component {
 
                 this.state.outputBoxData.push(this.state.robot.getFancyPositionInformation());
 
-                var output = this.state.robot.getFancyPositionInformation();
-                console.log(output.robot + output.position + output.lost);
-
             }
 
         }
@@ -168,7 +167,7 @@ class MainArea extends React.Component {
                     return true;
 
                 } catch (error) {
-                    console.log(error);
+                    this.state.outputBoxData.push(error);
                     return this.prepareRobot();
                 }
 
@@ -187,6 +186,7 @@ class MainArea extends React.Component {
         // Save the context of the MainArea so that we can access its state later
         var parentContext = this;
 
+        // setState is used so that a re-render is triggered when this function is called later on
         var saveInstructions = function(instructionsString) {
             parentContext.setState({instructions: instructionsString});
             parentContext.setState({instructionsSet: true});
@@ -249,10 +249,14 @@ class GraphicsContainer extends React.Component {
  */
 class SideBar extends React.Component {
 
+    // Called once we know that the buttons have been rendered so we will definitely be able to attach an event listener
     componentDidMount() {
         this.initialiseFileListener();
     }
 
+    /**
+     * Sets up a listener so that we can read in robot instructions from a suitable file.
+     */
     initialiseFileListener() {
 
         // Check for File APIs support - Taken from HTML5Rocks.com
@@ -288,16 +292,25 @@ class SideBar extends React.Component {
 
     }
 
+    clearOutputBox() {
+
+    }
+
     /**
      * Save the instructions entered into the editor into the application's state when the submit button is clicked.
      */
     handleGoClick() {
+
         var editor = React.findDOMNode(this.refs.editor);
         this.props.saveInstructions(editor.value);
+
+        // TODO: Clear the output box
+        this.clearOutputBox();
+
     }
 
     handleSkipClick() {
-
+        // TODO
     }
 
     /**
@@ -337,12 +350,16 @@ class SideBar extends React.Component {
 
 }
 
+/**
+ * Used to contain output components that display output and error messages to the user.
+ */
 class OutputBox extends React.Component {
 
     constructor() {
 
         super();
 
+        // Contains an value that can be incremented to stop React complaining about a lack of key
         this.state = {
             id: -1
         };
@@ -352,18 +369,12 @@ class OutputBox extends React.Component {
     render() {
 
         var parentContext = this;
+
+        // Populate our output box with output nodes
         var outputNodes = this.props.data.map(function (output) {
-
-            console.log(output);
-
-            var lost = output.lost ? "LOST" : "";
-
             return (
-                <Output key={parentContext.state.id += 1} robot={output.robot}>
-                    {output.position + " " + lost}
-                </Output>
+                <Output key={parentContext.state.id += 1} message={output} />
             );
-
         });
 
         return (
@@ -376,17 +387,18 @@ class OutputBox extends React.Component {
 
 }
 
+/**
+ * Represents a single line of output in the output box.
+ */
 class Output extends React.Component {
 
     render() {
 
+        // dangerouslySetInnerHTML is used for compatibility; output messages are formatted with HTML
         return (
-
             <div className="output">
-                <b>{this.props.robot}</b>
-                {this.props.children}
+                <p dangerouslySetInnerHTML={{__html: this.props.message}} />
             </div>
-
         );
 
     }
