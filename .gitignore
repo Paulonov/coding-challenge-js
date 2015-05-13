@@ -11,3 +11,6 @@ bundle.js.map
 
 # Ignore Node modules
 node_modules
+
+# Ignore more Node stuff
+npm-debug.log
