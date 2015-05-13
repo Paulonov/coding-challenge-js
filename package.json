@@ -4,11 +4,11 @@
   "description": "An HTML5/ES6 implementation of the Red Badger coding challenge. Soon to use React!",
   "main": "bundle.js",
   "directories": {
-    "test": "test"
+    "test": "./test"
   },
   "scripts": {
     "dev": "webpack-dev-server -d --watch --progress --colors",
-    "test": "webpack-dev-server 'mocha!./test/test.js' --output-file test.js -d --watch --colors --progress"
+    "test": "webpack-dev-server 'mocha!./test/instructionreader-test.js' 'mocha!./test/planet-test.js' 'mocha!./test/robot-test.js' --output-file test.js -d --watch --colors --progress"
   },
   "repository": {
     "type": "git",
@@ -21,24 +21,24 @@
   },
   "homepage": "https://github.com/Paulonov/coding-challenge-js",
   "devDependencies": {
-    "babel-core": "^5.2.16",
+    "babel-core": "^5.3.1",
     "babel-loader": "^5.0.0",
-    "webpack": "^1.8.11",
+    "webpack": "^1.9.5",
     "webpack-dev-server": "^1.8.2"
   },
   "eslintConfig": {
     "ecmaFeatures": {
-        "modules": true,
-        "jsx": true
+      "modules": true,
+      "jsx": true
     },
     "env": {
-        "browser": true,
-        "es6": true,
-        "mocha": true
+      "browser": true,
+      "es6": true,
+      "mocha": true
     },
     "rules": {
-        "semi": 2,
-        "global-strict": false
+      "semi": 2,
+      "global-strict": false
     }
   }
 }
