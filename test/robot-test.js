@@ -1,7 +1,5 @@
 /**
- * test.js
- *
- * A file containing some Mocha tests for the application.
+ * robot-test.js
  */
 "use strict";
 
@@ -12,195 +10,8 @@ var expect = chai.expect;
 /*eslint-disable no-unused-vars*/
 var should = chai.should();
 
-import InstructionReader from "../src/instructionreader.js";
 import Robot from "../src/robot.js";
 import Planet from "../src/planet.js";
-
-describe("InstructionReader", function() {
-
-    var instructions;
-    var testData;
-
-    var reader;
-    var emptyReader;
-
-    before(function() {
-
-        instructions = "5 3\n1 1 E\nRFRFRFRF";
-        testData = "5 3\n1 1 E\nRFRFRFRF\n\n3 2 N\nFRRFLLFFRRFLL\n\n0 3 W\nLLFFFLFLFL\n\n6 4 W\nRFLRFLRF\n\n1 1 E\n" +
-            "RFRFRFRF";
-
-        reader = new InstructionReader(instructions);
-        emptyReader = new InstructionReader("4 3");
-
-    });
-
-    describe("#constructor()", function() {
-
-        it("should return an instance of InstructionReader", function() {
-            expect(reader).to.be.an.instanceof(InstructionReader);
-        });
-
-    });
-
-    describe("#empty()", function() {
-
-        it("should return true when there are no instructions in the stack", function() {
-            assert.equal(emptyReader.empty(), true);
-        });
-
-        it("should return false when there are instructions in the stack", function() {
-            assert.equal(reader.empty(), false);
-        });
-
-    });
-
-    describe("#parse()", function() {
-
-        describe("with a standard input string", function() {
-
-            it("should parse the input string into a stack of instructions", function() {
-                var result = ["RFRFRFRF", "1 1 E", "RFLRFLRF", "6 4 W", "LLFFFLFLFL", "0 3 W", "FRRFLLFFRRFLL", "3 2 N",
-                    "RFRFRFRF", "1 1 E", "5 3"];
-
-                // Deep equal so that each value in the array is compared
-                expect(result).to.deep.equal(InstructionReader.parse(testData));
-            });
-
-        });
-
-        it("should expect the first line of the input to be the planet's boundaries", function() {
-
-            try {
-                reader = new InstructionReader("3 4 N\n");
-            } catch(error) {
-                var errorMessage = "<b>Syntax Error: </b>" + "The first line should be the planet's boundaries!";
-                error.should.equal(errorMessage);
-            }
-
-        });
-
-    });
-
-});
-
-describe("Planet", function() {
-
-
-    /*eslint-disable no-unused-vars*/
-    describe("#constructor()", function() {
-
-        it("should return an instance of Planet", function() {
-            expect(new Planet(5, 5)).to.be.an.instanceof(Planet);
-        });
-
-        it("should not create a planet with an x larger than 50", function() {
-
-            try {
-                var planet = new Planet(51, 50);
-            } catch (error) {
-
-                var errorMessage = "<b>Planet Creation Error: </b> Specified planet co-ordinates are out of bounds! " +
-                    "Max planet size is 50x50";
-
-                error.should.equal(errorMessage);
-
-            }
-
-        });
-
-        it("should not create a planet with a y larger than 50", function() {
-
-            try {
-                var planet = new Planet(50, 51);
-            } catch (error) {
-
-                var errorMessage = "<b>Planet Creation Error: </b> Specified planet co-ordinates are out of bounds! " +
-                    "Max planet size is 50x50";
-
-                error.should.equal(errorMessage);
-
-            }
-
-        });
-
-        it("should not create a planet with an x smaller than 0", function() {
-
-            try {
-                var planet = new Planet(-1, 0);
-            } catch (error) {
-
-                var errorMessage = "<b>Planet Creation Error: </b> Specified planet co-ordinates are out of bounds! " +
-                    "Max planet size is 50x50";
-
-                error.should.equal(errorMessage);
-
-            }
-
-        });
-
-        it("should not create a planet with a y smaller than 0", function() {
-
-            try {
-                var planet = new Planet(0, -1);
-            } catch (error) {
-
-                var errorMessage = "<b>Planet Creation Error: </b> Specified planet co-ordinates are out of bounds! " +
-                    "Max planet size is 50x50";
-
-                error.should.equal(errorMessage);
-
-            }
-
-        });
-
-        it("should not create a planet with an undefined x", function() {
-
-            try {
-                var planet = new Planet(null, 0);
-            } catch (error) {
-
-                var errorMessage = "<b>Planet Creation Error: </b> Specified planet co-ordinates are out of bounds! " +
-                    "Max planet size is 50x50";
-
-                error.should.equal(errorMessage);
-
-            }
-
-        });
-
-        it("should not create a planet with an undefined y", function() {
-
-            try {
-                var planet = new Planet(0, null);
-            } catch (error) {
-
-                var errorMessage = "<b>Planet Creation Error: </b> Specified planet co-ordinates are out of bounds! " +
-                    "Max planet size is 50x50";
-
-                error.should.equal(errorMessage);
-
-            }
-
-        });
-
-    });
-
-
-    describe("#getSmellFromCoordinates()", function() {
-
-        it("should find a smell at 5, 4", function() {
-
-            var planet = new Planet(5, 5);
-            planet.scentMap[5][5] = true;
-
-            assert(planet.getSmellFromCoordinates(5, 5), true);
-
-        });
-
-    });
-
-});
 
 describe("Robot", function() {
 
@@ -229,75 +40,38 @@ describe("Robot", function() {
         });
 
         it("should return an instance of Robot", function() {
-            var robot = new Robot(0, 0, "N", stubbedGridInformation);
-            expect(robot).to.be.an.instanceof(Robot);
+            expect(new Robot(0, 0, "N", stubbedGridInformation)).to.be.an.instanceof(Robot);
         });
 
         it("should not create a robot with an x position greater than the planet's x boundary", function() {
-
-            try {
-                var robot = new Robot((planet.x + 1), planet.y);
-            } catch (error) {
-                var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + (planet.x + 1) + ", " + planet.y;
-                expect(error).to.equal(errorMessage);
-            }
-
+            var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + (planet.x + 1) + ", " + planet.y;
+            expect( robot => new Robot((planet.x + 1), planet.y) ).to.throw(errorMessage);
         });
 
         it("should not create a robot with a y position greater than the planet's y boundary", function() {
-
-            try {
-                var robot = new Robot(planet.x, (planet.y + 1));
-            } catch (error) {
-                var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + planet.x + ", " + (planet.y + 1);
-                expect(error).to.equal(errorMessage);
-            }
-
+            var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + planet.x + ", " + (planet.y + 1);
+            expect( robot => new Robot(planet.x, (planet.y + 1) )).to.throw(errorMessage);
         });
 
 
         it("should not create a robot with an x position less than 0", function() {
-
-            try {
-                var robot = new Robot(-1, 0);
-            } catch (error) {
-                var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + (-1) + ", " + 0;
-                expect(error).to.equal(errorMessage);
-            }
-
+            var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + (-1) + ", " + 0;
+            expect( robot => new Robot(-1, 0) ).to.throw(errorMessage);
         });
 
         it("should not create a robot with a y position less than 0", function() {
-
-            try {
-                var robot = new Robot(0, -1);
-            } catch (error) {
-                var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + 0 + ", " + (-1);
-                expect(error).to.equal(errorMessage);
-            }
-
+            var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + 0 + ", " + (-1);
+            expect( robot => new Robot(0, -1) ).to.throw(errorMessage);
         });
 
         it("should not create a robot with an undefined x position", function() {
-
-            try {
-                var robot = new Robot(null, 0);
-            } catch (error) {
-                var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + null + ", " + 0;
-                expect(error).to.equal(errorMessage);
-            }
-
+            var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + null + ", " + 0;
+            expect( robot => new Robot(null, 0) ).to.throw(errorMessage);
         });
 
         it("should not create a robot with an undefined y position", function() {
-
-            try {
-                var robot = new Robot(0, null);
-            } catch (error) {
-                var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + 0 + ", " + null;
-                expect(error).to.equal(errorMessage);
-            }
-
+            var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + 0 + ", " + null;
+            expect( robot => new Robot(0, null) ).to.throw(errorMessage);
         });
 
     });
