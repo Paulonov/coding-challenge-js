@@ -11,8 +11,8 @@ import State from "./core.js";
 
 window.onload = function () {
 
-    var state = new State();
+    State.initialiseState();
     Core.initialiseFileListener();
     document.getElementById("goButton").onclick = Core.go;
 
-}
+};

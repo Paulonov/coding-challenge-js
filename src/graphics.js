@@ -22,14 +22,14 @@ export function drawRobot(context) {
     // Draw the robot centred on the grid point
     context.beginPath();
 
-    context.rect(State.robot.canvasXPosition - (State.robot.width/2), State.robot.canvasYPosition - (State.robot.length/2),
-        State.robot.width, State.robot.length);
+    context.rect(State.robot.canvasXPosition - (State.robot.width / 2),
+        State.robot.canvasYPosition - (State.robot.length / 2), State.robot.width, State.robot.length);
 
-    context.fillStyle = '#EFEFEF';
+    context.fillStyle = "#EFEFEF";
     context.fill();
 
     // Add an outline to the robot
-    context.strokeStyle = '#BFBFBF';
+    context.strokeStyle = "#BFBFBF";
     context.lineWidth = 5;
     context.stroke();
 
@@ -37,23 +37,10 @@ export function drawRobot(context) {
     context.beginPath();
     context.lineWidth = 1;
     context.strokeStyle = "#BFBFBF";
-    context.textAlign = 'center';
+    context.textAlign = "center";
     context.strokeText(State.robot.id + " " + Robot.headingToString(State.robot.heading),
         State.robot.canvasXPosition, State.robot.canvasYPosition);
 
-}
-
-/**
- * Draw a new grid onto the corresponding canvas using the size of the planet as boundaries.
- * @param  {int} planetX The x boundary of the current planet.
- * @param  {int} planetY The y boundary of the current planet.
- * @return {Object}      An object containing useful properties about the grid: It's height and width, the x and y
- *                       differences between its grid positions and also the size of the margin surrounding the
- *                       grid.
- */
-export function initialiseGridCanvas(planetX, planetY) {
-    clearGridCanvas();
-    return drawGrid(planetX, planetY);
 }
 
 function clearGridCanvas() {
@@ -89,8 +76,8 @@ function drawGrid(planetX, planetY) {
      * We want to divide our grid based on the size of the planet so we need to consider the margin that surrounds
      * the grid in our calculations.
      */
-    var xUp = (State.gridCanvas.width - (marginValue*2))/planetX;
-    var yUp = (State.gridCanvas.height - (marginValue*2))/planetY;
+    var xUp = (State.gridCanvas.width - (marginValue * 2)) / planetX;
+    var yUp = (State.gridCanvas.height - (marginValue * 2)) / planetY;
 
     var xBoundary = State.gridCanvas.width - marginValue;
     var yBoundary = State.gridCanvas.height - marginValue;
@@ -150,6 +137,19 @@ function drawGrid(planetX, planetY) {
         margin: marginValue
     };
 
+}
+
+/**
+ * Draw a new grid onto the corresponding canvas using the size of the planet as boundaries.
+ * @param  {int} planetX The x boundary of the current planet.
+ * @param  {int} planetY The y boundary of the current planet.
+ * @return {Object}      An object containing useful properties about the grid: It's height and width, the x and y
+ *                       differences between its grid positions and also the size of the margin surrounding the
+ *                       grid.
+ */
+export function initialiseGridCanvas(planetX, planetY) {
+    clearGridCanvas();
+    return drawGrid(planetX, planetY);
 }
 
 /**
@@ -252,6 +252,16 @@ export function animate(timestamp) {
 
 }
 
+/**
+ * Translate the origin to be in the bottom left hand corner of the co-ordinate system from the top left.
+ * @param  {int}    coordinate      The co-ordinate value to convert.
+ * @param  {Object} gridInformation An object with properties that define the properties of the current grid in use.
+ * @return {int}                    The translated co-ordinate.
+ */
+export function translateOrigin(coordinate, gridInformation) {
+    return (-coordinate) + (gridInformation.height + gridInformation.margin);
+}
+
 function animateNorth(speed, dt) {
 
     /*
@@ -324,14 +334,4 @@ function animateWest(speed, dt) {
     State.robot.canvasXPosition = newPos;
     return false;
 
-}
-
-/**
- * Translate the origin to be in the bottom left hand corner of the co-ordinate system from the top left.
- * @param  {int}    coordinate      The co-ordinate value to convert.
- * @param  {Object} gridInformation An object with properties that define the properties of the current grid in use.
- * @return {int}                    The translated co-ordinate.
- */
-export function translateOrigin(coordinate, gridInformation) {
-    return (-coordinate) + (gridInformation.height + gridInformation.margin);
 }

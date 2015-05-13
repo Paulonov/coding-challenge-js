@@ -8,8 +8,6 @@
  */
 "use strict";
 
-import * as Core from "./core.js";
-import State from "./core.js";
 import * as Graphics from "./graphics.js";
 
 /**
@@ -50,7 +48,7 @@ export default class Robot {
                 gridInformation.margin, gridInformation);
 
             // Use the size of the planet to establish a suitable speed for the robots - Totally arbitrary!
-            this.speed = (1/(Robot.currentPlanet.x + Robot.currentPlanet.y)) * 1.5;
+            this.speed = (1 / (Robot.currentPlanet.x + Robot.currentPlanet.y)) * 1.5;
 
             // Set up the size of the robot in canvas co-ordinates, scales with the size of the grid
             if ((Robot.currentPlanet.x + Robot.currentPlanet.y) < 25) {
@@ -80,7 +78,7 @@ export default class Robot {
      * Execute the instruction given to the robot and update its internal state.
      * @param  {char} instruction A character representing the instruction to execute.
      */
-    executeInstruction(instruction, gridInformation) {
+    executeInstruction(instruction) {
 
         // Save values that get accessed a lot early on so that we don't have to keep accessing the getter method
         var heading = this.heading;
@@ -96,16 +94,16 @@ export default class Robot {
             switch (instruction) {
 
                 // Using mod n allows us to add (n - 1) to the heading to get the next heading the left
-                case 'L':
+                case "L":
                     this.heading = (heading + (Robot.NUMBER_OF_DIRECTIONS - 1)) % Robot.NUMBER_OF_DIRECTIONS;
                     break;
 
                 // Same again but we add 1 to get the next heading to the right
-                case 'R':
+                case "R":
                     this.heading = (heading + 1) % Robot.NUMBER_OF_DIRECTIONS;
                     break;
 
-                case 'F':
+                case "F":
 
                     switch (heading) {
 
