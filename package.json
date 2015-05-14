@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "webpack-dev-server -d --watch --progress --colors",
-    "test": "webpack-dev-server 'mocha!./test/instructionreader-test.js' 'mocha!./test/planet-test.js' 'mocha!./test/robot-test.js' --output-file test.js -d --watch --colors --progress --display-error-details --display-reasons"
+    "test": "webpack-dev-server 'mocha!./test/cover-tests.js' 'mocha!./test/instructionreader-test.js' 'mocha!./test/planet-test.js' 'mocha!./test/robot-test.js' --output-file test.js -d --watch --colors --progress --display-error-details --display-reasons"
   },
   "repository": {
     "type": "git",
