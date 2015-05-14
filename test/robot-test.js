@@ -74,6 +74,11 @@ describe("Robot", function() {
             expect( robot => new Robot(0, null) ).to.throw(errorMessage);
         });
 
+        it("should not create a robot with an invalid initial heading", function() {
+            var errorMessage = "<b>Robot Creation Error:</b> Invalid initial heading!";
+            expect( robot => new Robot(0, 0, "A") ).to.throw(errorMessage);
+        });
+
     });
 
     describe("#executeInstruction()", function() {
@@ -555,6 +560,21 @@ describe("Robot", function() {
 
         it("should return ? when anything else is given", function() {
             assert.equal("?", Robot.headingToString(99));
+        });
+
+    });
+
+    describe("#getFancyPositionInformation()", function() {
+
+        it("should append LOST to the string if the robot is lost", function() {
+            var robot = new Robot(3, 3, "E", stubbedGridInformation);
+            robot.isLost = true;
+            expect(robot.getFancyPositionInformation()).to.contain("LOST");
+        });
+
+        it("should not append LOST to the string if the robot is on the grid", function() {
+            var robot = new Robot(3, 3, "E", stubbedGridInformation);
+            expect(robot.getFancyPositionInformation()).not.to.contain("LOST");
         });
 
     });
