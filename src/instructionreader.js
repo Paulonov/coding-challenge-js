@@ -96,16 +96,17 @@ export default class InstructionReader {
          * be embedded in to the parser; the regexes work a line at a time and so will not know that the planet boundaries
          * need to be at the top of the input.
          */
-        var planetBoundaries;
-
-        if (/^\d+ \d+\s*$/.test(splitInstructions[0])) {
-            planetBoundaries = splitInstructions[0];
-        } else {
-            throw "<b>Syntax Error: </b>" + "The first line should be the planet's boundaries!";
-        }
 
         // Flip our separated instructions round so we can use it as a stack
         splitInstructions = splitInstructions.reverse();
+
+        var planetBoundaries;
+
+        if (/^\d+ \d+\s*$/.test(splitInstructions[splitInstructions.length - 1])) {
+            planetBoundaries = splitInstructions.pop();
+        } else {
+            throw "<b>Syntax Error: </b>" + "The first line should be the planet's boundaries!";
+        }
 
         /*
          * Parse loop

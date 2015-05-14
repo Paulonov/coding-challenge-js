@@ -15,20 +15,17 @@ import Planet from "../src/planet.js";
 
 describe("Robot", function() {
 
-    var stubbedGridInformation;
-
-    before(function() {
-
-        // A stubbed version of grid information, we're not testing canvas-y things here
-        stubbedGridInformation = {
+    // A stubbed version of grid information, we're not testing canvas-y things here
+    var stubbedGridInformation = {
             xDifference: 0,
             yDifference: 0,
             width: 0,
             height: 0,
             margin: 0
-        };
+    };
 
-    });
+    var placementOutOfBounds = "Robot Placement Out of Bounds";
+    var creationError = "Robot Creation Error";
 
     describe("#constructor()", function() {
 
@@ -44,34 +41,31 @@ describe("Robot", function() {
         });
 
         it("should not create a robot with an x position greater than the planet's x boundary", function() {
-            var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + (planet.x + 1) + ", " + planet.y;
-            expect( robot => new Robot((planet.x + 1), planet.y) ).to.throw(errorMessage);
+            expect( robot => new Robot((planet.x + 1), planet.y) ).to.throw(placementOutOfBounds);
         });
 
         it("should not create a robot with a y position greater than the planet's y boundary", function() {
-            var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + planet.x + ", " + (planet.y + 1);
-            expect( robot => new Robot(planet.x, (planet.y + 1) )).to.throw(errorMessage);
+            expect( robot => new Robot(planet.x, (planet.y + 1) )).to.throw(placementOutOfBounds);
         });
 
-
         it("should not create a robot with an x position less than 0", function() {
-            var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + (-1) + ", " + 0;
-            expect( robot => new Robot(-1, 0) ).to.throw(errorMessage);
+            expect( robot => new Robot(-1, 0) ).to.throw(placementOutOfBounds);
         });
 
         it("should not create a robot with a y position less than 0", function() {
-            var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + 0 + ", " + (-1);
-            expect( robot => new Robot(0, -1) ).to.throw(errorMessage);
+            expect( robot => new Robot(0, -1) ).to.throw(placementOutOfBounds);
         });
 
         it("should not create a robot with an undefined x position", function() {
-            var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + null + ", " + 0;
-            expect( robot => new Robot(null, 0) ).to.throw(errorMessage);
+            expect( robot => new Robot(null, 0) ).to.throw(placementOutOfBounds);
         });
 
         it("should not create a robot with an undefined y position", function() {
-            var errorMessage = "<b>Robot Placement Out of Bounds: </b>" + 0 + ", " + null;
-            expect( robot => new Robot(0, null) ).to.throw(errorMessage);
+            expect( robot => new Robot(0, null) ).to.throw(placementOutOfBounds);
+        });
+
+        it("should not create a robot with an invalid initial heading", function() {
+            expect( robot => new Robot(0, 0, "A") ).to.throw(creationError);
         });
 
     });
@@ -513,23 +507,11 @@ describe("Robot", function() {
 
     describe("#stringToHeading()", function() {
 
-        it("should return Robot.NORTH when N is given", function() {
+        it("converts a given string to the appropriate heading without error", function() {
             assert.equal(Robot.NORTH, Robot.stringToHeading("N"));
-        });
-
-        it("should return Robot.EAST when E is given", function() {
             assert.equal(Robot.EAST, Robot.stringToHeading("E"));
-        });
-
-        it("should return Robot.SOUTH when S is given", function() {
             assert.equal(Robot.SOUTH, Robot.stringToHeading("S"));
-        });
-
-        it("should return Robot.WEST when W is given", function() {
             assert.equal(Robot.WEST, Robot.stringToHeading("W"));
-        });
-
-        it("should return ? when an unknown heading is given", function() {
             assert.equal("?", Robot.stringToHeading("A"));
         });
 
@@ -537,24 +519,27 @@ describe("Robot", function() {
 
     describe("#headingToString()", function() {
 
-        it("should return N when Robot.NORTH is given", function() {
+        it("converts a given heading to the appropriate string without error", function() {
             assert.equal("N", Robot.headingToString(Robot.NORTH));
-        });
-
-        it("should return E when Robot.EAST is given", function() {
             assert.equal("E", Robot.headingToString(Robot.EAST));
-        });
-
-        it("should return S when Robot.SOUTH is given", function() {
             assert.equal("S", Robot.headingToString(Robot.SOUTH));
-        });
-
-        it("should return W when Robot.WEST is given", function() {
             assert.equal("W", Robot.headingToString(Robot.WEST));
+            assert.equal("?", Robot.headingToString(99));
         });
 
-        it("should return ? when anything else is given", function() {
-            assert.equal("?", Robot.headingToString(99));
+    });
+
+    describe("#getFancyPositionInformation()", function() {
+
+        it("appends LOST to the string if the robot is lost", function() {
+            var robot = new Robot(3, 3, "E", stubbedGridInformation);
+            robot.isLost = true;
+            expect(robot.getFancyPositionInformation()).to.contain("LOST");
+        });
+
+        it("does not append LOST to the string if the robot is on the grid", function() {
+            var robot = new Robot(3, 3, "E", stubbedGridInformation);
+            expect(robot.getFancyPositionInformation()).not.to.contain("LOST");
         });
 
     });

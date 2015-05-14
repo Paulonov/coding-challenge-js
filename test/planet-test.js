@@ -16,6 +16,8 @@ import Planet from "../src/planet.js";
 
 describe("Planet", function() {
 
+    var creationError = "Planet Creation Error";
+
     /*eslint-disable no-unused-vars*/
     describe("#constructor()", function() {
 
@@ -24,61 +26,30 @@ describe("Planet", function() {
         });
 
         it("should not create a planet with an x larger than 50", function() {
-
-            var errorMessage = "<b>Planet Creation Error: </b> Specified planet co-ordinates are out of bounds! " +
-                    "Max planet size is 50x50";
-
-            expect( planet => new Planet(51, 50) ).to.throw(errorMessage);
-
+            expect( planet => new Planet(51, 50) ).to.throw(creationError);
         });
 
         it("should not create a planet with a y larger than 50", function() {
-
-            var errorMessage = "<b>Planet Creation Error: </b> Specified planet co-ordinates are out of bounds! " +
-                    "Max planet size is 50x50";
-
-            expect( planet => new Planet(50, 51) ).to.throw(errorMessage);
-
+            expect( planet => new Planet(50, 51) ).to.throw(creationError);
         });
 
         it("should not create a planet with an x smaller than 0", function() {
-
-            var errorMessage = "<b>Planet Creation Error: </b> Specified planet co-ordinates are out of bounds! " +
-                    "Max planet size is 50x50";
-
-            expect( planet => new Planet(-1, 0) ).to.throw(errorMessage);
-
+            expect( planet => new Planet(-1, 0) ).to.throw(creationError);
         });
 
         it("should not create a planet with a y smaller than 0", function() {
-
-            var errorMessage = "<b>Planet Creation Error: </b> Specified planet co-ordinates are out of bounds! " +
-                    "Max planet size is 50x50";
-
-            expect( planet => new Planet(0, -1) ).to.throw(errorMessage);
-
+            expect( planet => new Planet(0, -1) ).to.throw(creationError);
         });
 
         it("should not create a planet with an undefined x", function() {
-
-            var errorMessage = "<b>Planet Creation Error: </b> Specified planet co-ordinates are out of bounds! " +
-                    "Max planet size is 50x50";
-
-            expect( planet => new Planet(null, 0) ).to.throw(errorMessage);
-
+            expect( planet => new Planet(null, 0) ).to.throw(creationError);
         });
 
         it("should not create a planet with an undefined y", function() {
-
-            var errorMessage = "<b>Planet Creation Error: </b> Specified planet co-ordinates are out of bounds! " +
-                    "Max planet size is 50x50";
-
-            expect( planet => new Planet(0, null) ).to.throw(errorMessage);
-
+            expect( planet => new Planet(0, null) ).to.throw(creationError);
         });
 
     });
-
 
     describe("#getSmellFromCoordinates()", function() {
 
