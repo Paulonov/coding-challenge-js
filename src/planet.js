@@ -17,29 +17,27 @@ export default class Planet {
 
     constructor(planetX, planetY) {
 
-        this.scentMap = [];
-
         // Make sure that the provided planet co-ordinates are in bounds otherwise set up the planet as normal
         if (planetX > 50 || planetY > 50 || planetX <= 0 || planetY <= 0 || typeof planetX === "undefined" ||
             typeof planetY === "undefined" || planetX === null || planetY === null) {
 
-                throw "<b>Planet Creation Error: </b> Specified planet co-ordinates are out of bounds! Max planet size " +
-                        "is 50x50";
+                throw "<b>Planet Creation Error: </b> Specified planet co-ordinates are out of bounds! " +
+                    "Max planet size is 50x50";
 
-        } else {
+        }
 
-            this.x = planetX;
-            this.y = planetY;
+        this.scentMap = [];
 
-            // If a grid square has a value of true, a robot has left a scent before it got lost
-            for (var i = 0; i <= planetX; i++) {
+        this.x = planetX;
+        this.y = planetY;
 
-                this.scentMap[i] = [];
+        // If a grid square has a value of true, a robot has left a scent before it got lost
+        for (var i = 0; i <= planetX; i++) {
 
-                for (var j = 0; j <= planetY; j++) {
-                    this.scentMap[i][j] = false;
-                }
+            this.scentMap[i] = [];
 
+            for (var j = 0; j <= planetY; j++) {
+                this.scentMap[i][j] = false;
             }
 
         }
