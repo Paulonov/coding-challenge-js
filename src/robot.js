@@ -20,6 +20,19 @@ export default class Robot {
 
     constructor(initialXPosition, initialYPosition, initialHeading, gridInformation) {
 
+
+        if (initialXPosition < 0 || initialYPosition < 0 || initialXPosition > Robot.currentPlanet.x ||
+            initialYPosition > Robot.currentPlanet.y || typeof initialXPosition === "undefined" ||
+                typeof initialYPosition === "undefined" || initialXPosition === null || initialYPosition === null) {
+
+            throw "<b>Robot Placement Out of Bounds: </b>" + initialXPosition + ", " + initialYPosition;
+
+        }
+
+        if (Robot.stringToHeading(initialHeading) === "?") {
+            throw "<b>Robot Creation Error:</b> Invalid initial heading!";
+        }
+
         /**
          * Internal heading values: Counted clockwise from north
          * Defining them outside of this doesn't seem to get them "counted" with the export
@@ -32,45 +45,31 @@ export default class Robot {
         Robot.SOUTH = 2;
         Robot.WEST = 3;
 
-        if (initialXPosition < 0 || initialYPosition < 0 || initialXPosition > Robot.currentPlanet.x ||
-            initialYPosition > Robot.currentPlanet.y || typeof initialXPosition === "undefined" ||
-                typeof initialYPosition === "undefined" || initialXPosition === null || initialYPosition === null) {
+        this.xPosition = initialXPosition;
+        this.yPosition = initialYPosition;
 
-            throw "<b>Robot Placement Out of Bounds: </b>" + initialXPosition + ", " + initialYPosition;
+        this.canvasXPosition = (gridInformation.xDifference * this.xPosition) + gridInformation.margin;
+        this.canvasYPosition = Graphics.translateOrigin((gridInformation.yDifference * this.yPosition) +
+            gridInformation.margin, gridInformation);
 
+        // Use the size of the planet to establish a suitable speed for the robots - Totally arbitrary!
+        this.speed = (1 / (Robot.currentPlanet.x + Robot.currentPlanet.y)) * 1.5;
+
+        // Set up the size of the robot in canvas co-ordinates, scales with the size of the grid
+        if ((Robot.currentPlanet.x + Robot.currentPlanet.y) < 25) {
+            this.length = 50;
+            this.width = 50;
         } else {
-
-            this.xPosition = initialXPosition;
-            this.yPosition = initialYPosition;
-
-            this.canvasXPosition = (gridInformation.xDifference * this.xPosition) + gridInformation.margin;
-            this.canvasYPosition = Graphics.translateOrigin((gridInformation.yDifference * this.yPosition) +
-                gridInformation.margin, gridInformation);
-
-            // Use the size of the planet to establish a suitable speed for the robots - Totally arbitrary!
-            this.speed = (1 / (Robot.currentPlanet.x + Robot.currentPlanet.y)) * 1.5;
-
-            // Set up the size of the robot in canvas co-ordinates, scales with the size of the grid
-            if ((Robot.currentPlanet.x + Robot.currentPlanet.y) < 25) {
-                this.length = 50;
-                this.width = 50;
-            } else {
-                this.length = 30;
-                this.width = 30;
-            }
-
-            this.heading = Robot.stringToHeading(initialHeading);
-
-            if (this.heading === "?") {
-                throw "<b>Robot Creation Error:</b> Invalid initial heading!";
-            }
-
-            // Robot has been successfully created so increase the count
-            Robot.robotCount++;
-            this.id = Robot.robotCount;
-            this.isLost = false;
-
+            this.length = 30;
+            this.width = 30;
         }
+
+        this.heading = Robot.stringToHeading(initialHeading);
+
+        // Robot has been successfully created so increase the count
+        Robot.robotCount++;
+        this.id = Robot.robotCount;
+        this.isLost = false;
 
     }
 
