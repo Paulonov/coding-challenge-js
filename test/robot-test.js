@@ -10,14 +10,8 @@ var expect = chai.expect;
 /*eslint-disable no-unused-vars*/
 var should = chai.should();
 
-import coverloader from "coverjs-loader";
-
 import Robot from "../src/robot.js";
 import Planet from "../src/planet.js";
-
-after(function() {
-    coverloader.reportHtml();
-});
 
 describe("Robot", function() {
 
