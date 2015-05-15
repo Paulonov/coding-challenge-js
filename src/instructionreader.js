@@ -8,11 +8,13 @@
  */
 "use strict";
 
+import { stringToHeading } from "./robot.js";
+
 /**
  * Prepare a robot for use if there is one available.
  * @return {Robot} A simple robot object containing the initial state
  */
-export function prepareRobots(instructionStack) {
+export function prepareRobots(instructionStack, planetBoundaries) {
 
     // If the current stack is empty, bail!
     if (typeof instructionStack[instructionStack.length - 1] === "undefined") {
@@ -20,15 +22,20 @@ export function prepareRobots(instructionStack) {
     }
 
     var robots = [];
+    var robotId = 1;
 
     while(typeof instructionStack[instructionStack.length - 1] !== "undefined") {
 
         // Get the next robot's starting position from the top of the list
         var startingInformation = instructionStack.pop().trim().split(" ");
 
+        var x = parseInt(startingInformation[0], 10);
+        var y = parseInt(startingInformation[1], 10);
+        var heading = startingInformation[2];
+
         // Get the list of instructions for that robot from the top of the list, split on empty string to get chars
         // TODO: We could always do this later and save the string as a whole first
-        var startingInstructions = instructionStack.pop().trim().split("");
+        var startingInstructions = instructionStack.pop().trim().split("").reverse();
 
         // If we've found a blank line, remove it
         if (typeof instructionStack[instructionStack.length - 1] !== "undefined" &&
@@ -36,14 +43,31 @@ export function prepareRobots(instructionStack) {
                 instructionStack.pop();
         }
 
+        if (x < 0 || y < 0 || x > planetBoundaries[0] || y > planetBoundaries[1] || typeof x === "undefined"
+                || typeof y === "undefined" || x === null || y === null) {
+
+            //throw "<b>Robot Placement Out of Bounds: </b>" + robot.x + ", " + robot.y;
+            continue;
+
+        }
+
+        // If the given heading is unknown, skip this robot
+        if (stringToHeading(startingInformation[2]) === "?") {
+            //throw "<b>Robot Creation Error:</b> Invalid initial heading!";
+            continue;
+        }
+
+        // We reverse the startingInstructions so we can use it as a stack later
         var robot = {
-            heading: startingInformation[2],
+            id: robotId,
+            heading: heading,
             instructions: startingInstructions,
-            x: startingInformation[0],
-            y: startingInformation[1],
+            x: x,
+            y: y,
             lost: false
         };
 
+        robotId++;
         robots.push(robot);
 
     }

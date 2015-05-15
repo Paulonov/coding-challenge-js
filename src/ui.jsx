@@ -10,8 +10,7 @@
 
 import React from "react";
 
-// import { executeInstruction } from "./robot.js";
-//import Planet from "./planet.js";
+import { executeInstruction, getFancyPositionInformation } from "./robot.js";
 import { parseInstructions, prepareRobots } from "./instructionreader.js";
 
 export default class MartianRobots extends React.Component {
@@ -60,11 +59,10 @@ class World extends React.Component {
          */
         this.state = {
 
+            setIntervalId: -1,
+
             // Every robot that exists in the world and its state
-            robots:
-            [
-                // e.g. { heading: "N", instructionStack: "FFRLF", x: 0, y: 0, lost: false }
-            ],
+            robots: [],
 
             // The state of the planet
             planet: {
@@ -73,7 +71,9 @@ class World extends React.Component {
                 },
                 rows: 0,
                 cols: 0
-            }
+            },
+
+            outputMessages: []
 
         };
 
@@ -87,6 +87,7 @@ class World extends React.Component {
 
         var instructionStack;
 
+        // Convert the instructions passed in by the user into a stack
         try {
             instructionStack = parseInstructions(instructionsString);
         } catch (error) {
@@ -98,21 +99,71 @@ class World extends React.Component {
         var planetBoundaries = instructionStack.pop().trim().split(" ");
 
         // Use the instruction stack to set the initial state of the world
-        var initialRobots = prepareRobots(instructionStack);
+        var initialRobots = prepareRobots(instructionStack, planetBoundaries);
         var initialPlanet = { scents: {}, rows: parseInt(planetBoundaries[0], 10), cols: parseInt(planetBoundaries[1], 10) };
 
         // Update the state of the world accordingly
-        this.setState({
-            robots: initialRobots,
-            planet: initialPlanet
-        });
+        this.setState({ robots: initialRobots, planet: initialPlanet },
+
+            () => {
+                var id = setInterval(this._tick.bind(this), 500);
+                this.setState({setIntervalId: id});
+            }
+        );
 
     }
 
+    // Update everything in the world by one instruction
     _tick() {
 
         // Use executeInstruction once on each robot to get the next state of the world
+        var planet = this.state.planet;
+        var robots = this.state.robots.slice(0);
+        var outputMessages = this.state.outputMessages.slice(0);
+        var doneCount = 0;
 
+        var newRobots = robots.map( robot => {
+
+                // If the robot does not have any instructions to execute or is lost, bail
+                if (robot.lost || robot.instructions.length === 0) {
+                    doneCount++;
+                    return robot;
+                }
+
+                var instruction = robot.instructions.pop();
+                var newRobot = executeInstruction(robot, planet, instruction);
+
+                if (newRobot.lost) {
+                    // Leave a scent
+                    planet.scents[`${newRobot.x},${newRobot.y}`] = true;
+                }
+
+                return newRobot;
+
+            }
+
+        );
+
+
+        if (doneCount === robots.length) {
+
+            robots.map( robot => {
+                outputMessages.push(getFancyPositionInformation(robot));
+            });
+
+            clearInterval(this.state.setIntervalId);
+            this.setState({outputMessages: outputMessages});
+
+            return;
+
+        }
+
+        // Update state
+        this.setState({
+            robots: newRobots,
+            planet: planet,
+            outputMessages: outputMessages
+        });
 
     }
 
@@ -126,7 +177,7 @@ class World extends React.Component {
                 <div id="mainArea">
                     <div id="graphicsContainer"></div>
                     <SideBar _setup={this._setup.bind(this)} />
-                    <OutputBox outputData={[""]} />
+                    <OutputBox outputData={this.state.outputMessages} />
                 </div>
             );
         }
@@ -135,7 +186,7 @@ class World extends React.Component {
             <div id="mainArea">
                 <div id="graphicsContainer"> </div>
                 <SideBar _setup={this._setup.bind(this)} />
-                <OutputBox outputData={[""]} />
+                <OutputBox outputData={this.state.outputMessages} />
             </div>
         );
 
