@@ -7,7 +7,7 @@ module.exports = {
     },
     module: {
         preLoaders: [
-            { test: /\.js$/, exclude: /node_modules/, loader: "eslint-loader" }
+            { test: /\.jsx?$/, exclude: /node_modules/, loader: "eslint-loader" }
         ],
         loaders: [
             { test: /\.js$/, exclude: [/node_modules/, /test/, /core.js/, /graphics.js/], loader: "coverjs-loader" },

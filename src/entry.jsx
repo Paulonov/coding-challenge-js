@@ -7,13 +7,15 @@
 "use strict";
 
 import React from "react";
-import AppContainer from "./ui.jsx";
+
+/*eslint-disable no-unused-vars*/
+import MartianRobots from "./ui.jsx";
 
 window.onload = function () {
 
     React.render(
-        <AppContainer />,
+        <MartianRobots />,
         document.getElementById("container")
     );
 
-}
+};

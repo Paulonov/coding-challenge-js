@@ -6,208 +6,22 @@
  *
  */
 "use strict";
+/*eslint-disable no-console, no-underscore-dangle*/
 
 import React from "react";
 
-import Robot from "./robot.js";
-import Planet from "./planet.js";
-import InstructionReader from "./instructionreader.js";
+// import { executeInstruction } from "./robot.js";
+//import Planet from "./planet.js";
+import { parseInstructions, prepareRobots } from "./instructionreader.js";
 
-export default class AppContainer extends React.Component {
+export default class MartianRobots extends React.Component {
 
     render() {
+
         return (
             <div id="appContainer">
                 <Header />
-                <MainArea />
-            </div>
-        );
-    }
-
-}
-
-// Common owner for state
-class MainArea extends React.Component {
-
-    constructor() {
-
-        super();
-
-        this.state = {
-
-            instructions: "",
-            instructionsSet: false,
-
-            robot: null,
-            currentRobotInstructions: null,
-            instruction: null,
-            instructionCount: 0,
-            finishedRobots: [],
-
-            newRobot: true,
-            outputBoxData: []
-
-        }
-
-    }
-
-    /**
-     * Prepare the instruction reader and the planet and get executin'.
-     */
-    setup() {
-
-        Robot.robotCount = 0;
-        Robot.currentPlanet = null;
-
-        if (!this.createReader() || !this.createPlanet()) {
-            return;
-        }
-
-        Robot.currentPlanet = this.state.planet;
-
-        this.executeLogic();
-
-    }
-
-    createReader() {
-
-       // Grab the text from the textarea and give it to the InstructionReader to process
-        try {
-            this.state.reader = new InstructionReader(this.state.instructions);
-        } catch (error) {
-            this.state.outputBoxData.push(error);
-            console.log(error);
-            return false;
-        }
-
-        return true;
-
-    }
-
-    createPlanet() {
-
-        // Make a new planet from the boundaries passed in by the user
-        var planetBoundaries = this.state.reader.planetBoundaries;
-
-        try {
-            this.state.planet = new Planet(parseInt(planetBoundaries[0]), parseInt(planetBoundaries[1]));
-        } catch (error) {
-            this.state.outputBoxData.push(error);
-            console.log(error);
-            return false;
-        }
-
-        return true;
-
-    }
-
-    /**
-     * Finish simulating every robot using its instructions.
-     */
-    executeLogic() {
-
-        /**
-         * Get a robot from the reader, execute all of its instructions and record its final state.
-         */
-        while (!this.state.reader.empty()) {
-
-            if (this.prepareRobot()) {
-
-                // Execute all of the robot's instructions so we can get the final state
-                while (typeof this.state.reader.currentRobotInstructions[this.state.instructionCount] !== "undefined") {
-
-                    this.state.robot.executeInstruction(this.state.instruction);
-                    this.state.planet.updateScents(this.state.robot);
-
-                    this.state.instructionCount++;
-                    this.state.instruction = this.state.reader.currentRobotInstructions[this.state.instructionCount];
-
-                }
-
-                // Save the finished robot along with its instructions
-                this.state.finishedRobots.push({
-                    robot: this.state.robot,
-                    instructions: this.state.reader.currentRobotInstructions.join("")
-                });
-
-                this.state.outputBoxData.push(this.state.robot.getFancyPositionInformation());
-
-            }
-
-        }
-
-    }
-
-    /**
-     * Takes care of preparing new robots. If a robot creates an error upon creation, this function is called
-     * recursively so we can try and get another robot.
-     * @return {boolean} True if a robot has been created successfully, false if there are no robots left to process.
-     */
-    prepareRobot() {
-
-        // A stubbed version of grid information, we're not testing canvas-y things here
-        var stubbedGridInformation = {
-            xDifference: 0,
-            yDifference: 0,
-            width: 0,
-            height: 0,
-            margin: 0
-        };
-
-        if (!this.state.reader.empty()) {
-
-            // If there's a robot to set up, initialiseRobot returns true and we can continue
-            if (this.state.reader.initialiseRobot()) {
-
-                // Reset the instruction counter
-                this.state.instructionCount = 0;
-                var robotPosition = this.state.reader.currentRobotStartingInformation;
-
-                try {
-
-                    this.state.robot = new Robot(parseInt(robotPosition[0], 10),
-                        parseInt(robotPosition[1], 10), robotPosition[2], stubbedGridInformation);
-
-                    this.state.instruction = this.state.reader.currentRobotInstructions[
-                        this.state.instructionCount].toUpperCase();
-
-                    return true;
-
-                } catch (error) {
-                    this.state.outputBoxData.push(error);
-                    return this.prepareRobot();
-                }
-
-            } else {
-                return this.prepareRobot();
-            }
-
-        } else {
-            return false;
-        }
-
-    }
-
-    _saveInstructions(instructionsString) {
-        this.setState({instructions: instructionsString});
-        this.setState({instructionsSet: true});
-    }
-
-    render() {
-
-        /*
-         * React triggers a re-render when the state changes; since getting the user's instructions updates the state,
-         * we need this check to stop the logic from executing too early.
-         */
-        if (this.state.instructionsSet) {
-            this.setup();
-        }
-
-        return (
-            <div id="mainArea">
-                <GraphicsContainer />
-                <SideBar saveInstructions={this._saveInstructions.bind(this)} />
-                <OutputBox data={this.state.outputBoxData} />
+                <World />
             </div>
         );
 
@@ -231,18 +45,134 @@ class Header extends React.Component {
 }
 
 /**
- * A component for each of the animations to occur in.
+ * State entirely resides here; if it's need elsewhere, it can be passed down to child components as props.
  */
-class GraphicsContainer extends React.Component {
+class World extends React.Component {
 
-    render() {
-        return (
-            <div id="graphicsContainer">
-            </div>
-        );
+    constructor() {
+
+        super();
+
+        /**
+         * State becomes immutable with some easily updatable properties. Every tick of the world updates the entire
+         * world state so that React can re-render it.
+         * @type {Object}
+         */
+        this.state = {
+
+            // Every robot that exists in the world and its state
+            robots:
+            [
+                // e.g. { heading: "N", instructionStack: "FFRLF", x: 0, y: 0, lost: false }
+            ],
+
+            // The state of the planet
+            planet: {
+                scents: {
+                    // E.g. "5,2": true
+                },
+                rows: 0,
+                cols: 0
+            }
+
+        };
 
     }
 
+    /**
+     * Set the initial state of the world.
+     * @param  {String} instructionsString The user's input taken straight from the editor.
+     */
+    _setup(instructionsString) {
+
+        var instructionStack;
+
+        try {
+            instructionStack = parseInstructions(instructionsString);
+        } catch (error) {
+            console.log(error);
+            return;
+        }
+
+        // The first item on the stack is the planet's boundaries
+        var planetBoundaries = instructionStack.pop().trim().split(" ");
+
+        // Use the instruction stack to set the initial state of the world
+        var initialRobots = prepareRobots(instructionStack);
+        var initialPlanet = { scents: {}, rows: parseInt(planetBoundaries[0], 10), cols: parseInt(planetBoundaries[1], 10) };
+
+        // Update the state of the world accordingly
+        this.setState({
+            robots: initialRobots,
+            planet: initialPlanet
+        });
+
+    }
+
+    _tick() {
+
+        // Use executeInstruction once on each robot to get the next state of the world
+
+
+    }
+
+    render() {
+
+        console.log(this.state);
+
+        // 0 is falsey so if the planet is 0, 0 it is undefined and we need to set everything up
+        if (!(this.state.planet.rows && this.state.planet.cols)) {
+            return (
+                <div id="mainArea">
+                    <div id="graphicsContainer"></div>
+                    <SideBar _setup={this._setup.bind(this)} />
+                    <OutputBox outputData={[""]} />
+                </div>
+            );
+        }
+
+        return (
+            <div id="mainArea">
+                <div id="graphicsContainer"> </div>
+                <SideBar _setup={this._setup.bind(this)} />
+                <OutputBox outputData={[""]} />
+            </div>
+        );
+
+        /*
+        <div className="graphicsContainer">
+            { [1, ...(this.state.planet.rows)].map( () =>
+                <Row cols={this.state.planet.cols} rows={this.state.planet.rows} />) };
+        </div>
+        */
+
+    }
+
+}
+
+class Row extends React.Component {
+    render() {
+        return ( <div className="row" > {
+            [1, ...(this.props.cols)].map( () => <Cell cols={this.props.cols}/> )
+        } </div>);
+    }
+}
+
+class Cell extends React.Component {
+    render() {
+        return ( <div className="cell"> Cell </div>);
+    }
+
+}
+
+//Stateless/Dumb component
+class RobotComponent extends React.Component {
+    render() {
+        return (
+            <div className ="robot" >
+            </div>
+        );
+    }
 }
 
 /**
@@ -254,19 +184,21 @@ class SideBar extends React.Component {
 
     // Called once we know that the buttons have been rendered so we will definitely be able to attach an event listener
     componentDidMount() {
-        this.initialiseFileListener();
+        this._initialiseFileListener();
     }
 
     /**
      * Sets up a listener so that we can read in robot instructions from a suitable file.
      */
-    initialiseFileListener() {
+    _initialiseFileListener() {
+
+        /*eslint-disable no-alert*/
 
         // Check for File APIs support - Taken from HTML5Rocks.com
         if (window.File && window.FileReader && window.FileList && window.Blob) {
             // File APIs supported
         } else {
-            alert('File APIs not fully supported in this browser, loading instructions from a file is disabled.');
+            alert("File APIs not fully supported in this browser, loading instructions from a file is disabled.");
             return;
         }
 
@@ -274,11 +206,11 @@ class SideBar extends React.Component {
         var fileList = document.getElementById("fileInput");
         var editor = document.getElementById("editor");
 
-        fileList.addEventListener('change', function (e) {
+        fileList.addEventListener("change", function() {
 
             var file = fileList.files[0];
 
-            reader.onload = function (e) {
+            reader.onload = function() {
 
                 // Check the MIME type of the file to see if it's a text file
                 if (file.type.match("text/*")) {
@@ -295,24 +227,19 @@ class SideBar extends React.Component {
 
     }
 
-    clearOutputBox() {
-
-    }
-
     /**
      * Save the instructions entered into the editor into the application's state when the submit button is clicked.
      */
-    handleGoClick() {
+    _handleGoClick() {
 
-        var editor = React.findDOMNode(this.refs.editor);
-        this.props.saveInstructions(editor.value);
+        var editor = document.getElementById("editor");
+        this.props._setup(editor.value);
 
-        // TODO: Clear the output box
-        this.clearOutputBox();
+        //setInterval(this._tick, 2000);
 
     }
 
-    handleSkipClick() {
+    _handleSkipClick() {
         // TODO
     }
 
@@ -327,19 +254,19 @@ class SideBar extends React.Component {
             <div id="sidebar">
 
                 <textarea
-                    id="editor" ref="editor" placeholder="Enter your code here!" rows="30" cols="75">
+                    id="editor" placeholder="Enter your code here!" rows="30" cols="75">
                 </textarea>
 
                 <div id="buttonBox">
 
                     <input className="buttons" type="file" id="fileInput" name="file" />
 
-                    <button className="buttons" id="goButton" type="button" onClick={this.handleGoClick.bind(this)}>
-                        <div className="buttonText">Go!</div>
+                    <button className="buttons" id="goButton" type="button"
+                        onClick={this._handleGoClick.bind(this)}>
+                            <div className="buttonText">Go!</div>
                     </button>
 
-                    <button className="buttons" id="skipButton" ref="skipButton"
-                        type="button" onClick={this.handleSkipClick(this)}>
+                    <button className="buttons" id="skipButton" ref="skipButton" type="button">
                         <div className="buttonText">Skip Animation</div>
                     </button>
 
@@ -374,7 +301,7 @@ class OutputBox extends React.Component {
         var parentContext = this;
 
         // Populate our output box with output nodes
-        var outputNodes = this.props.data.map(function (output) {
+        var outputNodes = this.props.outputData.map(function (output) {
             return (
                 <Output key={parentContext.state.id += 1} message={output} />
             );
