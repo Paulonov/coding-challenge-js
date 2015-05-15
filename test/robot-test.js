@@ -17,11 +17,11 @@ describe("Robot", function() {
 
     // A stubbed version of grid information, we're not testing canvas-y things here
     var stubbedGridInformation = {
-            xDifference: 0,
-            yDifference: 0,
-            width: 0,
-            height: 0,
-            margin: 0
+        xDifference: 0,
+        yDifference: 0,
+        width: 0,
+        height: 0,
+        margin: 0
     };
 
     var placementOutOfBounds = "Robot Placement Out of Bounds";

@@ -63,7 +63,6 @@ class MainArea extends React.Component {
             return;
         }
 
-        // TODO: Convert the initialise canvas functions into a non-canvasy version
         Robot.currentPlanet = this.state.planet;
 
         this.executeLogic();
@@ -146,6 +145,15 @@ class MainArea extends React.Component {
      */
     prepareRobot() {
 
+        // A stubbed version of grid information, we're not testing canvas-y things here
+        var stubbedGridInformation = {
+            xDifference: 0,
+            yDifference: 0,
+            width: 0,
+            height: 0,
+            margin: 0
+        };
+
         if (!this.state.reader.empty()) {
 
             // If there's a robot to set up, initialiseRobot returns true and we can continue
@@ -158,8 +166,7 @@ class MainArea extends React.Component {
                 try {
 
                     this.state.robot = new Robot(parseInt(robotPosition[0], 10),
-                        parseInt(robotPosition[1], 10),
-                        robotPosition[2]);
+                        parseInt(robotPosition[1], 10), robotPosition[2], stubbedGridInformation);
 
                     this.state.instruction = this.state.reader.currentRobotInstructions[
                         this.state.instructionCount].toUpperCase();
@@ -181,16 +188,12 @@ class MainArea extends React.Component {
 
     }
 
+    _saveInstructions(instructionsString) {
+        this.setState({instructions: instructionsString});
+        this.setState({instructionsSet: true});
+    }
+
     render() {
-
-        // Save the context of the MainArea so that we can access its state later
-        var parentContext = this;
-
-        // setState is used so that a re-render is triggered when this function is called later on
-        var saveInstructions = function(instructionsString) {
-            parentContext.setState({instructions: instructionsString});
-            parentContext.setState({instructionsSet: true});
-        }
 
         /*
          * React triggers a re-render when the state changes; since getting the user's instructions updates the state,
@@ -203,7 +206,7 @@ class MainArea extends React.Component {
         return (
             <div id="mainArea">
                 <GraphicsContainer />
-                <SideBar saveInstructions={saveInstructions} />
+                <SideBar saveInstructions={this._saveInstructions.bind(this)} />
                 <OutputBox data={this.state.outputBoxData} />
             </div>
         );
