@@ -1,3 +1,17 @@
 # Ignore Sublime Text 3 files
 *.sublime-project
 *.sublime-workspace
+
+# Ignore OS X files
+.DS_Store
+
+# Ignore WebPack production files
+bundle.js
+bundle.js.map
+test.js
+
+# Ignore Node modules
+node_modules
+
+# Ignore more Node stuff
+npm-debug.log
