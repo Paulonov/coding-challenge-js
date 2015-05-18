@@ -7,8 +7,8 @@
     "test": "./test"
   },
   "scripts": {
-    "dev": "webpack-dev-server -d --watch --progress --colors --config 'webpack.config.js'",
-    "test": "webpack-dev-server 'mocha!./test/cover-tests.js' 'mocha!./test/instructionreader-test.js' 'mocha!./test/robot-test.js' --output-file test.js -d --watch --colors --progress --display-error-details --display-reasons --config 'webpack.config.testing.js'"
+      "dev": "webpack-dev-server -d --watch --progress --colors --config 'webpack.config.js'",
+      "test": "webpack-dev-server 'mocha!./test/cover-tests.js' 'mocha!./test/instructionreader-test.js' 'mocha!./test/robot-test.js' --output-file test.js -d --watch --colors --progress --display-error-details --display-reasons --config 'webpack.config.testing.js'"
   },
   "repository": {
     "type": "git",
@@ -45,7 +45,12 @@
     },
     "rules": {
       "semi": 2,
-      "global-strict": false
+      "global-strict": false,
+      "no-unused-vars": false,
+      "no-alert": false,
+      "no-console": false,
+      "no-underscore-dangle": false,
+      "no-undef": false
     }
   }
 }

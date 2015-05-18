@@ -6,25 +6,24 @@
  *
  */
 "use strict";
-/*eslint-disable no-console, no-underscore-dangle*/
 
 import React from "react";
 
-import { executeInstruction, getFancyPositionInformation } from "./robot.js";
-import { parseInstructions, prepareRobots } from "./instructionreader.js";
+import {executeInstruction, getFancyPositionInformation} from "./robot.js";
+import {parseInstructions, prepareRobots} from "./instructionreader.js";
 
 export default class MartianRobots extends React.Component {
 
-    render() {
+  render() {
 
-        return (
-            <div id="appContainer">
-                <Header />
-                <World />
-            </div>
-        );
+    return (
+      <div id="appContainer">
+        <Header />
+        <World />
+      </div>
+    );
 
-    }
+  }
 
 }
 
@@ -33,13 +32,13 @@ export default class MartianRobots extends React.Component {
  */
 class Header extends React.Component {
 
-    render() {
-        return (
-            <div id="header">
-                <p>Martian Robots</p>
-            </div>
-        );
-    }
+  render() {
+    return (
+        <div id="header">
+          <p>Martian Robots</p>
+        </div>
+    );
+  }
 
 }
 
@@ -48,37 +47,31 @@ class Header extends React.Component {
  */
 class World extends React.Component {
 
-    constructor() {
+  constructor() {
 
-        super();
+    super();
 
-        /**
-         * State becomes immutable with some easily updatable properties. Every tick of the world updates the entire
-         * world state so that React can re-render it.
-         * @type {Object}
-         */
-        this.state = {
+      /**
+       * State becomes immutable with some easily updatable properties. Every tick of the world updates the entire
+       * world state so that React can re-render it.
+       * @type {Object}
+       */
+       this.state = {
 
-            // Every robot that exists in the world and its state
-            robots: [],
+          // Every robot that exists in the world and its state
+          robots: [],
 
-            // The state of the planet
-            planet: {
-                scents: {
-                    // E.g. "5,2": true
-                },
-                rows: 0,
-                cols: 0
-            },
+          // The state of the planet
+          planet: {
+            cols: 0,
+            rows: 0
+          },
 
-            outputMessages: []
+          outputMessages: []
 
         };
 
         this.setIntervalId = -1;
-
-        // TODO: Used for debugging, push state to this array after every tick so we can examine it later
-        this.savedStates = [];
 
     }
 
@@ -88,31 +81,31 @@ class World extends React.Component {
      */
     _setup(instructionsString) {
 
-        var instructionStack;
+      let instructionStack;
 
-        // Convert the instructions passed in by the user into a stack
-        try {
-            instructionStack = parseInstructions(instructionsString);
-        } catch (error) {
-            console.log(error);
-            return;
+      // Convert the instructions passed in by the user into a stack
+      try {
+        instructionStack = parseInstructions(instructionsString);
+      } catch (error) {
+        console.log(error);
+        return;
+      }
+
+      // The first item on the stack is the planet's boundaries
+      let planetBoundaries = instructionStack.pop().trim().split(" ");
+
+      // Use the instruction stack to set the initial state of the world
+      let initialRobots = prepareRobots(instructionStack, planetBoundaries);
+      let initialPlanet = { scents: {}, rows: parseInt(planetBoundaries[0], 10), cols: parseInt(planetBoundaries[1], 10) };
+
+      // Update the state of the world accordingly: The callback starts the simulation
+      this.setState({ robots: initialRobots, planet: initialPlanet },
+
+        () => {
+          this.setIntervalId = setInterval(this._tick.bind(this), 100);
         }
 
-        // The first item on the stack is the planet's boundaries
-        var planetBoundaries = instructionStack.pop().trim().split(" ");
-
-        // Use the instruction stack to set the initial state of the world
-        var initialRobots = prepareRobots(instructionStack, planetBoundaries);
-        var initialPlanet = { scents: {}, rows: parseInt(planetBoundaries[0], 10), cols: parseInt(planetBoundaries[1], 10) };
-
-        // Update the state of the world accordingly: The callback starts the simulation
-        this.setState({ robots: initialRobots, planet: initialPlanet },
-
-            () => {
-                this.setIntervalId = setInterval(this._tick.bind(this), 100);
-            }
-
-        );
+      );
 
     }
 
@@ -120,119 +113,116 @@ class World extends React.Component {
     // TODO: Make all of the data accesses immutable
     _tick() {
 
-        // Use executeInstruction once on each robot to get the next state of the world
-        var planet = this.state.planet;
-        var robots = this.state.robots;
-        var outputMessages = this.state.outputMessages.slice(0);
-        var doneCount = 0;
+      // Use executeInstruction once on each robot to get the next state of the world
+      let planet = this.state.planet;
+      let robots = this.state.robots;
+      let outputMessages = this.state.outputMessages;
+      let doneCount = 0;
 
-        // Map is immutable, return result to new array
-        var newRobots = robots.map( robot => {
+      // Map is immutable, return result to new array
+      let newRobots = [];
+      robots.forEach( (robot, index, array) => {
 
-                // If the robot does not have any instructions to execute or is lost, bail
-                if (robot.lost || robot.instructions.length === 0) {
-                    doneCount++;
-                    return robot;
-                }
+        // If the robot does not have any instructions to execute or is lost, bail
+        if (robot.lost || robot.instructions.length === 0) {
+          doneCount++;
+          newRobots.push(robot);
+          return;
+        }
 
-                // Get a new robot by updating the state of the current one being processed
-                var newRobot = executeInstruction(robot, planet, robot.instructions[robot.instructions.length - 1]);
-                newRobot.instructions.pop();
+        // Get a new robot by updating the state of the current one being processed
+        let newRobot = executeInstruction(robot, planet, robot.instructions[robot.instructions.length - 1]);
+        newRobot.instructions.pop();
 
-                if (newRobot.lost) {
-                    // Leave a scent
-                    this.setState({ planet: { scents: { [`${newRobot.x},${newRobot.y}`]: true } } } );
-                }
+        if (newRobot.lost) {
 
-                return newRobot;
+          // Leave a scent
+          this.setState({
 
+            planet: {
+              cols: planet.cols,
+              rows: planet.rows,
+              scents: { [`${newRobot.x},${newRobot.y}`]: true }
             }
 
-        );
-
-        // TODO: Debugging, push the current state so we can examine it later
-        this.savedStates.push(this.state);
-
-        // If every robot is done, we're finished
-        if (doneCount === robots.length) {
-
-            robots.map( robot => {
-                outputMessages.push(getFancyPositionInformation(robot));
-            });
-
-            console.log(this.savedStates);
-
-            // Stop our update ticks and do a final state update
-            clearInterval(this.setIntervalId);
-            this.setState({robots: newRobots, outputMessages: outputMessages});
-
-            return;
+          });
 
         }
 
-        this.setState({
-            robots: newRobots
-        });
+        newRobots.push(newRobot);
 
-        return;
+    });
+
+    // If every robot is done, we're finished
+    if (doneCount === robots.length) {
+
+      robots.forEach( (robot, index, array) => {
+        outputMessages.push(getFancyPositionInformation(robot));
+      });
+
+      // Stop our update ticks and do a final state update
+      clearInterval(this.setIntervalId);
+      this.setState({robots: newRobots, outputMessages: outputMessages});
+
+      return;
 
     }
 
-    render() {
+    console.log(JSON.stringify(newRobots, null, 2));
 
-        // 0 is falsey so if the planet is 0, 0 it is undefined and we need to set everything up
-        if (!(this.state.planet.rows && this.state.planet.cols)) {
-            return (
-                <div id="mainArea">
-                    <div id="graphicsContainer"></div>
-                    <SideBar _setup={this._setup.bind(this)} />
-                    <OutputBox outputData={this.state.outputMessages} />
-                </div>
-            );
-        }
+    this.setState({
+      robots: newRobots
+    });
 
-        return (
-            <div id="mainArea">
-                <div id="graphicsContainer"> </div>
-                <SideBar _setup={this._setup.bind(this)} />
-                <OutputBox outputData={this.state.outputMessages} />
-            </div>
-        );
+    return;
 
-        /*
-        <div className="graphicsContainer">
-            { [1, ...(this.state.planet.rows)].map( () =>
-                <Row cols={this.state.planet.cols} rows={this.state.planet.rows} />) };
+  }
+
+  render() {
+
+    //console.log(JSON.stringify(this.state, null, 2));
+
+    return (
+      <div id="mainArea">
+        <div id="graphicsContainer">
+          <Row cols={this.state.planet.cols} rows={this.state.planet.rows} />
         </div>
-        */
+        <SideBar _setup={this._setup.bind(this)} />
+        <OutputBox outputData={this.state.outputMessages} />
+      </div>
+    );
 
-    }
+  }
 
 }
 
 class Row extends React.Component {
-    render() {
-        return ( <div className="row" > {
-            [1, ...(this.props.cols)].map( () => <Cell cols={this.props.cols}/> )
-        } </div>);
-    }
+
+  render() {
+    return (
+      <div className="row">
+        { [1, ...(this.props.cols)].forEach( () => <Cell /> )}
+      </div>
+    );
+  }
+
 }
 
 class Cell extends React.Component {
-    render() {
-        return ( <div className="cell"> Cell </div>);
-    }
-
+  render() {
+    return (
+      <div className="cell">This is a cell</div>
+    );
+  }
 }
 
 //Stateless/Dumb component
 class RobotComponent extends React.Component {
-    render() {
-        return (
-            <div className ="robot" >
-            </div>
-        );
-    }
+  render() {
+    return (
+      <div className="robot"></div>
+    );
+  }
 }
 
 /**
@@ -242,97 +232,94 @@ class RobotComponent extends React.Component {
  */
 class SideBar extends React.Component {
 
-    // Called once we know that the buttons have been rendered so we will definitely be able to attach an event listener
-    componentDidMount() {
-        this._initialiseFileListener();
+  // Called once we know that the buttons have been rendered so we will definitely be able to attach an event listener
+  componentDidMount() {
+    this._initialiseFileListener();
+  }
+
+  /**
+   * Sets up a listener so that we can read in robot instructions from a suitable file.
+   */
+  _initialiseFileListener() {
+
+    // Check for File APIs support - Taken from HTML5Rocks.com
+    if (window.File && window.FileReader && window.FileList && window.Blob) {
+        // File APIs supported
+    } else {
+      alert("File APIs not fully supported in this browser, loading instructions from a file is disabled.");
+      return;
     }
 
-    /**
-     * Sets up a listener so that we can read in robot instructions from a suitable file.
-     */
-    _initialiseFileListener() {
+    let reader = new FileReader();
+    let fileList = document.getElementById("fileInput");
+    let editor = document.getElementById("editor");
 
-        /*eslint-disable no-alert*/
+    fileList.addEventListener("change", function() {
 
-        // Check for File APIs support - Taken from HTML5Rocks.com
-        if (window.File && window.FileReader && window.FileList && window.Blob) {
-            // File APIs supported
+      let file = fileList.files[0];
+
+      reader.onload = function() {
+
+        // Check the MIME type of the file to see if it's a text file
+        if (file.type.match("text/*")) {
+          editor.value = reader.result;
         } else {
-            alert("File APIs not fully supported in this browser, loading instructions from a file is disabled.");
-            return;
+          alert("File extension not supported!");
         }
 
-        var reader = new FileReader();
-        var fileList = document.getElementById("fileInput");
-        var editor = document.getElementById("editor");
+      };
 
-        fileList.addEventListener("change", function() {
+      reader.readAsText(file);
 
-            var file = fileList.files[0];
+    });
 
-            reader.onload = function() {
+  }
 
-                // Check the MIME type of the file to see if it's a text file
-                if (file.type.match("text/*")) {
-                    editor.value = reader.result;
-                } else {
-                    alert("File extension not supported!");
-                }
+  /**
+   * Save the instructions entered into the editor into the application's state when the submit button is clicked.
+   */
+  _handleGoClick() {
+    let editor = document.getElementById("editor");
+    this.props._setup(editor.value);
+  }
 
-            };
+  _handleSkipClick() {
+      // TODO
+  }
 
-            reader.readAsText(file);
+  /**
+   * [render description]
+   * @return {[type]} [description]
+   */
+  render() {
 
-        });
+    return (
 
-    }
+      <div id="sidebar">
 
-    /**
-     * Save the instructions entered into the editor into the application's state when the submit button is clicked.
-     */
-    _handleGoClick() {
-        var editor = document.getElementById("editor");
-        this.props._setup(editor.value);
-    }
+        <textarea
+          id="editor" placeholder="Enter your code here!" rows="30" cols="75">
+        </textarea>
 
-    _handleSkipClick() {
-        // TODO
-    }
+        <div id="buttonBox">
 
-    /**
-     * [render description]
-     * @return {[type]} [description]
-     */
-    render() {
+          <input className="buttons" type="file" id="fileInput" name="file" />
 
-        return (
+          <button className="buttons" id="goButton" type="button" onClick={this._handleGoClick.bind(this)}>
+            <div className="buttonText">Go!</div>
+          </button>
 
-            <div id="sidebar">
+          <button className="buttons" id="skipButton" ref="skipButton" type="button">
+            <div className="buttonText">Skip Animation</div>
+          </button>
 
-                <textarea
-                    id="editor" placeholder="Enter your code here!" rows="30" cols="75">
-                </textarea>
+        </div>
 
-                <div id="buttonBox">
+      </div>
 
-                    <input className="buttons" type="file" id="fileInput" name="file" />
+    );
 
-                    <button className="buttons" id="goButton" type="button"
-                        onClick={this._handleGoClick.bind(this)}>
-                            <div className="buttonText">Go!</div>
-                    </button>
-
-                    <button className="buttons" id="skipButton" ref="skipButton" type="button">
-                        <div className="buttonText">Skip Animation</div>
-                    </button>
-
-                </div>
-
-            </div>
-
-        );
-
-    }
+  }
 
 }
 
@@ -341,52 +328,39 @@ class SideBar extends React.Component {
  */
 class OutputBox extends React.Component {
 
-    constructor() {
+  render() {
 
-        super();
+    // Populate our output box with output nodes
+    let outputNodes = this.props.outputData.map( (output, index) => {
+      return (
+        <Output key={index} message={output} />
+      );
+    });
 
-        // Contains an value that can be incremented to stop React complaining about a lack of key
-        this.state = {
-            id: -1
-        };
+    return (
+      <div id="outputBox">
+        {outputNodes}
+      </div>
+    );
 
-    }
-
-    render() {
-
-        var parentContext = this;
-
-        // Populate our output box with output nodes
-        var outputNodes = this.props.outputData.map(function (output) {
-            return (
-                <Output key={parentContext.state.id += 1} message={output} />
-            );
-        });
-
-        return (
-            <div id="outputBox">
-                {outputNodes}
-            </div>
-        );
-
-    }
+  }
 
 }
 
 /**
  * Represents a single line of output in the output box.
  */
-class Output extends React.Component {
+ class Output extends React.Component {
 
-    render() {
+  render() {
 
-        // dangerouslySetInnerHTML is used for compatibility; output messages are formatted with HTML
-        return (
-            <div className="output">
-                <p dangerouslySetInnerHTML={{__html: this.props.message}} />
-            </div>
-        );
+    // dangerouslySetInnerHTML is used for compatibility; output messages are formatted with HTML
+    return (
+      <div className="output">
+        <p dangerouslySetInnerHTML={{__html: this.props.message}} />
+      </div>
+    );
 
-    }
+  }
 
 }

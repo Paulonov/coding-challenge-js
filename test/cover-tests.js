@@ -7,10 +7,9 @@
 
 import coverloader from "coverjs-loader";
 
-/*eslint-disable no-unused-vars*/
 import robotTest from "./robot-test.js";
 import instructionReaderTest from "./instructionreader-test.js";
 
 after(function() {
-    coverloader.reportHtml();
+  coverloader.reportHtml();
 });

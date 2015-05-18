@@ -8,14 +8,12 @@
  */
 "use strict";
 
-/*eslint-disable no-console*/
-
 export const Robot = {
-    NUMBER_OF_DIRECTIONS: 4,
-    NORTH: 0,
-    EAST: 1,
-    SOUTH: 2,
-    WEST: 3
+  NUMBER_OF_DIRECTIONS: 4,
+  NORTH: 0,
+  EAST: 1,
+  SOUTH: 2,
+  WEST: 3
 };
 
 /**
@@ -26,18 +24,18 @@ export const Robot = {
  */
 export function stringToHeading(heading) {
 
-    switch (heading) {
-        case "N":
-            return Robot.NORTH;
-        case "E":
-            return Robot.EAST;
-        case "S":
-            return Robot.SOUTH;
-        case "W":
-            return Robot.WEST;
-        default:
-            return "?";
-    }
+  switch (heading) {
+    case "N":
+      return Robot.NORTH;
+    case "E":
+      return Robot.EAST;
+    case "S":
+      return Robot.SOUTH;
+    case "W":
+      return Robot.WEST;
+    default:
+      return "?";
+  }
 
 }
 
@@ -49,19 +47,18 @@ export function stringToHeading(heading) {
  */
 export function headingToString(heading) {
 
-    switch (heading) {
-        case Robot.NORTH:
-            return "N";
-        case Robot.EAST:
-            return "E";
-        case Robot.SOUTH:
-            return "S";
-        case Robot.WEST:
-            return "W";
-        default:
-            return "?";
-
-    }
+  switch (heading) {
+    case Robot.NORTH:
+      return "N";
+    case Robot.EAST:
+      return "E";
+    case Robot.SOUTH:
+      return "S";
+    case Robot.WEST:
+      return "W";
+    default:
+      return "?";
+  }
 
 }
 
@@ -72,106 +69,107 @@ export function headingToString(heading) {
  */
 export function executeInstruction(robot, planet, instruction) {
 
-    // Save values that get accessed a lot early on so that we don't have to keep accessing the getter method
-    var heading = stringToHeading(robot.heading);
-    var xPosition = robot.x;
-    var yPosition = robot.y;
-    var lost = robot.lost;
+  // Save values that get accessed a lot early on so that we don't have to keep accessing the getter method
+  let heading = stringToHeading(robot.heading);
+  let xPosition = robot.x;
+  let yPosition = robot.y;
+  let lost = robot.lost;
 
-    var smell = planet.scents[`${robot.x},${robot.y}`];
-    console.log(planet);
+  let smell = planet.scents[`${robot.x},${robot.y}`];
 
-    if (typeof smell === "undefined") {
-        smell = false;
-    }
+  if (typeof smell === "undefined") {
+    smell = false;
+  }
 
-    var currentPlanetXBoundary = planet.rows;
-    var currentPlanetYBoundary = planet.cols;
+  let currentPlanetXBoundary = planet.rows;
+  let currentPlanetYBoundary = planet.cols;
 
-    if (robot.lost) {
-        return robot;
-    }
+  if (robot.lost) {
+    return robot;
+  }
 
-    switch (instruction) {
+  switch (instruction) {
 
-        // Using mod n allows us to add (n - 1) to the heading to get the next heading the left
-        case "L":
-            heading = (heading + (Robot.NUMBER_OF_DIRECTIONS - 1)) % Robot.NUMBER_OF_DIRECTIONS;
-            break;
+      // Using mod n allows us to add (n - 1) to the heading to get the next heading the left
+      case "L":
+      heading = (heading + (Robot.NUMBER_OF_DIRECTIONS - 1)) % Robot.NUMBER_OF_DIRECTIONS;
+      break;
 
-        // Same again but we add 1 to get the next heading to the right
-        case "R":
-            heading = (heading + 1) % Robot.NUMBER_OF_DIRECTIONS;
-            break;
+      // Same again but we add 1 to get the next heading to the right
+      case "R":
+      heading = (heading + 1) % Robot.NUMBER_OF_DIRECTIONS;
+      break;
 
-        case "F":
+      case "F":
 
-            switch (heading) {
+        switch (heading) {
 
-                case Robot.NORTH:
+          case Robot.NORTH:
 
-                    if ((yPosition + 1) > currentPlanetYBoundary && !smell) {
-                        lost = true;
-                    } else if ((yPosition + 1) > currentPlanetYBoundary && smell) {
-                        // Do nothing if we're about to leave the grid but we can smell lost robots
-                    } else {
-                        yPosition = (yPosition + 1);
-                    }
-
-                    break;
-
-                case Robot.EAST:
-
-                    if ((xPosition + 1) > currentPlanetXBoundary && !smell) {
-                        lost = true;
-                    } else if ((xPosition + 1) > currentPlanetXBoundary && smell) {
-                        // Do nothing if we're about to leave the grid but we can smell lost robots
-                    } else {
-                        xPosition = (xPosition + 1);
-                    }
-
-                    break;
-
-                case Robot.SOUTH:
-
-                    if ((yPosition - 1) < 0 && !smell) {
-                        lost = true;
-                    } else if ((yPosition - 1) < 0 && smell) {
-                        // Do nothing if we're about to leave the grid but we can smell lost robots
-                    } else {
-                        yPosition = (yPosition - 1);
-                    }
-
-                    break;
-
-                case Robot.WEST:
-
-                    if ((xPosition - 1) < 0 && !smell) {
-                        lost = true;
-                    } else if ((xPosition - 1) < 0 && smell) {
-                        // Do nothing if we're about to leave the grid but we can smell lost robots
-                    } else {
-                        xPosition = (xPosition - 1);
-                    }
-
-                    break;
-
+            if ((yPosition + 1) > currentPlanetYBoundary && !smell) {
+              lost = true;
+            } else if ((yPosition + 1) > currentPlanetYBoundary && smell) {
+              // Do nothing if we're about to leave the grid but we can smell lost robots
+            } else {
+              yPosition = (yPosition + 1);
             }
 
             break;
 
-        default:
-            // Just in case the instruction is unimplemented
+          case Robot.EAST:
+
+            if ((xPosition + 1) > currentPlanetXBoundary && !smell) {
+              lost = true;
+            } else if ((xPosition + 1) > currentPlanetXBoundary && smell) {
+              // Do nothing if we're about to leave the grid but we can smell lost robots
+            } else {
+              xPosition = (xPosition + 1);
+            }
+
             break;
+
+          case Robot.SOUTH:
+
+            if ((yPosition - 1) < 0 && !smell) {
+              lost = true;
+            } else if ((yPosition - 1) < 0 && smell) {
+              // Do nothing if we're about to leave the grid but we can smell lost robots
+            } else {
+              yPosition = (yPosition - 1);
+            }
+
+            break;
+
+          case Robot.WEST:
+
+            if ((xPosition - 1) < 0 && !smell) {
+              lost = true;
+            } else if ((xPosition - 1) < 0 && smell) {
+              // Do nothing if we're about to leave the grid but we can smell lost robots
+            } else {
+              xPosition = (xPosition - 1);
+            }
+
+            break;
+
+          }
+
+          break;
+
+      default:
+        // Just in case the instruction is unimplemented
+        break;
 
     }
 
-    return { id: robot.id,
-             heading: headingToString(heading),
-             instructions: robot.instructions,
-             x: xPosition,
-             y: yPosition,
-             lost: lost };
+    return {
+      id: robot.id,
+      heading: headingToString(heading),
+      instructions: robot.instructions,
+      x: xPosition,
+      y: yPosition,
+      lost: lost
+    };
 
 }
 
@@ -181,11 +179,10 @@ export function executeInstruction(robot, planet, instruction) {
  */
 export function getFancyPositionInformation(robot) {
 
-    if (robot.lost) {
-        return "<b>Robot " + robot.id + "</b>" + ": " + robot.x + " " + robot.y + " " + robot.heading
-            + " " + "<b>LOST</b>";
-    } else {
-        return "<b>Robot " + robot.id + "</b>" + ": " + robot.x + " " + robot.y + " " + robot.heading;
-    }
+  if (robot.lost) {
+    return "<b>Robot " + robot.id + "</b>" + ": " + robot.x + " " + robot.y + " " + robot.heading + " " + "<b>LOST</b>";
+  } else {
+    return "<b>Robot " + robot.id + "</b>" + ": " + robot.x + " " + robot.y + " " + robot.heading;
+  }
 
 }

@@ -1,153 +1,153 @@
 body, html {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    font-size: 100%;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-size: 100%;
 }
 
 #appContainer {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    font-size: 100%;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-size: 100%;
 }
 
 #header {
-    width: 100%;
-    background-color: #FF4500;
-    height: 4.25em;
+  width: 100%;
+  background-color: #FF4500;
+  height: 4.25em;
 }
 
 #header p {
-    position: relative;
-    color: white;
-    font-family: Roboto, Arial, sans-serif;
-    font-weight: bold;
-    font-size: 320%;
-    margin-left: 2%;
-    margin-top: 0;
-    top: 0.385em;
+  position: relative;
+  color: white;
+  font-family: Roboto, Arial, sans-serif;
+  font-weight: bold;
+  font-size: 320%;
+  margin-left: 2%;
+  margin-top: 0;
+  top: 0.385em;
 }
 
 #mainArea {
-    position: relative;
-    width: 95%;
-    height: 40em;
-    margin-top: 2em;
-    margin-bottom: 3em;
-    margin-left: 2%;
-    margin-right: 2%;
+  position: relative;
+  width: 95%;
+  height: 40em;
+  margin-top: 2em;
+  margin-bottom: 3em;
+  margin-left: 2%;
+  margin-right: 2%;
 }
 
 #graphicsContainer {
-    position: relative;
-    float: left;
-    background-image: url(../images/planet_surface.jpg);
-    background-color: #508FBB;
-    background-size: cover;
-    background-repeat: no-repeat;
-    width: 75%;
-    height: 100%;
-    margin-right: 3%;
+  position: relative;
+  float: left;
+  background-image: url(../images/planet_surface.jpg);
+  background-color: #508FBB;
+  background-size: cover;
+  background-repeat: no-repeat;
+  width: 75%;
+  height: 100%;
+  margin-right: 3%;
 }
 
 canvas {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
 }
 
 #graphicsContainer #grid {
-    z-index: 1;
-    opacity: 0.5;
+  z-index: 1;
+  opacity: 0.5;
 }
 
 #graphicsContainer #finishedRobots {
-    z-index: 2;
+  z-index: 2;
 }
 
 #graphicsContainer #robots {
-    z-index: 3;
+  z-index: 3;
 }
 
 #sidebar {
-    float: right;
-    width: 22%;
-    height: 100%;
+  float: right;
+  width: 22%;
+  height: 100%;
 }
 
 #sidebar #editor {
-    font-family: Consolas, monospace;
-    font-size: 120%;
-    resize: none;
-    overflow: scroll;
-    width: 100%;
-    height: 85%;
+  font-family: Consolas, monospace;
+  font-size: 120%;
+  resize: none;
+  overflow: scroll;
+  width: 100%;
+  height: 85%;
 }
 
 #sidebar #buttonBox {
-    width: 100%;
-    height: 15%;
+  width: 100%;
+  height: 15%;
 }
 
 .buttons {
-    position: relative;
+  position: relative;
 }
 
 .buttonText {
-    width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #sidebar #fileInput {
-    float: left;
-    width: 100%;
-    height: 2em;
-    margin-top: 1.25em;
-    margin-bottom: 1.25em;
+  float: left;
+  width: 100%;
+  height: 2em;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
 }
 
 #sidebar #goButton {
-    float: left;
-    clear: left;
-    width: 47%;
-    height: 2em;
+  float: left;
+  clear: left;
+  width: 47%;
+  height: 2em;
 }
 
 #sidebar #skipButton {
-    float: left;
-    margin-left: 6%;
-    width: 47%;
-    height: 2em;
+  float: left;
+  margin-left: 6%;
+  width: 47%;
+  height: 2em;
 }
 
 #outputBox {
-    display: inline-block;
-    background-color: white;
-    margin-left: 2%;
-    margin-right: 2%;
-    margin-bottom: 0.5em;
-    margin-top: 2em;
-    height: 12em;
-    width: 95%;
-    overflow: scroll;
-    font-family: Roboto, Arial, sans-serif;
+  display: inline-block;
+  background-color: white;
+  margin-left: 2%;
+  margin-right: 2%;
+  margin-bottom: 0.5em;
+  margin-top: 2em;
+  height: 12em;
+  width: 95%;
+  overflow: scroll;
+  font-family: Roboto, Arial, sans-serif;
 }
 
 #outputBox p {
-    margin-left: 0.5em;
+  margin-left: 0.5em;
 }
 
 #outputBox b {
-    color: black;
+  color: black;
 }
 
 .output {
-    margin-bottom: 0.75em;
+  margin-bottom: 0.75em;
 }
