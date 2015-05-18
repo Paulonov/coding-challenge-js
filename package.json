@@ -7,8 +7,9 @@
     "test": "./test"
   },
   "scripts": {
-      "dev": "webpack-dev-server -d --watch --progress --colors --config 'webpack.config.js'",
-      "test": "webpack-dev-server 'mocha!./test/cover-tests.js' 'mocha!./test/instructionreader-test.js' 'mocha!./test/robot-test.js' --output-file test.js -d --watch --colors --progress --display-error-details --display-reasons --config 'webpack.config.testing.js'"
+    "dev": "webpack-dev-server -d --watch --progress --colors --config 'webpack.config.js'",
+    "dev-test": "webpack-dev-server 'mocha!./test/cover-tests.js' 'mocha!./test/instructionreader-test.js' 'mocha!./test/robot-test.js' --output-file test.js -d --watch --colors --progress --display-error-details --display-reasons --config 'webpack.config.testing.js'",
+    "test": "webpack './test/instructionreader-test.js' './test/robot-test.js' --output-file test.js --progress --display-error-details --display-reasons --config 'webpack.config.js' && mocha test.js"
   },
   "repository": {
     "type": "git",
