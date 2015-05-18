@@ -10,7 +10,9 @@ module.exports = {
             { test: /\.jsx?$/, exclude: /node_modules/, loader: "eslint-loader" }
         ],
         loaders: [
-            { test: /\.jsx?$/, exclude: /node_modules/, loader: "babel-loader" }
+            { test: /\.js$/, exclude: [/node_modules/, /test/, /core.js/, /graphics.js/], loader: "coverjs-loader" },
+            { test: /\.jsx?$/, exclude: /node_modules/, loader: "babel-loader" },
+            { test: /\.css$/, loader: "style-loader!css-loader" },
         ]
     }
 };
