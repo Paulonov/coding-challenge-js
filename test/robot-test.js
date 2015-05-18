@@ -3,98 +3,67 @@
  */
 "use strict";
 
+
+/*eslint-disable no-unused-vars*/
+
 import chai from "chai";
 var assert = chai.assert;
 var expect = chai.expect;
 
-/*eslint-disable no-unused-vars*/
 var should = chai.should();
 
-import Robot from "../src/robot.js";
-import Planet from "../src/planet.js";
+import { Robot, stringToHeading, headingToString, executeInstruction, getFancyPositionInformation }
+    from "../src/robot.js";
 
 describe("Robot", function() {
-
-    // A stubbed version of grid information, we're not testing canvas-y things here
-    var stubbedGridInformation = {
-        xDifference: 0,
-        yDifference: 0,
-        width: 0,
-        height: 0,
-        margin: 0
-    };
 
     var placementOutOfBounds = "Robot Placement Out of Bounds";
     var creationError = "Robot Creation Error";
 
-    describe("#constructor()", function() {
-
-        var planet;
-
-        before(function() {
-            planet = new Planet(5, 5);
-            Robot.currentPlanet = planet;
-        });
-
-        it("should return an instance of Robot", function() {
-            expect(new Robot(0, 0, "N", stubbedGridInformation)).to.be.an.instanceof(Robot);
-        });
-
-        it("should not create a robot with an x position greater than the planet's x boundary", function() {
-            expect( robot => new Robot((planet.x + 1), planet.y) ).to.throw(placementOutOfBounds);
-        });
-
-        it("should not create a robot with a y position greater than the planet's y boundary", function() {
-            expect( robot => new Robot(planet.x, (planet.y + 1) )).to.throw(placementOutOfBounds);
-        });
-
-        it("should not create a robot with an x position less than 0", function() {
-            expect( robot => new Robot(-1, 0) ).to.throw(placementOutOfBounds);
-        });
-
-        it("should not create a robot with a y position less than 0", function() {
-            expect( robot => new Robot(0, -1) ).to.throw(placementOutOfBounds);
-        });
-
-        it("should not create a robot with an undefined x position", function() {
-            expect( robot => new Robot(null, 0) ).to.throw(placementOutOfBounds);
-        });
-
-        it("should not create a robot with an undefined y position", function() {
-            expect( robot => new Robot(0, null) ).to.throw(placementOutOfBounds);
-        });
-
-        it("should not create a robot with an invalid initial heading", function() {
-            expect( robot => new Robot(0, 0, "A") ).to.throw(creationError);
-        });
-
-    });
-
     describe("#executeInstruction()", function() {
 
-        var planet;
         var robot;
+        var planet;
+
+        var updatedRobot;
 
         beforeEach(function() {
-            planet = new Planet(5, 5);
-            Robot.currentPlanet = planet;
-            robot = new Robot(1, 1, "E", stubbedGridInformation);
+
+            robot = {
+                id: 1,
+                heading: "N",
+                instructions: ["F"],
+                x: 0,
+                y: 0,
+                lost: false
+            };
+
+            updatedRobot = {
+                id: 1,
+                heading: "N",
+                instructions: ["F"],
+                x: 0,
+                y: 0,
+                lost: false
+            };
+
+            planet = {
+                scents: {},
+                rows: 3,
+                cols: 3
+            };
+
         });
 
         describe("when the robot is lost", function() {
 
             it("should not affect the robot's state", function() {
 
-                var startingX = robot.xPosition;
-                var startingY = robot.yPosition;
-                var startingHeading = robot.heading;
+                robot.lost = true;
+                updatedRobot.lost = true;
 
-                robot.isLost = true;
-                robot.executeInstruction("F");
-
-                expect(robot.xPosition).to.equal(startingX);
-                expect(robot.yPosition).to.equal(startingY);
-                expect(robot.heading).to.equal(startingHeading);
+                var resultingRobot = executeInstruction(robot, planet, "F");
+                expect(resultingRobot).to.deep.equal(updatedRobot);
 
             });
 
@@ -108,26 +77,25 @@ describe("Robot", function() {
 
                     describe("if there is a scent", function() {
 
+                        beforeEach(function() {
+                            planet.scents["0,0"] = true;
+                            planet.scents[`${planet.rows},${planet.cols}`] = true;
+                        });
+
                         describe("while facing north", function() {
 
                             it("should not leave the grid", function() {
 
-                                planet.scentMap[planet.x][planet.y] = true;
+                                robot.x = planet.rows;
+                                robot.y = planet.cols;
+                                robot.heading = "N";
 
-                                robot.xPosition = planet.x;
-                                robot.yPosition = planet.y;
-                                robot.heading = Robot.NORTH;
+                                updatedRobot.x = planet.rows;
+                                updatedRobot.y = planet.rows;
+                                updatedRobot.heading = "N";
 
-                                var startingX = robot.xPosition;
-                                var startingY = robot.yPosition;
-                                var startingHeading = robot.heading;
-
-                                robot.executeInstruction("F");
-
-                                expect(robot.xPosition).to.equal(startingX);
-                                expect(robot.yPosition).to.equal(startingY);
-                                expect(robot.heading).to.equal(startingHeading);
-                                expect(robot.isLost).to.equal(false);
+                                var resultingRobot = executeInstruction(robot, planet, "F");
+                                expect(resultingRobot).to.deep.equal(updatedRobot);
 
                             });
 
@@ -137,22 +105,16 @@ describe("Robot", function() {
 
                             it("should not leave the grid", function() {
 
-                                planet.scentMap[planet.x][planet.y] = true;
+                                robot.x = planet.rows;
+                                robot.y = planet.cols;
+                                robot.heading = "E";
 
-                                robot.xPosition = planet.x;
-                                robot.yPosition = planet.y;
-                                robot.heading = Robot.EAST;
+                                updatedRobot.x = planet.rows;
+                                updatedRobot.y = planet.rows;
+                                updatedRobot.heading = "E";
 
-                                var startingX = robot.xPosition;
-                                var startingY = robot.yPosition;
-                                var startingHeading = robot.heading;
-
-                                robot.executeInstruction("F");
-
-                                expect(robot.xPosition).to.equal(startingX);
-                                expect(robot.yPosition).to.equal(startingY);
-                                expect(robot.heading).to.equal(startingHeading);
-                                expect(robot.isLost).to.equal(false);
+                                var resultingRobot = executeInstruction(robot, planet, "F");
+                                expect(resultingRobot).to.deep.equal(updatedRobot);
 
                             });
 
@@ -162,22 +124,11 @@ describe("Robot", function() {
 
                             it("should not leave the grid", function() {
 
-                                planet.scentMap[0][0] = true;
+                                robot.heading = "S";
+                                updatedRobot.heading = "S";
 
-                                robot.xPosition = 0;
-                                robot.yPosition = 0;
-                                robot.heading = Robot.SOUTH;
-
-                                var startingX = robot.xPosition;
-                                var startingY = robot.yPosition;
-                                var startingHeading = robot.heading;
-
-                                robot.executeInstruction("F");
-
-                                expect(robot.xPosition).to.equal(startingX);
-                                expect(robot.yPosition).to.equal(startingY);
-                                expect(robot.heading).to.equal(startingHeading);
-                                expect(robot.isLost).to.equal(false);
+                                var resultingRobot = executeInstruction(robot, planet, "F");
+                                expect(resultingRobot).to.deep.equal(updatedRobot);
 
                             });
 
@@ -187,22 +138,11 @@ describe("Robot", function() {
 
                             it("should not leave the grid", function() {
 
-                                planet.scentMap[0][0] = true;
+                                robot.heading = "W";
+                                updatedRobot.heading = "W";
 
-                                robot.xPosition = 0;
-                                robot.yPosition = 0;
-                                robot.heading = Robot.WEST;
-
-                                var startingX = robot.xPosition;
-                                var startingY = robot.yPosition;
-                                var startingHeading = robot.heading;
-
-                                robot.executeInstruction("F");
-
-                                expect(robot.xPosition).to.equal(startingX);
-                                expect(robot.yPosition).to.equal(startingY);
-                                expect(robot.heading).to.equal(startingHeading);
-                                expect(robot.isLost).to.equal(false);
+                                var resultingRobot = executeInstruction(robot, planet, "F");
+                                expect(resultingRobot).to.deep.equal(updatedRobot);
 
                             });
 
@@ -216,20 +156,15 @@ describe("Robot", function() {
 
                             it("should set the robot's state to lost without changing its position", function() {
 
-                                robot.xPosition = planet.x;
-                                robot.yPosition = planet.y;
-                                robot.heading = Robot.NORTH;
+                                robot.x = planet.rows;
+                                robot.y = planet.cols;
 
-                                var startingX = robot.xPosition;
-                                var startingY = robot.yPosition;
-                                var startingHeading = robot.heading;
+                                updatedRobot.x = planet.rows;
+                                updatedRobot.y = planet.cols;
+                                updatedRobot.lost = true;
 
-                                robot.executeInstruction("F");
-
-                                expect(robot.xPosition).to.equal(startingX);
-                                expect(robot.yPosition).to.equal(startingY);
-                                expect(robot.heading).to.equal(startingHeading);
-                                expect(robot.isLost).to.equal(true);
+                                var resultingRobot = executeInstruction(robot, planet, "F");
+                                expect(resultingRobot).to.deep.equal(updatedRobot);
 
                             });
 
@@ -239,20 +174,17 @@ describe("Robot", function() {
 
                             it("should set the robot's state to lost without changing its position", function() {
 
-                                robot.xPosition = planet.x;
-                                robot.yPosition = planet.y;
-                                robot.heading = Robot.EAST;
+                                robot.x = planet.rows;
+                                robot.y = planet.cols;
+                                robot.heading = "E";
 
-                                var startingX = robot.xPosition;
-                                var startingY = robot.yPosition;
-                                var startingHeading = robot.heading;
+                                updatedRobot.x = planet.rows;
+                                updatedRobot.y = planet.cols;
+                                updatedRobot.heading = "E";
+                                updatedRobot.lost = true;
 
-                                robot.executeInstruction("F");
-
-                                expect(robot.xPosition).to.equal(startingX);
-                                expect(robot.yPosition).to.equal(startingY);
-                                expect(robot.heading).to.equal(startingHeading);
-                                expect(robot.isLost).to.equal(true);
+                                var resultingRobot = executeInstruction(robot, planet, "F");
+                                expect(resultingRobot).to.deep.equal(updatedRobot);
 
                             });
 
@@ -263,20 +195,17 @@ describe("Robot", function() {
 
                             it("should set the robot's state to lost without changing its position", function() {
 
-                                robot.xPosition = 0;
-                                robot.yPosition = 0;
-                                robot.heading = Robot.SOUTH;
+                                robot.x = 0;
+                                robot.y = 0;
+                                robot.heading = "S";
 
-                                var startingX = robot.xPosition;
-                                var startingY = robot.yPosition;
-                                var startingHeading = robot.heading;
+                                updatedRobot.x = 0;
+                                updatedRobot.y = 0;
+                                updatedRobot.heading = "S";
+                                updatedRobot.lost = true;
 
-                                robot.executeInstruction("F");
-
-                                expect(robot.xPosition).to.equal(startingX);
-                                expect(robot.yPosition).to.equal(startingY);
-                                expect(robot.heading).to.equal(startingHeading);
-                                expect(robot.isLost).to.equal(true);
+                                var resultingRobot = executeInstruction(robot, planet, "F");
+                                expect(resultingRobot).to.deep.equal(updatedRobot);
 
                             });
 
@@ -286,20 +215,17 @@ describe("Robot", function() {
 
                             it("should set the robot's state to lost without changing its position", function() {
 
-                                robot.xPosition = 0;
-                                robot.yPosition = 0;
-                                robot.heading = Robot.WEST;
+                                robot.x = 0;
+                                robot.y = 0;
+                                robot.heading = "W";
 
-                                var startingX = robot.xPosition;
-                                var startingY = robot.yPosition;
-                                var startingHeading = robot.heading;
+                                updatedRobot.x = 0;
+                                updatedRobot.y = 0;
+                                updatedRobot.heading = "W";
+                                updatedRobot.lost = true;
 
-                                robot.executeInstruction("F");
-
-                                expect(robot.xPosition).to.equal(startingX);
-                                expect(robot.yPosition).to.equal(startingY);
-                                expect(robot.heading).to.equal(startingHeading);
-                                expect(robot.isLost).to.equal(true);
+                                var resultingRobot = executeInstruction(robot, planet, "F");
+                                expect(resultingRobot).to.deep.equal(updatedRobot);
 
                             });
 
@@ -315,15 +241,14 @@ describe("Robot", function() {
 
                         it("should increase the robot's y position by 1", function() {
 
-                            var startingX = robot.xPosition;
-                            var startingY = robot.yPosition;
+                            robot.x = 0;
+                            robot.y = 0;
+                            robot.heading = "N";
 
-                            robot.heading = Robot.NORTH;
+                            updatedRobot.y += 1;
 
-                            robot.executeInstruction("F");
-
-                            expect(startingX).to.equal(robot.xPosition);
-                            expect(startingY + 1).to.equal(robot.yPosition);
+                            var resultingRobot = executeInstruction(robot, planet, "F");
+                            expect(resultingRobot).to.deep.equal(updatedRobot);
 
                         });
 
@@ -333,16 +258,15 @@ describe("Robot", function() {
 
                         it("should increase the robot's x position by 1", function() {
 
-                            var startingX = robot.xPosition;
-                            var startingY = robot.yPosition;
+                            robot.x = 0;
+                            robot.y = 0;
+                            robot.heading = "E";
 
-                            robot.heading = Robot.EAST;
+                            updatedRobot.x += 1;
+                            updatedRobot.heading = "E";
 
-                            robot.executeInstruction("F");
-
-                            expect(startingX + 1).to.equal(robot.xPosition);
-                            expect(startingY).to.equal(robot.yPosition);
-
+                            var resultingRobot = executeInstruction(robot, planet, "F");
+                            expect(resultingRobot).to.deep.equal(updatedRobot);
 
                         });
 
@@ -352,14 +276,17 @@ describe("Robot", function() {
 
                         it("should reduce the robot's y position by 1", function() {
 
-                            var startingX = robot.xPosition;
-                            var startingY = robot.yPosition;
+                            robot.x = 1;
+                            robot.y = 1;
+                            robot.heading = "S";
 
-                            robot.heading = Robot.SOUTH;
-                            robot.executeInstruction("F");
+                            updatedRobot.x = 1;
+                            updatedRobot.y = 1;
+                            updatedRobot.y -= 1;
+                            updatedRobot.heading = "S";
 
-                            expect(startingX).to.equal(robot.xPosition);
-                            expect(startingY - 1).to.equal(robot.yPosition);
+                            var resultingRobot = executeInstruction(robot, planet, "F");
+                            expect(resultingRobot).to.deep.equal(updatedRobot);
 
                         });
 
@@ -367,17 +294,19 @@ describe("Robot", function() {
 
                     describe("while facing west", function() {
 
-                        it("should increase the robot's x position by 1", function() {
+                        it("should reduce the robot's x position by 1", function() {
 
-                            var startingX = robot.xPosition;
-                            var startingY = robot.yPosition;
+                            robot.x = 1;
+                            robot.y = 1;
+                            robot.heading = "W";
 
-                            robot.heading = Robot.WEST;
-                            robot.executeInstruction("F");
+                            updatedRobot.x = 1;
+                            updatedRobot.y = 1;
+                            updatedRobot.x -= 1;
+                            updatedRobot.heading = "W";
 
-                            expect(startingX - 1).to.equal(robot.xPosition);
-                            expect(startingY).to.equal(robot.yPosition);
-
+                            var resultingRobot = executeInstruction(robot, planet, "F");
+                            expect(resultingRobot).to.deep.equal(updatedRobot);
 
                         });
 
@@ -393,10 +322,11 @@ describe("Robot", function() {
 
                     it("should change the robot's heading to west", function() {
 
-                        robot.heading = Robot.NORTH;
+                        robot.heading = "N";
+                        updatedRobot.heading = "W";
 
-                        robot.executeInstruction("L");
-                        expect(robot.heading).to.equal(Robot.WEST);
+                        var resultingRobot = executeInstruction(robot, planet, "L");
+                        expect(resultingRobot).to.deep.equal(updatedRobot);
 
                     });
 
@@ -406,10 +336,11 @@ describe("Robot", function() {
 
                     it("should change the robot's heading to north", function() {
 
-                        robot.heading = Robot.EAST;
+                        robot.heading = "E";
+                        updatedRobot.heading = "N";
 
-                        robot.executeInstruction("L");
-                        expect(robot.heading).to.equal(Robot.NORTH);
+                        var resultingRobot = executeInstruction(robot, planet, "L");
+                        expect(resultingRobot).to.deep.equal(updatedRobot);
 
                     });
 
@@ -419,10 +350,11 @@ describe("Robot", function() {
 
                     it("should change the robot's heading to east", function() {
 
-                        robot.heading = Robot.SOUTH;
+                        robot.heading = "S";
+                        updatedRobot.heading = "E";
 
-                        robot.executeInstruction("L");
-                        expect(robot.heading).to.equal(Robot.EAST);
+                        var resultingRobot = executeInstruction(robot, planet, "L");
+                        expect(resultingRobot).to.deep.equal(updatedRobot);
 
                     });
 
@@ -432,11 +364,11 @@ describe("Robot", function() {
 
                     it("should change the robot's heading to south", function() {
 
-                        robot.heading = Robot.WEST;
+                        robot.heading = "W";
+                        updatedRobot.heading = "S";
 
-                        robot.executeInstruction("L");
-                        expect(robot.heading).to.equal(Robot.SOUTH);
-
+                        var resultingRobot = executeInstruction(robot, planet, "L");
+                        expect(resultingRobot).to.deep.equal(updatedRobot);
 
                     });
 
@@ -450,10 +382,11 @@ describe("Robot", function() {
 
                     it("should change the robot's heading to east", function() {
 
-                        robot.heading = Robot.NORTH;
+                        robot.heading = "N";
+                        updatedRobot.heading = "E";
 
-                        robot.executeInstruction("R");
-                        expect(robot.heading).to.equal(Robot.EAST);
+                        var resultingRobot = executeInstruction(robot, planet, "R");
+                        expect(resultingRobot).to.deep.equal(updatedRobot);
 
                     });
 
@@ -463,10 +396,11 @@ describe("Robot", function() {
 
                     it("should change the robot's heading to south", function() {
 
-                        robot.heading = Robot.EAST;
+                        robot.heading = "E";
+                        updatedRobot.heading = "S";
 
-                        robot.executeInstruction("R");
-                        expect(robot.heading).to.equal(Robot.SOUTH);
+                        var resultingRobot = executeInstruction(robot, planet, "R");
+                        expect(resultingRobot).to.deep.equal(updatedRobot);
 
                     });
 
@@ -476,10 +410,11 @@ describe("Robot", function() {
 
                     it("should change the robot's heading to west", function() {
 
-                        robot.heading = Robot.SOUTH;
+                        robot.heading = "S";
+                        updatedRobot.heading = "W";
 
-                        robot.executeInstruction("R");
-                        expect(robot.heading).to.equal(Robot.WEST);
+                        var resultingRobot = executeInstruction(robot, planet, "R");
+                        expect(resultingRobot).to.deep.equal(updatedRobot);
 
                     });
 
@@ -489,11 +424,12 @@ describe("Robot", function() {
 
                     it("should change the robot's heading to north", function() {
 
-                        robot.heading = Robot.WEST;
+                        robot.x = 0;
+                        robot.y = 0;
+                        robot.heading = "W";
 
-                        robot.executeInstruction("R");
-                        expect(robot.heading).to.equal(Robot.NORTH);
-
+                        var resultingRobot = executeInstruction(robot, planet, "R");
+                        expect(resultingRobot).to.deep.equal(updatedRobot);
 
                     });
 
@@ -508,11 +444,11 @@ describe("Robot", function() {
     describe("#stringToHeading()", function() {
 
         it("converts a given string to the appropriate heading without error", function() {
-            assert.equal(Robot.NORTH, Robot.stringToHeading("N"));
-            assert.equal(Robot.EAST, Robot.stringToHeading("E"));
-            assert.equal(Robot.SOUTH, Robot.stringToHeading("S"));
-            assert.equal(Robot.WEST, Robot.stringToHeading("W"));
-            assert.equal("?", Robot.stringToHeading("A"));
+            assert.equal(Robot.NORTH, stringToHeading("N"));
+            assert.equal(Robot.EAST, stringToHeading("E"));
+            assert.equal(Robot.SOUTH, stringToHeading("S"));
+            assert.equal(Robot.WEST, stringToHeading("W"));
+            assert.equal("?", stringToHeading("A"));
         });
 
     });
@@ -520,54 +456,39 @@ describe("Robot", function() {
     describe("#headingToString()", function() {
 
         it("converts a given heading to the appropriate string without error", function() {
-            assert.equal("N", Robot.headingToString(Robot.NORTH));
-            assert.equal("E", Robot.headingToString(Robot.EAST));
-            assert.equal("S", Robot.headingToString(Robot.SOUTH));
-            assert.equal("W", Robot.headingToString(Robot.WEST));
-            assert.equal("?", Robot.headingToString(99));
+            assert.equal("N", headingToString(Robot.NORTH));
+            assert.equal("E", headingToString(Robot.EAST));
+            assert.equal("S", headingToString(Robot.SOUTH));
+            assert.equal("W", headingToString(Robot.WEST));
+            assert.equal("?", headingToString(99));
         });
 
     });
 
     describe("#getFancyPositionInformation()", function() {
 
+        var robot;
+
+        beforeEach(function() {
+
+            robot = {
+                id: 1,
+                heading: "N",
+                instructions: ["F"],
+                x: 0,
+                y: 0,
+                lost: false
+            };
+
+        });
+
         it("appends LOST to the string if the robot is lost", function() {
-            var robot = new Robot(3, 3, "E", stubbedGridInformation);
-            robot.isLost = true;
-            expect(robot.getFancyPositionInformation()).to.contain("LOST");
+            robot.lost = true;
+            expect(getFancyPositionInformation(robot)).to.contain("LOST");
         });
 
         it("does not append LOST to the string if the robot is on the grid", function() {
-            var robot = new Robot(3, 3, "E", stubbedGridInformation);
-            expect(robot.getFancyPositionInformation()).not.to.contain("LOST");
-        });
-
-    });
-
-    describe("#updateScents()", function() {
-
-        it("should add a scent to the scent map if the given robot is lost", function() {
-            var planet = new Planet(5, 5);
-
-            var robot = new Robot(5, 4, "E", stubbedGridInformation);
-            robot.isLost = true;
-
-            planet.updateScents(robot);
-
-            assert.equal(planet.getSmellFromCoordinates(robot.xPosition, robot.yPosition), true);
-
-        });
-
-        it("should not add a scent to the scent map if the given robot is not lost", function() {
-            var planet = new Planet(5, 5);
-
-            var robot = new Robot(5, 4, "E", stubbedGridInformation);
-            robot.isLost = false;
-
-            planet.updateScents(robot);
-
-            assert.equal(planet.getSmellFromCoordinates(robot.xPosition, robot.yPosition), false);
-
+            expect(getFancyPositionInformation(robot)).not.to.contain("LOST");
         });
 
     });

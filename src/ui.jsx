@@ -59,8 +59,6 @@ class World extends React.Component {
          */
         this.state = {
 
-            setIntervalId: -1,
-
             // Every robot that exists in the world and its state
             robots: [],
 
@@ -76,6 +74,11 @@ class World extends React.Component {
             outputMessages: []
 
         };
+
+        this.setIntervalId = -1;
+
+        // TODO: Used for debugging, push state to this array after every tick so we can examine it later
+        this.savedStates = [];
 
     }
 
@@ -102,26 +105,28 @@ class World extends React.Component {
         var initialRobots = prepareRobots(instructionStack, planetBoundaries);
         var initialPlanet = { scents: {}, rows: parseInt(planetBoundaries[0], 10), cols: parseInt(planetBoundaries[1], 10) };
 
-        // Update the state of the world accordingly
+        // Update the state of the world accordingly: The callback starts the simulation
         this.setState({ robots: initialRobots, planet: initialPlanet },
 
             () => {
-                var id = setInterval(this._tick.bind(this), 500);
-                this.setState({setIntervalId: id});
+                this.setIntervalId = setInterval(this._tick.bind(this), 100);
             }
+
         );
 
     }
 
     // Update everything in the world by one instruction
+    // TODO: Make all of the data accesses immutable
     _tick() {
 
         // Use executeInstruction once on each robot to get the next state of the world
         var planet = this.state.planet;
-        var robots = this.state.robots.slice(0);
+        var robots = this.state.robots;
         var outputMessages = this.state.outputMessages.slice(0);
         var doneCount = 0;
 
+        // Map is immutable, return result to new array
         var newRobots = robots.map( robot => {
 
                 // If the robot does not have any instructions to execute or is lost, bail
@@ -130,12 +135,13 @@ class World extends React.Component {
                     return robot;
                 }
 
-                var instruction = robot.instructions.pop();
-                var newRobot = executeInstruction(robot, planet, instruction);
+                // Get a new robot by updating the state of the current one being processed
+                var newRobot = executeInstruction(robot, planet, robot.instructions[robot.instructions.length - 1]);
+                newRobot.instructions.pop();
 
                 if (newRobot.lost) {
                     // Leave a scent
-                    planet.scents[`${newRobot.x},${newRobot.y}`] = true;
+                    this.setState({ planet: { scents: { [`${newRobot.x},${newRobot.y}`]: true } } } );
                 }
 
                 return newRobot;
@@ -144,32 +150,35 @@ class World extends React.Component {
 
         );
 
+        // TODO: Debugging, push the current state so we can examine it later
+        this.savedStates.push(this.state);
 
+        // If every robot is done, we're finished
         if (doneCount === robots.length) {
 
             robots.map( robot => {
                 outputMessages.push(getFancyPositionInformation(robot));
             });
 
-            clearInterval(this.state.setIntervalId);
-            this.setState({outputMessages: outputMessages});
+            console.log(this.savedStates);
+
+            // Stop our update ticks and do a final state update
+            clearInterval(this.setIntervalId);
+            this.setState({robots: newRobots, outputMessages: outputMessages});
 
             return;
 
         }
 
-        // Update state
         this.setState({
-            robots: newRobots,
-            planet: planet,
-            outputMessages: outputMessages
+            robots: newRobots
         });
+
+        return;
 
     }
 
     render() {
-
-        console.log(this.state);
 
         // 0 is falsey so if the planet is 0, 0 it is undefined and we need to set everything up
         if (!(this.state.planet.rows && this.state.planet.cols)) {
@@ -282,12 +291,8 @@ class SideBar extends React.Component {
      * Save the instructions entered into the editor into the application's state when the submit button is clicked.
      */
     _handleGoClick() {
-
         var editor = document.getElementById("editor");
         this.props._setup(editor.value);
-
-        //setInterval(this._tick, 2000);
-
     }
 
     _handleSkipClick() {

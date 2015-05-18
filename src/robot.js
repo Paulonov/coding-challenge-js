@@ -8,7 +8,9 @@
  */
 "use strict";
 
-var Robot = {
+/*eslint-disable no-console*/
+
+export const Robot = {
     NUMBER_OF_DIRECTIONS: 4,
     NORTH: 0,
     EAST: 1,
@@ -45,7 +47,7 @@ export function stringToHeading(heading) {
  * @param  {int}    heading A numerical value representing the current heading.
  * @return {String}         The String form of that value.
  */
-function headingToString(heading) {
+export function headingToString(heading) {
 
     switch (heading) {
         case Robot.NORTH:
@@ -77,6 +79,7 @@ export function executeInstruction(robot, planet, instruction) {
     var lost = robot.lost;
 
     var smell = planet.scents[`${robot.x},${robot.y}`];
+    console.log(planet);
 
     if (typeof smell === "undefined") {
         smell = false;
@@ -122,7 +125,7 @@ export function executeInstruction(robot, planet, instruction) {
                     if ((xPosition + 1) > currentPlanetXBoundary && !smell) {
                         lost = true;
                     } else if ((xPosition + 1) > currentPlanetXBoundary && smell) {
-                            // Do nothing if we're about to leave the grid but we can smell lost robots
+                        // Do nothing if we're about to leave the grid but we can smell lost robots
                     } else {
                         xPosition = (xPosition + 1);
                     }

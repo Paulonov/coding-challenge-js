@@ -33,7 +33,7 @@ export function prepareRobots(instructionStack, planetBoundaries) {
         var y = parseInt(startingInformation[1], 10);
         var heading = startingInformation[2];
 
-        // Get the list of instructions for that robot from the top of the list, split on empty string to get chars
+        // Save the robot's instructions as a stack
         // TODO: We could always do this later and save the string as a whole first
         var startingInstructions = instructionStack.pop().trim().split("").reverse();
 
