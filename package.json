@@ -7,9 +7,11 @@
     "test": "./test"
   },
   "scripts": {
-    "dev": "webpack-dev-server -d --watch --progress --colors --config 'webpack.config.js'",
+    "dev": "webpack-dev-server -d --progress --colors --config 'webpack.config.js'",
     "dev-test": "webpack-dev-server 'mocha!./test/cover-tests.js' 'mocha!./test/instructionreader-test.js' 'mocha!./test/robot-test.js' --output-file test.js -d --watch --colors --progress --display-error-details --display-reasons --config 'webpack.config.testing.js'",
-    "test": "webpack './test/instructionreader-test.js' './test/robot-test.js' --output-file test.js --progress --display-error-details --display-reasons --config 'webpack.config.js' && mocha test.js"
+    "test": "webpack './test/instructionreader-test.js' './test/robot-test.js' --output-file test.js --progress --display-error-details --display-reasons --config 'webpack.config.testing.js' && mocha test.js",
+    "build": "webpack -d --watch --progress --colors --config 'webpack.config.js'",
+    "react-hot": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -28,7 +30,9 @@
     "coverjs-loader": "^0.5.0",
     "css-loader": "^0.12.0",
     "eslint-loader": "^0.11.2",
+    "eslint-plugin-react": "^2.3.0",
     "mocha-loader": "^0.7.1",
+    "react-hot-loader": "^1.2.7",
     "style-loader": "^0.12.2",
     "webpack": "^1.9.5",
     "webpack-dev-server": "^1.8.2"
@@ -51,7 +55,34 @@
       "no-alert": false,
       "no-console": false,
       "no-underscore-dangle": false,
-      "no-undef": false
-    }
+      "no-undef": false,
+      "no-shadow": false,
+      "react/display-name": true,
+      "react/jsx-boolean-value": true,
+      "react/jsx-quotes": true,
+      "react/jsx-no-undef": true,
+      "react/jsx-sort-props": true,
+      "react/jsx-sort-prop-types": true,
+      "react/jsx-uses-react": true,
+      "react/jsx-uses-vars": true,
+      "react/no-did-mount-set-state": true,
+      "react/no-did-update-set-state": true,
+      "react/no-multi-comp": true,
+      "react/no-unknown-property": true,
+      "react/prop-types": true,
+      "react/react-in-jsx-scope": true,
+      "react/self-closing-comp": true,
+      "react/sort-comp": true,
+      "react/wrap-multilines": true
+    },
+    "plugins": [
+      "react"
+    ]
+  },
+  "dependencies": {
+    "array-range": "^1.0.1",
+    "file-loader": "^0.8.1",
+    "react": "^0.13.3",
+    "url-loader": "^0.5.5"
   }
 }

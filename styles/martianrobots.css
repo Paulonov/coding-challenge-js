@@ -151,3 +151,11 @@ canvas {
 .output {
   margin-bottom: 0.75em;
 }
+
+.cell {
+  height: 70%;
+  width: 30%;
+  float: left;
+  border: 0.1em dashed #508FBB;
+  border-radius: 0.5em;
+}

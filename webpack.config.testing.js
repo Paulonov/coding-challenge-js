@@ -1,4 +1,5 @@
 var path = require("path");
+
 module.exports = {
   entry: "./src/entry.jsx",
   output: {
@@ -7,12 +8,35 @@ module.exports = {
   },
   module: {
     preLoaders: [
-      { test: /\.jsx?$/, exclude: /node_modules/, loader: "eslint-loader" }
+      {
+        test: /\.jsx?$/,
+        include: [
+          path.join(__dirname, "src"),
+          path.join(__dirname, "test")
+        ],
+        loader: "eslint-loader"
+      }
     ],
     loaders: [
-      { test: /\.js$/, exclude: [/node_modules/, /test/, /core.js/, /graphics.js/], loader: "coverjs-loader" },
-      { test: /\.jsx?$/, exclude: /node_modules/, loader: "babel-loader" },
-      { test: /\.css$/, loader: "style-loader!css-loader" },
+      {
+        test: /\.jsx?$/,
+        include: [
+          path.join(__dirname, "src"),
+          path.join(__dirname, "test")
+        ],
+        loaders: [
+          "coverjs-loader",
+          "babel-loader"
+        ]
+      },
+      {
+        test: /\.css$/,
+        include: [
+          path.join(__dirname, "styles"),
+          path.join(__dirname, "node_modules/coverjs-loader/")
+        ],
+        loader: "style-loader!css-loader"
+      }
     ]
   }
 };

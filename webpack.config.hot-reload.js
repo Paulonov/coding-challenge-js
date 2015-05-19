@@ -1,7 +1,11 @@
+var webpack = require("webpack");
 var path = require("path");
 
 module.exports = {
+  eval: "source-map",
   entry: [
+    "webpack-dev-server/client?http://localhost:8080",
+    "webpack/hot/only-dev-server",
     "./src/entry.jsx"
   ],
   output: {
@@ -20,7 +24,7 @@ module.exports = {
       {
         test: /\.jsx?$/,
         include: path.join(__dirname, "src"),
-        loader: "babel-loader"
+        loaders: ["react-hot", "babel-loader"]
       },
       {
         test: /\.css$/,
@@ -34,10 +38,8 @@ module.exports = {
       }
     ]
   },
-  eslint: {
-    emitWarning: true,
-    emitError: true,
-    failOnWarning: true,
-    failOnError: true
-  }
+  plugins: [
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.NoErrorsPlugin()
+  ]
 };

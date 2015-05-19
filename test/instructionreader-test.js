@@ -100,7 +100,7 @@
       let invalidInput = "4 3\n3A 4 N\nFFFFFFF";
       let errorMessage = "<b>Syntax Error on Line: </b>" + "3A 4 N";
 
-      expect( err => parseInstructions(invalidInput) ).to.throw(errorMessage);
+      expect(err => parseInstructions(invalidInput)).to.throw(errorMessage);
 
     });
 
@@ -109,7 +109,7 @@
       let invalidInput = "4 3\n3 4 N\nFRFLFR4N";
       let errorMessage = "<b>Syntax Error on Line: </b>" + "FRFLFR4N";
 
-      expect( err => parseInstructions(invalidInput) ).to.throw(errorMessage);
+      expect(err => parseInstructions(invalidInput)).to.throw(errorMessage);
 
     });
 
