@@ -9,11 +9,29 @@ export default class Row extends React.Component {
 
   render() {
 
+    var cells = [];
+
+    // Each cell is 10em wide so let's start at -8 to include a margin
+    var cellCounter = -8;
+
+    range(0, this.props.cols).forEach( (output, index) => {
+
+      var style = {
+        left: (cellCounter += 10) + "em",
+        top: 2 + (this.props.colNo * 10) + "em"
+      };
+
+      var cell = <Cell key={index} style={style}/>;
+      cells.push(cell);
+
+    });
+
     return (
       <div className="row">
-        {range(0, this.props.cols).map( (output, index) => <Cell key={index} /> )}
+        {cells}
       </div>
     );
+
   }
 
 }

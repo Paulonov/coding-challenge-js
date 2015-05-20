@@ -3,16 +3,16 @@
  */
  "use strict";
 
- import chai from "chai";
- let assert = chai.assert;
- let expect = chai.expect;
+import chai from "chai";
+let assert = chai.assert;
+let expect = chai.expect;
 
- let should = chai.should();
+let should = chai.should();
 
- import {Robot, stringToHeading, headingToString, executeInstruction, getFancyPositionInformation}
- from "../src/robot.js";
+import {Robot, stringToHeading, headingToString, executeInstruction, getFancyPositionInformation}
+from "../src/robot.js";
 
- describe("Robot", function() {
+describe("Robot", function() {
 
   let placementOutOfBounds = "Robot Placement Out of Bounds";
   let creationError = "Robot Creation Error";

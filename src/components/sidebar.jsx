@@ -56,7 +56,7 @@ export default class SideBar extends React.Component {
    * Save the instructions entered into the editor into the application's state when the submit button is clicked.
    */
   _handleGoClick() {
-    let editor = document.getElementById("editor");
+    let editor = React.findDOMNode(this.refs.editor);
     this.props._setup(editor.value);
   }
 
@@ -75,7 +75,7 @@ export default class SideBar extends React.Component {
       <div id="sidebar">
 
         <textarea
-          id="editor" placeholder="Enter your code here!" rows="30" cols="75">
+          id="editor" ref="editor" placeholder="Enter your code here!" rows="30" cols="75">
         </textarea>
 
         <div id="buttonBox">

@@ -153,9 +153,33 @@ canvas {
 }
 
 .cell {
-  height: 70%;
-  width: 30%;
+  position: absolute;
+  top: 2em;
+  left: 2em;
+  height: 10em;
+  width: 10em;
   float: left;
-  border: 0.1em dashed #508FBB;
-  border-radius: 0.5em;
+  border: 0.3em solid #B5F779;
+  opacity: 0.5;
+  display: block;
+  z-index: 0;
+}
+
+.robot {
+  position: absolute;
+  height: 3.5em;
+  width: 3.5em;
+  border: 0.3em solid #BFBFBF;
+  background-color: #EFEFEF;
+  float: left;
+  clear: both;
+  z-index: 1;
+  transition: 1s;
+}
+
+.robot p {
+  color: #BFBFBF;
+  font-size: 1em;
+  font-family: Arial, sans-serif;
+  text-align: center;
 }

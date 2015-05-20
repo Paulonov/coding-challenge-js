@@ -31,6 +31,9 @@ module.exports = {
         test: /\.(jpg|png)$/,
         include: path.join(__dirname, "images"),
         loader: "url-loader"
+      },
+      { test: require.resolve("react"),
+        loader: "expose?React"
       }
     ]
   },

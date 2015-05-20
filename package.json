@@ -8,8 +8,8 @@
   },
   "scripts": {
     "dev": "webpack-dev-server -d --progress --colors --config 'webpack.config.js'",
-    "dev-test": "webpack-dev-server 'mocha!./test/cover-tests.js' 'mocha!./test/instructionreader-test.js' 'mocha!./test/robot-test.js' --output-file test.js -d --watch --colors --progress --display-error-details --display-reasons --config 'webpack.config.testing.js'",
-    "test": "webpack './test/instructionreader-test.js' './test/robot-test.js' --output-file test.js --progress --display-error-details --display-reasons --config 'webpack.config.testing.js' && mocha test.js",
+    "dev-test": "webpack-dev-server 'mocha!./test/cover-tests.js' 'mocha!./test/instructionreader-test.js' 'mocha!./test/robot-test.js' --output-file testBundle.js -d --watch --colors --progress --display-error-details --display-reasons --config 'webpack.config.testing.js'",
+    "test": "webpack './test/instructionreader-test.js' './test/robot-test.js' --output-file testBundle.js --progress --display-error-details --display-reasons --target node --config 'webpack.config.testing.js' && mocha testBundle.js",
     "build": "webpack -d --watch --progress --colors --config 'webpack.config.js'",
     "react-hot": "node server.js"
   },
@@ -31,8 +31,13 @@
     "css-loader": "^0.12.0",
     "eslint-loader": "^0.11.2",
     "eslint-plugin-react": "^2.3.0",
+    "expose-loader": "^0.6.0",
+    "jsdom-no-contextify": "^3.1.0",
+    "json-loader": "^0.5.1",
     "mocha-loader": "^0.7.1",
+    "node-loader": "^0.5.0",
     "react-hot-loader": "^1.2.7",
+    "sinon": "git://github.com/cjohansen/Sinon.JS#sinon-2.0",
     "style-loader": "^0.12.2",
     "webpack": "^1.9.5",
     "webpack-dev-server": "^1.8.2"
@@ -57,6 +62,7 @@
       "no-underscore-dangle": false,
       "no-undef": false,
       "no-shadow": false,
+      "no-unused-expressions": false,
       "react/display-name": true,
       "react/jsx-boolean-value": true,
       "react/jsx-quotes": true,

@@ -5,6 +5,7 @@ import React from "react";
 import SideBar from "./sidebar.jsx";
 import OutputBox from "./outputbox.jsx";
 import Row from "./row.jsx";
+import Robot from "./robot.jsx";
 
 import {executeInstruction, getFancyPositionInformation} from "../robot.js";
 import {parseInstructions, prepareRobots} from "../instructionreader.js";
@@ -65,13 +66,13 @@ export default class World extends React.Component {
 
       // Use the instruction stack to set the initial state of the world
       let initialRobots = prepareRobots(instructionStack, planetBoundaries);
-      let initialPlanet = { scents: {}, rows: parseInt(planetBoundaries[0], 10), cols: parseInt(planetBoundaries[1], 10) };
+      let initialPlanet = { scents: {}, cols: parseInt(planetBoundaries[0], 10), rows: parseInt(planetBoundaries[1], 10) };
 
       // Update the state of the world accordingly: The callback starts the simulation
       this.setState({ robots: initialRobots, planet: initialPlanet },
 
         () => {
-          this.setIntervalId = setInterval(this._tick.bind(this), 100);
+          this.setIntervalId = setInterval(this._tick.bind(this), 1000);
         }
 
       );
@@ -147,10 +148,36 @@ export default class World extends React.Component {
 
   render() {
 
+    var robotNodes = [];
+
+    // Calculate where each robot needs to be
+    this.state.robots.forEach( (robot, index, array) => {
+
+      // Each cell is 10em x 10 em, use a margin of, say, 0.5em
+      // TODO: Stop using screen co-ordinates
+      var x = (robot.x * 10) + 0.5;
+      var y = (robot.y * 10) + 0.5;
+
+      // Test translation to Cartesian co-ordinates
+      // y = -y + (30 + 0.5);
+
+      var style = {
+        // Calculate these based on the size of the graphics container or something
+        top: x + "em",
+        left: y + "em",
+        zIndex: index
+      };
+
+      var robotNode = <Robot key={index} id={robot.id} x={robot.x} y={robot.y} heading={robot.heading} style={style} />;
+      robotNodes.push(robotNode);
+
+    });
+
     return (
       <div id="mainArea">
         <div id="graphicsContainer">
-          {range(0, this.state.planet.rows).map( (output, index) => <Row key={index} cols={this.state.planet.cols} /> )}
+          {range(0, this.state.planet.rows).map( (output, index) => <Row key={index} colNo={index} cols={this.state.planet.cols} /> )}
+          {robotNodes}
         </div>
         <SideBar _setup={this._setup.bind(this)} />
         <OutputBox outputData={this.state.outputMessages} />
