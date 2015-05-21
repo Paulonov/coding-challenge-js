@@ -133,11 +133,82 @@ export default class World extends React.Component {
 
           });
 
-          console.log(newRobot);
-
         }
 
         newRobots.push(newRobot);
+
+    });
+
+    // If every robot is done, we're finished
+    if (doneCount === robots.length) {
+
+      robots.forEach( (robot, index, array) => {
+        outputMessages.push(getFancyPositionInformation(robot));
+      });
+
+      // Stop our update ticks and do a final state update
+      clearInterval(this.setIntervalId);
+      this.setState({robots: newRobots, outputMessages: outputMessages});
+
+      return;
+
+    }
+
+    this.setState({
+      robots: newRobots
+    });
+
+    return;
+
+  }
+
+  _skip() {
+
+    // Use executeInstruction once on each robot to get the next state of the world
+    let planet = this.state.planet;
+    let robots = this.state.robots;
+    let outputMessages = this.state.outputMessages;
+    let doneCount = 0;
+
+    // Map is immutable, return result to new array
+    let newRobots = [];
+    robots.forEach( (robot, index, array) => {
+
+      // If the robot does not have any instructions to execute or is lost, bail
+      if (robot.lost || robot.instructions.length === 0) {
+        doneCount++;
+        newRobots.push(robot);
+        return;
+      }
+
+      let newRobot = robot;
+
+      while(newRobot.instructions.length > 0 && !newRobot.lost) {
+
+        // Get a new robot by updating the state of the current one being processed
+        newRobot = executeInstruction(newRobot, planet, newRobot.instructions[newRobot.instructions.length - 1]);
+        newRobot.instructions.pop();
+
+        if (newRobot.lost) {
+
+          // Leave a scent
+          this.setState({
+
+            planet: {
+              cols: planet.cols,
+              rows: planet.rows,
+              scents: { [`${newRobot.x},${newRobot.y}`]: true }
+            }
+
+          });
+
+          break;
+
+        }
+
+      }
+
+      newRobots.push(newRobot);
 
     });
 
@@ -211,7 +282,7 @@ export default class World extends React.Component {
           {range(0, this.state.planet.rows).map( (output, index) => <Row key={index} rowNo={index} cols={this.state.planet.cols} /> )}
           {robotNodes}
         </div>
-        <SideBar _setup={this._setup.bind(this)} />
+        <SideBar _setup={this._setup.bind(this)} _skip={this._skip.bind(this)}/>
         <OutputBox outputData={this.state.outputMessages} />
       </div>
     );

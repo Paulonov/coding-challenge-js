@@ -61,7 +61,7 @@ export default class SideBar extends React.Component {
   }
 
   _handleSkipClick() {
-      // TODO
+    this.props._skip();
   }
 
   /**
@@ -86,7 +86,7 @@ export default class SideBar extends React.Component {
             <div className="buttonText">Go!</div>
           </button>
 
-          <button className="buttons" id="skipButton" ref="skipButton" type="button">
+          <button className="buttons" id="skipButton" type="button" onClick={this._handleSkipClick.bind(this)}>
             <div className="buttonText">Skip Animation</div>
           </button>
 
