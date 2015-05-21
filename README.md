@@ -1,3 +1,5 @@
+[![Circle CI](https://circleci.com/gh/Paulonov/coding-challenge-js/tree/react-rewrite.svg?style=shield)](https://circleci.com/gh/Paulonov/coding-challenge-js/tree/react-rewrite)
+
 # Martian Robots
 A solution to Red Badger's developer programming problem using HTML5 and JavaScript. The program is written as a simulation through
 the use of the requestAnimationFrame API. The original implementation was written in Java and got as far as the GUI design phase before it was re-written. I decided to change the implementation as wrangling with Swing and the Java graphics API to create what I had in mind became frustrating and I'd never done any web development before; it turned this challenge into a huge learning experience!

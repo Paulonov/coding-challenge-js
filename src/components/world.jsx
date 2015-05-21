@@ -107,6 +107,7 @@ export default class World extends React.Component {
 
       // Map is immutable, return result to new array
       let newRobots = [];
+
       robots.forEach( (robot, index, array) => {
 
         // If the robot does not have any instructions to execute or is lost, bail
@@ -183,6 +184,7 @@ export default class World extends React.Component {
 
       let newRobot = robot;
 
+      // TODO: Execute each instruction one at a time for each robot rather than for one robot at a time
       while(newRobot.instructions.length > 0 && !newRobot.lost) {
 
         // Get a new robot by updating the state of the current one being processed
