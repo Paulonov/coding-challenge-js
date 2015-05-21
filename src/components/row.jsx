@@ -12,13 +12,13 @@ export default class Row extends React.Component {
     var cells = [];
 
     // Each cell is 10em wide so let's start at -8 to include a margin
-    var cellCounter = -8;
+    var cellCounter = -7;
 
     range(0, this.props.cols).forEach( (output, index) => {
 
       var style = {
         left: (cellCounter += 10) + "em",
-        top: 2 + (this.props.colNo * 10) + "em"
+        top: 3 + (this.props.rowNo * 10) + "em"
       };
 
       var cell = <Cell key={index} style={style}/>;

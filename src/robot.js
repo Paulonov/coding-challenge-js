@@ -81,8 +81,8 @@ export function executeInstruction(robot, planet, instruction) {
     smell = false;
   }
 
-  let currentPlanetXBoundary = planet.rows;
-  let currentPlanetYBoundary = planet.cols;
+  let currentPlanetXBoundary = planet.cols;
+  let currentPlanetYBoundary = planet.rows;
 
   if (robot.lost) {
     return robot;

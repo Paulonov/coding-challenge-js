@@ -51,6 +51,10 @@ export default class World extends React.Component {
      */
     _setup(instructionsString) {
 
+      // Clear the graphics
+      // TODO: Convert to not use document
+      React.unmountComponentAtNode(document.getElementById("graphicsContainer"));
+
       let instructionStack;
 
       // Convert the instructions passed in by the user into a stack
@@ -119,6 +123,7 @@ export default class World extends React.Component {
 
         }
 
+        console.log(newRobot);
         newRobots.push(newRobot);
 
     });
@@ -154,17 +159,14 @@ export default class World extends React.Component {
     this.state.robots.forEach( (robot, index, array) => {
 
       // Each cell is 10em x 10 em, use a margin of, say, 0.5em
-      // TODO: Stop using screen co-ordinates
-      var x = (robot.x * 10) + 0.5;
-      var y = (robot.y * 10) + 0.5;
+      var x = (robot.x * 10) + 1.3;
 
-      // Test translation to Cartesian co-ordinates
-      // y = -y + (30 + 0.5);
+      // Convert y value to Cartesian co-ordinates
+      var y = ((this.state.planet.rows - robot.y) * 10) + 1.5;
 
       var style = {
-        // Calculate these based on the size of the graphics container or something
-        top: x + "em",
-        left: y + "em",
+        top: y + "em",
+        left: x + "em",
         zIndex: index
       };
 
@@ -176,7 +178,7 @@ export default class World extends React.Component {
     return (
       <div id="mainArea">
         <div id="graphicsContainer">
-          {range(0, this.state.planet.rows).map( (output, index) => <Row key={index} colNo={index} cols={this.state.planet.cols} /> )}
+          {range(0, this.state.planet.rows).map( (output, index) => <Row key={index} rowNo={index} cols={this.state.planet.cols} /> )}
           {robotNodes}
         </div>
         <SideBar _setup={this._setup.bind(this)} />
