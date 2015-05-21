@@ -1,11 +1,13 @@
+/**
+ * outputbox.jsx
+ *
+ * The React component responsible for containing and displaying output messages.
+ */
 "use strict";
 
 import React from "react";
 import Output from "./output.jsx";
 
-/**
- * Used to contain output components that display output and error messages to the user.
- */
 export default class OutputBox extends React.Component {
 
   render() {

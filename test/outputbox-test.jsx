@@ -1,3 +1,8 @@
+/**
+ * outputbox-test.jsx
+ *
+ * A prototype test suite for the OutputBox React component. Includes jsdom so that it can be tested without a browser.
+ */
 "use strict";
 
 // Set up a headless browser

@@ -1,16 +1,17 @@
-[![Circle CI](https://circleci.com/gh/Paulonov/coding-challenge-js/tree/react-rewrite.svg?style=shield)](https://circleci.com/gh/Paulonov/coding-challenge-js/tree/react-rewrite)
+[![Circle CI](https://circleci.com/gh/Paulonov/coding-challenge-js/tree/master.svg?style=shield)](https://circleci.com/gh/Paulonov/coding-challenge-js/tree/master)
 
 # Martian Robots
-A solution to Red Badger's developer programming problem using HTML5 and JavaScript. The program is written as a simulation through
-the use of the requestAnimationFrame API. The original implementation was written in Java and got as far as the GUI design phase before it was re-written. I decided to change the implementation as wrangling with Swing and the Java graphics API to create what I had in mind became frustrating and I'd never done any web development before; it turned this challenge into a huge learning experience!
+A solution to Red Badger's developer programming rewritten to use ES6 and React. The program is written as a simulation through React's management of state. The original JavaScript version used the requestAnimationFrame API to achieve a similar goal.
 
 ## Usage
-Open up `martianrobots.html` in your browser of choice, copy in some instructions to the editor and click `Go` to watch your robots go on a little adventure. The `Skip Animation` button allows you to complete the simulation without showing any animations. As the simulation progresses, the final state of each robot is added to the output box below the grid. Some test data is included in the `data` folder.
+The tooling for this application is based around Webpack. After downloading the repo, run `npm install` inside of it followed by `npm run build` to get everything ready.
+
+Once built, open up `martianrobots.html` in your browser of choice, copy in some instructions to the editor and click `Go` to watch your robots go on a little adventure. The `Skip Animation` button allows you to complete the simulation without showing any animations. As the simulation progresses, the final state of each robot is added to the output box below the grid. Some test data is included in the `data` folder.
 
 ## Implementation
-The program is broken down into five modules, `Core`, `Graphics`, `Robot`, `Planet` and `InstructionReader`, with the `Core` bringing each of the modules together. The front end is a simple web page with a proportional layout so it *should* scale nicely at different resolutions and text sizes.
+The program is broken down into React components that are rendered in `entry.jsx`. The core component is the `World` within which all state and functions to update it are contained. Two addition modules, `robot.js` and `instructionreader.js` contain helper functions for parsing
 
-The simulation's logic is confined to the `Robot` and `Planet` modules. Graphics are updated based on the result of the logic update using time-based animation.
+Animation has been achieved through the use of CSS transitions; the simulation ticks every one second and between these ticks, a one second long CSS transition is used to animate the movement between each state.
 
 ## Extensions
 Currently, unimplemented instructions passed to a robot are simply ignored. Any new instructions should be added to the
@@ -35,17 +36,9 @@ With some refactoring this could probably be made more like implementing a new i
 ## TODO
 A few more nice features that could be added:
 
-1. **Unit testing:** The primary form of testing has been through a special test instruction set. Formalising this with a full test suite would make the program much more extensible in the future!
+1. **Re-sizable graphics:** The current graphics implementation does not scale to the size of the graphics container and so will massively overflow at larger planet sizes.
 
-2. **Dynamically resizable canvases:** Add an on-resize event listener that changes the internal resolution of each canvas. The canvases currently get internally resized once and then stretched according to some CSS rules if you change the window size.
-
-3. **Proportional brush sizes for drawing:** The lines making up the grid and each robot can get a bit thick as the grid size increases and the current solution is very temporary.
-
-4. **Off-screen rendering:** The Chrome CPU profiler shows the `strokeText` function as being quite expensive. The robot could be rendered off-screen once per animation cycle and then simply copied and drawn on screen.
-
-5. **Add a proper language parser:** Purely for "fun". The current instruction language is simple and assumed to be regular so it's currently parsed using regular expressions. A true parser would be far more future proof.
-
-6. **Mass refactoring:** Is encapsulation necessary? If so, the getters and setters associated with the Robot, Planet and InstructionReader objects could be turned into properties. Possibility for a performance boost.
+2. **Add a proper language parser:** Purely for "fun". The current instruction language is simple and assumed to be regular so it's currently parsed using regular expressions. A true parser would be far more future proof.
 
 ## Browser Testing
 The website front-end was designed at 1920x1080. Tested on:

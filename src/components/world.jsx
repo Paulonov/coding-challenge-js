@@ -1,3 +1,10 @@
+/**
+ * world.jsx
+ *
+ * The React component that acts as the core of the application. All logic is containing here along with the state of
+ * the world. When the simulation is running, it updates the state of the world every second and is accompanied by some
+ * nice CSS transitions as the robots move around.
+ */
 "use strict";
 
 import React from "react";
@@ -95,8 +102,9 @@ export default class World extends React.Component {
 
     }
 
-    // Update everything in the world by one instruction
-    // TODO: Make all of the data accesses immutable
+    /**
+     * Update the state of the world by one tick. On a tick, each robot executes a single instruction.
+     */
     _tick() {
 
       // Use executeInstruction once on each robot to get the next state of the world
@@ -163,6 +171,9 @@ export default class World extends React.Component {
 
   }
 
+  /**
+   * Used to jump to the end of the simulation if the user wishes.
+   */
   _skip() {
 
     // Use executeInstruction once on each robot to get the next state of the world
@@ -247,7 +258,10 @@ export default class World extends React.Component {
       // Each cell is 10em x 10 em, use a margin of, say, 0.5em
       var x = (robot.x * 10) + 1.3;
 
-      // Convert y value to Cartesian co-ordinates
+      /*
+       * Convert y value to Cartesian co-ordinates; the robots are positioned using top and left CSS offsets so we
+       * calculate where the robot is from the bottom of the grid rather than the top.
+       */
       var y = ((this.state.planet.rows - robot.y) * 10) + 1.5;
 
       var style = {};

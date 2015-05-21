@@ -1,3 +1,8 @@
+/**
+ * cell.jsx
+ *
+ * The React component responsible for building up the grid.
+ */
 "use strict";
 
 import React from "react";

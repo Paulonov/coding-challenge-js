@@ -1,3 +1,8 @@
+/**
+ * row.jsx
+ *
+ * The React component responsible for drawing each row of cells.
+ */
 "use strict";
 
 import React from "react";
@@ -16,6 +21,7 @@ export default class Row extends React.Component {
 
     range(0, this.props.cols).forEach( (output, index) => {
 
+      // Draw the next cell 10em to the right of the previous one
       var style = {
         left: (cellCounter += 10) + "em",
         top: 3 + (this.props.rowNo * 10) + "em"

@@ -1,5 +1,7 @@
 /**
  * robot-test.js
+ *
+ * A test suite for the Robot functions.
  */
  "use strict";
 

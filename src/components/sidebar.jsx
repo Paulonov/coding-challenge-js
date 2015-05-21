@@ -1,11 +1,15 @@
+/**
+ * sidebar.jsx
+ *
+ * The React component responsible for reading in instructions from a file and also starting the application when the Go
+ * button is clicked.
+ */
 "use strict";
 
 import React from "react";
 
 /**
  * The editable text area and buttons below it.
- *
- * TODO: The "Skip Animation" button should probably be part of the graphics component.
  */
 export default class SideBar extends React.Component {
 
@@ -60,14 +64,13 @@ export default class SideBar extends React.Component {
     this.props._setup(editor.value);
   }
 
+  /**
+   * Jump to the end of the simulation.
+   */
   _handleSkipClick() {
     this.props._skip();
   }
 
-  /**
-   * [render description]
-   * @return {[type]} [description]
-   */
   render() {
 
     return (

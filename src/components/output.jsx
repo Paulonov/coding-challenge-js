@@ -1,3 +1,8 @@
+/**
+ * output.jsx
+ *
+ * The React component used to display output messages within the output box.
+ */
 "use strict";
 
 import React from "react";

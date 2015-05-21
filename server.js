@@ -1,3 +1,10 @@
+/**
+ * server.js
+ *
+ * Used for testing the application using React and CSS hot loading with the npm run react-hot command.
+ */
+"use strict";
+
 var webpack = require("webpack");
 var WebpackDevServer = require("webpack-dev-server");
 var config = require("./webpack.config.hot-reload");

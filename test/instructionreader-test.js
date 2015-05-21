@@ -1,5 +1,7 @@
 /**
  * instructionreader-test.js
+ *
+ * A test suite for the InstructionReader functions.
  */
  "use strict";
 

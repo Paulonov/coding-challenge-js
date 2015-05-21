@@ -1,3 +1,8 @@
+/**
+ * martianrobots.jsx
+ *
+ * The React component used to contain the application.
+ */
 "use strict";
 
 import React from "react";

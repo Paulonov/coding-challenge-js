@@ -1,18 +1,15 @@
 /**
  * instructionreader.js
  *
- * Used to handle input data from text box. Parses data naively using regular expressions; this is explained in more
- * detail in the parse function.
- *
- * Properties: planetBoundaries, instructionStack, currentRobotInstructions, currentRobotStartingInformation
+ * Contains functions used to parse the user's input and convert it into usable robots.
  */
 "use strict";
 
 import {stringToHeading} from "./robot.js";
 
 /**
- * Prepare a robot for use if there is one available.
- * @return {Robot} A simple robot object containing the initial state
+ * Prepare the initial state of each robot in the world.
+ * @return {Array} An array containing robots in their initial position.
  */
 export function prepareRobots(instructionStack, planetBoundaries) {
 

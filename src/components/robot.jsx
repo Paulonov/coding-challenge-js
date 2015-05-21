@@ -1,3 +1,8 @@
+/**
+ * robot.jsx
+ *
+ * A React component responsible for drawing a robot on the grid.
+ */
 "use strict";
 
 import React from "react";

@@ -1,10 +1,7 @@
 /**
  * robot.js
  *
- * Contains the constructor required to create a Robot along with the logic to handle each instruction.
- *
- * Properties: xPosition, yPosition, heading, width, length, canvasXPosition, canvasYPosition, speed, isLost
- * TODO: Should these properties be set to some default values?
+ * Contains the executeInstruction function required to update a robot's position and some fancy output formatters.
  */
 "use strict";
 
@@ -64,7 +61,9 @@ export function headingToString(heading) {
 
 /**
  * Execute the instruction given to the robot and update its internal state.
- * @param  {char} instruction A character representing the instruction to execute.
+ * @param  {Object} robot  The robot to execute the instruction on.
+ * @param  {Object} planet The planet that the robot is moving around.
+ * @param  {char}   instruction A character representing the instruction to execute.
  * @return {A new robot object with an updated internal state}
  */
 export function executeInstruction(robot, planet, instruction) {
@@ -175,7 +174,7 @@ export function executeInstruction(robot, planet, instruction) {
 
 /**
  * Get some information about the robot that can be added to the output box.
- * @return {Object} An object with the properties robot, position and lost that can be presented in the output box.
+ * @return {String} A nicely formatted string that can be added to the output box.
  */
 export function getFancyPositionInformation(robot) {
 
