@@ -51,9 +51,21 @@ export default class World extends React.Component {
      */
     _setup(instructionsString) {
 
-      // Clear the graphics
-      // TODO: Convert to not use document
-      React.unmountComponentAtNode(document.getElementById("graphicsContainer"));
+      // Clear everything so we can start again
+      this.setState({
+
+          robots: [],
+
+          planet: {
+            cols: 0,
+            rows: 0
+          },
+
+          outputMessages: []
+
+      });
+
+      this.setIntervalId = -1;
 
       let instructionStack;
 
@@ -121,9 +133,10 @@ export default class World extends React.Component {
 
           });
 
+          console.log(newRobot);
+
         }
 
-        console.log(newRobot);
         newRobots.push(newRobot);
 
     });
@@ -164,11 +177,28 @@ export default class World extends React.Component {
       // Convert y value to Cartesian co-ordinates
       var y = ((this.state.planet.rows - robot.y) * 10) + 1.5;
 
-      var style = {
-        top: y + "em",
-        left: x + "em",
-        zIndex: index
-      };
+      var style = {};
+
+      // Don't show the robot if it's lost
+      if (robot.lost) {
+
+        style = {
+          top: y + "em",
+          left: x + "em",
+          zIndex: index,
+          opacity: 0,
+          visibility: "hidden"
+        };
+
+      } else {
+
+        style = {
+          top: y + "em",
+          left: x + "em",
+          zIndex: index
+        };
+
+      }
 
       var robotNode = <Robot key={index} id={robot.id} x={robot.x} y={robot.y} heading={robot.heading} style={style} />;
       robotNodes.push(robotNode);
